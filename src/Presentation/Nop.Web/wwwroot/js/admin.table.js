@@ -23,22 +23,19 @@ var selectedIds = [];
 
 
 function clearMasterCheckbox(tableSelector) {
-  var modelName = tableSelector.replace(/[#]/g, '');
-  var selector = '#mastercheckbox_' + modelName;
-  $(selector).prop('checked', false).change();
+  var selector = '.mastercheckbox';
+  $(selector, tableSelector).prop('checked', false).change();
   selectedIds = [];
 }
 
 
 function updateMasterCheckbox(tableSelector) {
-  var modelName = tableSelector.replace(/[#]/g, '');
-  var selector = 'mastercheckbox_' + modelName;
+  var selector = 'mastercheckbox';
+  var numChkBoxes = $('input[type=checkbox][class!=' + selector + '][class=checkboxGroups]', $(tableSelector)).length;
+  var numChkBoxesChecked = $('input[type=checkbox][class!=' + selector + '][class= checkboxGroups]:checked', $(tableSelector)).length;
 
-  var numChkBoxes = $(tableSelector + ' input[type=checkbox][id!=' + selector + '][class=checkboxGroups]').length;
-  var numChkBoxesChecked = $(tableSelector + ' input[type=checkbox][id!=' + selector + '][class= checkboxGroups]:checked').length;
-  $('#mastercheckbox_' + modelName).prop('checked', numChkBoxes == numChkBoxesChecked && numChkBoxes > 0);
+  $('.mastercheckbox', $(tableSelector)).prop('checked', numChkBoxes == numChkBoxesChecked && numChkBoxes > 0);
 }
-
 
 function updateTableSrc(tableSelector, isMasterCheckBoxUsed) {
   var dataSrc = $(tableSelector).DataTable().data();

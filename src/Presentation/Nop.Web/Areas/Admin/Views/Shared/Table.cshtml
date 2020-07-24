@@ -76,11 +76,11 @@
         @if (isMasterCheckBoxUsed)
         {
             <text>
-            $('#mastercheckbox_@Model.Name').click(function () {
+            $('.mastercheckbox', $('#@Model.Name').parents('.dataTables_scroll').first()).first().click(function () {
                 $('#@Model.Name .checkboxGroups').prop('checked', $(this).is(':checked')).change();
             });
 
-            $('#@Model.Name').on('change', 'input[type=checkbox][id!=mastercheckbox_@Model.Name][class=checkboxGroups]', function (e) {
+            $('#@Model.Name').on('change', 'input[type=checkbox][class!=mastercheckbox][class=checkboxGroups]', function (e) {
                 var $check = $(this);
                 var checked = jQuery.inArray($check.val(), selectedIds);
                 if ($check.is(':checked') == true) {
@@ -92,7 +92,7 @@
                         return item != $check.val();
                     });
                 }
-                updateMasterCheckbox('#@Model.Name');
+                updateMasterCheckbox($('#@Model.Name').parents('.dataTables_scroll').first());
             });
             </text>
         }
@@ -346,11 +346,12 @@
         if (curModel.ChildTable != null)
         {
             <text>
-                <script>
+                <script>                   
                 function getchild_@(tableName)(d) {
                     return '<table id="child' + d.@(curModel.PrimaryKeyColumn) + '" class="table table-bordered table-hover dataTable" width="100%" style="padding-left:2%;"></table>';
                 }
-                $(document).ready(function () {
+                    $(document).ready(function () {
+
                     // Add event listener for opening and closing childs
                     $('#@curModel.Name tbody').on('click', 'td.child-control', function () {
                         var tr = $(this).closest('tr');
@@ -374,12 +375,33 @@
                             tr.addClass('shown');
                             tdi.first().removeClass('fa-caret-right');
                             tdi.first().addClass(' fa-caret-down');
+                            ///
+                            $('.mastercheckbox', $(classid).parents('.dataTables_scroll').first()).first().click(function () {
+                                $(classid + ' .checkboxGroups').prop('checked', $(this).is(':checked')).change();
+                            });
+
+                            $(classid).on('change', 'input[type=checkbox][class!=mastercheckbox][class=checkboxGroups]', function (e) {
+                                var $check = $(this);
+                                var checked = jQuery.inArray($check.val(), selectedIds);
+                                if ($check.is(':checked') == true) {
+                                    if (checked == -1) {
+                                        selectedIds.push($check.val());
+                                    }
+                                } else if (checked > -1) {
+                                    selectedIds = $.grep(selectedIds, function (item, index) {
+                                        return item != $check.val();
+                                    });
+                                }
+                                updateMasterCheckbox($(classid).parents('.dataTables_scroll').first());
+                            });
+                            ///
                         }
                         $('#@curModel.Name').DataTable().columns.adjust();
                     });
                 });
                 </script>
+                
             </text>
-        }
+        }            
     }
 }

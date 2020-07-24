@@ -228,7 +228,7 @@ columns: [
                 if (!string.IsNullOrEmpty(column.Title) && column.IsMasterCheckBox)
                 {
                     <text>
-                    title: '<div class="checkbox"><label><input id="mastercheckbox_@Model.Name" type="checkbox" />@JavaScriptEncoder.Default.Encode(column.Title)</label></div>',
+                    title: '<div class="checkbox"><label><input class="mastercheckbox" type="checkbox" />@JavaScriptEncoder.Default.Encode(column.Title)</label></div>',
                     </text>
                 }
                 else
@@ -236,7 +236,7 @@ columns: [
                     if (string.IsNullOrEmpty(column.Title) && column.IsMasterCheckBox)
                     {
                         <text>
-                        title: '<input id="mastercheckbox_@Model.Name" type="checkbox"/>',
+                        title: '<input class="mastercheckbox" type="checkbox"/>',
                         </text>
                     }
                 }
@@ -409,5 +409,4 @@ columns: [
         @if (i != Model.ColumnCollection.Count - 1) {<text>,</text>}
         </text>
     }
-]
-           
+]           
