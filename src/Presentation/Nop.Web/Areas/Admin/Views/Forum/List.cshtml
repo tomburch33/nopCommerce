@@ -77,6 +77,102 @@
                             },
                             ColumnCollection = new List<ColumnProperty>
                             {
+                                new ColumnProperty(nameof(BlogCommentModel.Id))
+                            {
+                                IsMasterCheckBox = true,
+                                Render = new RenderCheckBox("checkbox_comments"),
+                                ClassName =  NopColumnClassDefaults.CenterAll,
+                                Width = "50"
+                            },
+                                new ColumnProperty(nameof(ForumModel.Name))
+                                {
+                                    Title = T("Admin.ContentManagement.Forums.Forum.Fields.Name").Text,
+                                    Width = "300"
+                                },
+                                new ColumnProperty(nameof(ForumModel.DisplayOrder))
+                                {
+                                    Title = T("Admin.ContentManagement.Forums.Forum.Fields.DisplayOrder").Text,
+                                    Width = "150",
+                                    ClassName =  NopColumnClassDefaults.CenterAll
+                                },
+                                new ColumnProperty(nameof(ForumModel.CreatedOn))
+                                {
+                                    Title = T("Admin.ContentManagement.Forums.Forum.Fields.CreatedOn").Text,
+                                    Width = "150",
+                                    Render = new RenderDate()
+                                },
+                                new ColumnProperty(nameof(ForumModel.Id))
+                                {
+                                    Title = T("Admin.Common.Edit").Text,
+                                    Width = "50",
+                                    ClassName = NopColumnClassDefaults.Button,
+                                    Render = new RenderButtonEdit(new DataUrl("EditForum"))
+                                }
+                            }
+                        }
+                    }) 
+                    
+                    @await Html.PartialAsync("Table", new DataTablesModel
+                    {
+                        Name = "forumgroup-grid2",
+                        UrlRead = new DataUrl("ForumGroupList", "Forum", null),
+                        PrimaryKeyColumn = nameof(ForumGroupModel.Id),
+                        Length = Model.PageSize,
+                        LengthMenu = Model.AvailablePageSizes,
+                        ColumnCollection = new List<ColumnProperty>
+                        {
+                            new ColumnProperty(null)
+                            {
+                                Render = new RenderChildCaret(),
+                                Width = "5",
+                                Searchable = false,
+                                ClassName =  NopColumnClassDefaults.ChildControl
+                            },
+                            new ColumnProperty(nameof(ForumGroupModel.Name))
+                            {
+                                Title = T("Admin.ContentManagement.Forums.ForumGroup.Fields.Name").Text,
+                                Width = "300"
+                            },
+                            new ColumnProperty(nameof(ForumGroupModel.DisplayOrder))
+                            {
+                                Title = T("Admin.ContentManagement.Forums.ForumGroup.Fields.DisplayOrder").Text,
+                                Width = "100",
+                                ClassName =  NopColumnClassDefaults.CenterAll
+                            },
+                            new ColumnProperty(nameof(ForumGroupModel.CreatedOn))
+                            {
+                                Title = T("Admin.ContentManagement.Forums.ForumGroup.Fields.CreatedOn").Text,
+                                Width = "200",
+                                Render = new RenderDate()
+                            },
+                            new ColumnProperty(nameof(ForumGroupModel.Id))
+                            {
+                                Title = T("Admin.Common.Edit").Text,
+                                Width = "50",
+                                ClassName = NopColumnClassDefaults.Button,
+                                Render = new RenderButtonEdit(new DataUrl("EditForumGroup"))
+                            }
+                        },
+                        ChildTable = new DataTablesModel
+                        {
+                            Name = "forumdetails-grid2",
+                            UrlRead = new DataUrl("ForumList", "Forum", null),
+                            IsChildTable = true,
+                            Length = Model.PageSize,
+                            LengthMenu = Model.AvailablePageSizes,
+                            Filters = new List<FilterParameter>
+                            {
+                                new FilterParameter(nameof(ForumModel.ForumGroupId), nameof(ForumGroupModel.Id), true)
+                            },
+                            ColumnCollection = new List<ColumnProperty>
+                            {
+                                new ColumnProperty(nameof(BlogCommentModel.Id))
+                            {
+                                IsMasterCheckBox = true,
+                                Render = new RenderCheckBox("checkbox_comments"),
+                                ClassName =  NopColumnClassDefaults.CenterAll,
+                                Width = "50"
+                            },
                                 new ColumnProperty(nameof(ForumModel.Name))
                                 {
                                     Title = T("Admin.ContentManagement.Forums.Forum.Fields.Name").Text,

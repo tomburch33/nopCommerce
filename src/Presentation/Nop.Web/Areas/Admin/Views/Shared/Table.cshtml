@@ -52,8 +52,6 @@
 
     var listOfTables = new List<DataTablesModel>();
     GetAllModels(Model, listOfTables);
-
-     var modelName = ReplaceName(Model.Name);
 }
 
 <script>
@@ -348,7 +346,7 @@
             <text>
                 <script>                   
                 function getchild_@(tableName)(d) {
-                    return '<table id="child' + d.@(curModel.PrimaryKeyColumn) + '" class="table table-bordered table-hover dataTable" width="100%" style="padding-left:2%;"></table>';
+                    return '<table id="child' + d.@(curModel.PrimaryKeyColumn) + '_@(tableName)' + '" class="table table-bordered table-hover dataTable" width="100%" style="padding-left:2%;"></table>';
                 }
                     $(document).ready(function () {
 
@@ -368,7 +366,7 @@
                         else {
                             // Open this row
                             row.child(getchild_@(tableName)(row.data())).show();
-                            var classid = '#child' + row.data().@(curModel.PrimaryKeyColumn);
+                            var classid = '#child' + row.data().@(curModel.PrimaryKeyColumn) + '_@(tableName)';
                             $(classid).DataTable({
                                 @await Html.PartialAsync("_Table.Definition", curModel.ChildTable)
                             }).draw;

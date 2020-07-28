@@ -1,12 +1,29 @@
 ﻿@model DataTablesModel
 @using System.Net;
 
+@functions
+{
+    string GetUrl(DataUrl dataUrl)
+    {
+        return !string.IsNullOrEmpty(dataUrl?.ActionName) && !string.IsNullOrEmpty(dataUrl.ControllerName)
+            ? Url.Action(dataUrl.ActionName, dataUrl.ControllerName, dataUrl.RouteValues)
+            : !string.IsNullOrEmpty(dataUrl.Url)
+            ? $"{(dataUrl.Url.StartsWith("~/", StringComparison.Ordinal) ? Url.Content(dataUrl.Url) : dataUrl.Url).TrimEnd('/')}" + (!dataUrl.TrimEnd ? "/" : "")
+            : string.Empty;
+    }
+
+    string ReplaceName(string str)
+    {
+        return str.Replace("-", "_");
+    }
+}
+
 @{
     //the locale which MomentJS should use - the default is en (English).
     var locale = "en";
 
     //Model name for js function names
-    var model_name = Model.Name.Replace("-", "_");
+    var model_name = ReplaceName(Model.Name);
 
     //dom
     var buttonsPanel = "";
@@ -30,26 +47,7 @@
     {
         dom = Model.Dom;
     }
-}
 
-@functions
-{
-    string GetUrl(DataUrl dataUrl)
-    {
-        return !string.IsNullOrEmpty(dataUrl?.ActionName) && !string.IsNullOrEmpty(dataUrl.ControllerName)
-            ? Url.Action(dataUrl.ActionName, dataUrl.ControllerName, dataUrl.RouteValues)
-            : !string.IsNullOrEmpty(dataUrl.Url)
-            ? $"{(dataUrl.Url.StartsWith("~/", StringComparison.Ordinal) ? Url.Content(dataUrl.Url) : dataUrl.Url).TrimEnd('/')}" + (!dataUrl.TrimEnd ? "/" : "")
-            : string.Empty;
-    }
-
-    string ReplaceName(string str)
-    {
-        return str.Replace("-", "_");
-    }
-}
-@{ 
-    var modelName = ReplaceName(Model.Name);
     //check using MasterCheckBox
     var isMasterCheckBoxUsed = Model.ColumnCollection.Any(x => x.IsMasterCheckBox);
 }
