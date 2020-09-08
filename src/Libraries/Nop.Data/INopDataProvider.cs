@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Linq.Expressions;
 using LinqToDB;
 using LinqToDB.Data;
@@ -79,6 +80,15 @@ namespace Nop.Data
         /// <typeparam name="TEntity">Entity type</typeparam>
         /// <param name="entities">Collection of Entities</param>
         void BulkInsertEntities<TEntity>(IEnumerable<TEntity> entities) where TEntity : BaseEntity;
+
+        /// <summary>
+        /// Exclude no matched items from source query
+        /// </summary>
+        /// <typeparam name="TEntity">Entity type</typeparam>
+        /// <param name="items">Items for matching</param>
+        /// <param name="query">Source query</param>
+        /// <returns>Collection items</returns>
+        IList<TEntity> ExcludeNoMatchedItems<TEntity>(IList<TempEntity> items, IQueryable<TEntity> query) where TEntity : BaseEntity;
 
         /// <summary>
         /// Gets the name of a foreign key

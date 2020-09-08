@@ -85,8 +85,18 @@ namespace Nop.Data
                 if (typeof(TEntity).GetInterface(nameof(ISoftDeletedEntity)) != null)
                     query = Entities.OfType<ISoftDeletedEntity>().Where(entry => !entry.Deleted).OfType<TEntity>();
 
+                //prepare temp table
+                var tempEntities = new List<TempEntity>();
+                foreach(var id in ids)
+                {
+                    var entity = new TempEntity
+                    {
+                        ItemId = id
+                    };
+                    tempEntities.Add(entity);
+                }
                 //get entries
-                var entries = query.Where(entry => ids.Contains(entry.Id)).ToList();
+                var entries = _dataProvider.ExcludeNoMatchedItems(tempEntities, query).ToList();
 
                 //sort by passed identifiers
                 var sortedEntries = new List<TEntity>();

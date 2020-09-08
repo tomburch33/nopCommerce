@@ -229,6 +229,25 @@ namespace Nop.Data
         }
 
         /// <summary>
+        /// Exclude no matched items from source query
+        /// </summary>
+        /// <typeparam name="TEntity">Entity type</typeparam>
+        /// <param name="items">Items for matching</param>
+        /// <param name="query">Source query</param>
+        /// <returns>Collection items</returns>
+        public IList<TEntity> ExcludeNoMatchedItems<TEntity>(IList<TempEntity> items, IQueryable<TEntity> query) where TEntity : BaseEntity
+        {
+            using var dataContext = CreateDataConnection();
+            using var tempTable = dataContext.CreateTempTable(items, tableName: "ItemsTemp");
+
+            var result = from q in query
+                 from e in tempTable.InnerJoin(entity => entity.ItemId == q.Id)
+                 select q;
+
+            return result.ToList();
+        }
+
+        /// <summary>
         /// Executes command returns number of affected records.
         /// </summary>
         /// <param name="sqlStatement">Command text</param>
