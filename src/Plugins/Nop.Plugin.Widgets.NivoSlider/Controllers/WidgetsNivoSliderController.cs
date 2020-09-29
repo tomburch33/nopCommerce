@@ -176,8 +176,19 @@ namespace Nop.Plugin.Widgets.NivoSlider.Controllers
                 nivoSliderSettings.Picture5Id
             };
 
+            //to avoid deleting shared pictures check if this picture is not used as a value of the shared setting
+            var sharedNivoSliderSettings = _settingService.LoadSetting<NivoSliderSettings>();
+            var sharedPictureIds = new[]
+            {
+                sharedNivoSliderSettings.Picture1Id,
+                sharedNivoSliderSettings.Picture2Id,
+                sharedNivoSliderSettings.Picture3Id,
+                sharedNivoSliderSettings.Picture4Id,
+                sharedNivoSliderSettings.Picture5Id
+            };
+
             //delete an old picture (if deleted or updated)
-            foreach (var pictureId in previousPictureIds.Except(currentPictureIds))
+            foreach (var pictureId in previousPictureIds.Except(sharedPictureIds).Except(currentPictureIds))
             { 
                 var previousPicture = _pictureService.GetPictureById(pictureId);
                 if (previousPicture != null)
