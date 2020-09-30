@@ -11490,11 +11490,14 @@
   <LocaleResource Name="Admin.Help.Forums">
     <Value>Community forums</Value>
   </LocaleResource>
+  <LocaleResource Name="Admin.Help.SolutionPartners">
+    <Value>Solution partners</Value>
+  </LocaleResource>
   <LocaleResource Name="Admin.Help.SupportServices">
     <Value>Premium support services</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Help.Topics">
-    <Value>Help topics</Value>
+    <Value>Documentation</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Home">
     <Value>Home</Value>
