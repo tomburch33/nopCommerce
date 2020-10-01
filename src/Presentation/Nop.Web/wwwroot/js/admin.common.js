@@ -37,6 +37,17 @@ $(document).ready(function () {
             return false;
         }
     });
+
+    //the code below allows to jump to a certain panel (specified as an anchor in an url)
+    //we added this to fix the existing AdminLTE bug (https://github.com/ColorlibHQ/AdminLTE/issues/3070)
+    $(document).ready(function () {
+      if (window.location.hash) {
+        setTimeout(function () {
+          var hash = window.location.hash;
+          window.location.replace(hash);
+        }, 1700);
+      }
+    });
 });
 
 function checkAllOverriddenStoreValue(item) {
