@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 using Nop.Core.Domain.Forums;
-using Nop.Data;
+using Nop.Data.Migrations;
 using Nop.Services.Localization;
 using Nop.Web.Areas.Admin.Models.Forums;
 using Nop.Web.Framework.Validators;
@@ -9,12 +9,12 @@ namespace Nop.Web.Areas.Admin.Validators.Forums
 {
     public partial class ForumValidator : BaseNopValidator<ForumModel>
     {
-        public ForumValidator(ILocalizationService localizationService, INopDataProvider dataProvider)
+        public ForumValidator(ILocalizationService localizationService, IMigrationManager migrationManager)
         {
             RuleFor(x => x.Name).NotEmpty().WithMessage(localizationService.GetResource("Admin.ContentManagement.Forums.Forum.Fields.Name.Required"));
             RuleFor(x => x.ForumGroupId).NotEmpty().WithMessage(localizationService.GetResource("Admin.ContentManagement.Forums.Forum.Fields.ForumGroupId.Required"));
 
-            SetDatabaseValidationRules<Forum>(dataProvider);
+            SetDatabaseValidationRules<Forum>(migrationManager);
         }
     }
 }

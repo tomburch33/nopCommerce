@@ -36,39 +36,15 @@ namespace Nop.Tests
 
         #endregion
 
-        #region Utils
-
-        private void UpdateOutputParameters(DataConnection dataConnection, DataParameter[] dataParameters)
-        {
-            if (dataParameters is null || dataParameters.Length == 0)
-                return;
-
-            foreach (var dataParam in dataParameters.Where(p => p.Direction == ParameterDirection.Output))
-                UpdateParameterValue(dataConnection, dataParam);
-        }
-
-        private void UpdateParameterValue(DataConnection dataConnection, DataParameter parameter)
-        {
-            if (dataConnection is null)
-                throw new ArgumentNullException(nameof(dataConnection));
-
-            if (parameter is null)
-                throw new ArgumentNullException(nameof(parameter));
-
-            if (dataConnection.Command is IDbCommand command &&
-                command.Parameters.Count > 0 &&
-                command.Parameters.Contains(parameter.Name) &&
-                command.Parameters[parameter.Name] is IDbDataParameter param)
-                parameter.Value = param.Value;
-        }
-
-        #endregion
-
         #region Methods
 
         public void CreateDatabase(string collation, int triesToConnect = 10)
         {
-            ExecuteNonQuery("PRAGMA journal_mode=WAL;");
+            using (new ReaderWriteLockDisposable(_locker, ReaderWriteLockType.Read))
+            {
+                var command = new CommandInfo(DataContext, "PRAGMA journal_mode=WAL;");
+                var affectedRecords = command.Execute();
+            }
         }
 
         /// <summary>
@@ -197,7 +173,7 @@ namespace Nop.Tests
         /// </summary>
         /// <typeparam name="TEntity">Entity type</typeparam>
         /// <returns>Queryable source</returns>
-        public ITable<TEntity> GetTable<TEntity>() where TEntity : BaseEntity
+        public IQueryable<TEntity> GetTable<TEntity>() where TEntity : BaseEntity
         {
             using (new ReaderWriteLockDisposable(_locker, ReaderWriteLockType.Read))
                 return DataContext.GetTable<TEntity>();
@@ -300,99 +276,25 @@ namespace Nop.Tests
             return AdditionalSchema?.GetEntityDescriptor(typeof(TEntity));
         }
 
-        /// <summary>
-        /// Executes command using System.Data.CommandType.StoredProcedure command type and
-        /// returns results as collection of values of specified type
-        /// </summary>
-        /// <typeparam name="T">Result record type</typeparam>
-        /// <param name="procedureName">Procedure name</param>
-        /// <param name="parameters">Command parameters</param>
-        /// <returns>Returns collection of query result records</returns>
-        public IList<T> QueryProc<T>(string procedureName, params DataParameter[] parameters)
-        {
-            using (new ReaderWriteLockDisposable(_locker, ReaderWriteLockType.Read))
-            {
-                var command = new CommandInfo(DataContext, procedureName, parameters);
-                var rez = command.QueryProc<T>()?.ToList();
-                UpdateOutputParameters(DataContext, parameters);
-                return rez ?? new List<T>();
-            }
-        }
-
-        /// <summary>
-        /// Executes SQL command and returns results as collection of values of specified type
-        /// </summary>
-        /// <typeparam name="T">Type of result items</typeparam>
-        /// <param name="sql">SQL command text</param>
-        /// <param name="parameters">Parameters to execute the SQL command</param>
-        /// <returns>Collection of values of specified type</returns>
-        public IList<T> Query<T>(string sql, params DataParameter[] parameters)
-        {
-            using (new ReaderWriteLockDisposable(_locker, ReaderWriteLockType.Read))
-                return DataContext.Query<T>(sql, parameters)?.ToList() ?? new List<T>();
-        }
-
-        /// <summary>
-        /// Executes command returns number of affected records.
-        /// </summary>
-        /// <param name="sqlStatement">Command text</param>
-        /// <param name="dataParameters">Command parameters</param>
-        /// <returns>Number of records, affected by command execution.</returns>
-        public int ExecuteNonQuery(string sqlStatement, params DataParameter[] dataParameters)
-        {
-            using (new ReaderWriteLockDisposable(_locker, ReaderWriteLockType.Read))
-            {
-                var command = new CommandInfo(DataContext, sqlStatement, dataParameters);
-                var affectedRecords = command.Execute();
-
-                UpdateOutputParameters(DataContext, dataParameters);
-
-                return affectedRecords;
-            }
-        }
-
-        /// <summary>
-        /// Executes command using LinqToDB.Mapping.StoredProcedure command type and returns
-        /// single value
-        /// </summary>
-        /// <typeparam name="T">Result record type</typeparam>
-        /// <param name="procedureName">Procedure name</param>
-        /// <param name="parameters">Command parameters</param>
-        /// <returns>Resulting value</returns>
-        public T ExecuteStoredProcedure<T>(string procedureName, params DataParameter[] parameters)
-        {
-            using (new ReaderWriteLockDisposable(_locker, ReaderWriteLockType.Read))
-            {
-                var command = new CommandInfo(DataContext, procedureName, parameters);
-
-                var result = command.ExecuteProc<T>();
-                UpdateOutputParameters(DataContext, parameters);
-
-                return result;
-            }
-        }
-
-        /// <summary>
-        /// Executes command using LinqToDB.Mapping.StoredProcedure command type and returns
-        /// number of affected records.
-        /// </summary>
-        /// <param name="procedureName">Procedure name</param>
-        /// <param name="parameters">Command parameters</param>
-        /// <returns>Number of records, affected by command execution.</returns>
-        public int ExecuteStoredProcedure(string procedureName, params DataParameter[] parameters)
-        {
-            using (new ReaderWriteLockDisposable(_locker, ReaderWriteLockType.Read))
-            {
-                var command = new CommandInfo(DataContext, procedureName, parameters);
-
-                var affectedRecords = command.ExecuteProc();
-                UpdateOutputParameters(DataContext, parameters);
-
-                return affectedRecords;
-            }
-        }
-
         public ITempDataStorage<TItem> CreateTempDataStorage<TItem>(string storageKey, IQueryable<TItem> query) where TItem : class
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Truncates database table
+        /// </summary>
+        /// <param name="resetIdentity">Performs reset identity column</param>
+        /// <typeparam name="TEntity">Entity type</typeparam>
+        public virtual void Truncate<TEntity>(bool resetIdentity = false) where TEntity : BaseEntity
+        {
+            using (new ReaderWriteLockDisposable(_locker))
+                DataContext.GetTable<TEntity>().Truncate(resetIdentity);
+        }
+
+        public IDictionary<int, string> GetFieldHashes<TEntity>(Expression<Func<TEntity, bool>> predicate, 
+            Expression<Func<TEntity, int>> keySelector, 
+            Expression<Func<TEntity, object>> fieldSelector) where TEntity : BaseEntity
         {
             throw new NotImplementedException();
         }

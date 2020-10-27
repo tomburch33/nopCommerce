@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Transactions;
-using LinqToDB;
-using LinqToDB.Data;
 using Nop.Core;
 using Nop.Core.Caching;
 using Nop.Core.Domain.Common;
@@ -24,7 +22,7 @@ namespace Nop.Data
         private readonly INopDataProvider _dataProvider;
         private readonly IStaticCacheManager _staticCacheManager;
 
-        private ITable<TEntity> _entities;
+        private IQueryable<TEntity> _entities;
 
         #endregion
 
@@ -37,6 +35,8 @@ namespace Nop.Data
             _eventPublisher = eventPublisher;
             _dataProvider = dataProvider;
             _staticCacheManager = staticCacheManager;
+
+            _entities = _dataProvider.GetTable<TEntity>();
         }
 
         #endregion
@@ -56,7 +56,7 @@ namespace Nop.Data
 
             TEntity getEntity()
             {
-                return Entities.FirstOrDefault(entity => entity.Id == Convert.ToInt32(id));
+                return _entities.FirstOrDefault(entity => entity.Id == Convert.ToInt32(id));
             }
 
             if (getCacheKey == null)
@@ -81,9 +81,9 @@ namespace Nop.Data
 
             IList<TEntity> getByIds()
             {
-                var query = Table;
+                var query = _entities;
                 if (typeof(TEntity).GetInterface(nameof(ISoftDeletedEntity)) != null)
-                    query = Entities.OfType<ISoftDeletedEntity>().Where(entry => !entry.Deleted).OfType<TEntity>();
+                    query = _entities.OfType<ISoftDeletedEntity>().Where(entry => !entry.Deleted).OfType<TEntity>();
 
                 //get entries
                 var entries = query.Where(entry => ids.Contains(entry.Id)).ToList();
@@ -120,7 +120,7 @@ namespace Nop.Data
         {
             IList<TEntity> getAll()
             {
-                var query = func != null ? func(Table) : Table;
+                var query = func != null ? func(_entities) : _entities;
                 return query.ToList();
             }
 
@@ -144,7 +144,7 @@ namespace Nop.Data
         public virtual IPagedList<TEntity> GetAllPaged(Func<IQueryable<TEntity>, IQueryable<TEntity>> func = null,
             int pageIndex = 0, int pageSize = int.MaxValue, bool getOnlyTotalCount = false)
         {
-            var query = func != null ? func(Table) : Table;
+            var query = func != null ? func(_entities) : _entities;
 
             return new PagedList<TEntity>(query, pageIndex, pageSize, getOnlyTotalCount);
         }
@@ -306,23 +306,12 @@ namespace Nop.Data
         }
 
         /// <summary>
-        /// Executes SQL using System.Data.CommandType.StoredProcedure command type and returns results as collection of values of specified type
-        /// </summary>
-        /// <param name="procedureName">Procedure name</param>
-        /// <param name="parameters">Command parameters</param>
-        /// <returns>Entity entries</returns>
-        public virtual IList<TEntity> EntityFromSql(string procedureName, params DataParameter[] parameters)
-        {
-            return _dataProvider.QueryProc<TEntity>(procedureName, parameters?.ToArray());
-        }
-
-        /// <summary>
         /// Truncates database table
         /// </summary>
         /// <param name="resetIdentity">Performs reset identity column</param>
         public virtual void Truncate(bool resetIdentity = false)
         {
-            _dataProvider.GetTable<TEntity>().Truncate(resetIdentity);
+            _dataProvider.Truncate<TEntity>(resetIdentity);
         }
 
         #endregion
@@ -332,12 +321,7 @@ namespace Nop.Data
         /// <summary>
         /// Gets a table
         /// </summary>
-        public virtual IQueryable<TEntity> Table => Entities;
-
-        /// <summary>
-        /// Gets an entity set
-        /// </summary>
-        protected virtual ITable<TEntity> Entities => _entities ??= _dataProvider.GetTable<TEntity>();
+        public virtual IQueryable<TEntity> Table => _entities;
 
         #endregion
     }

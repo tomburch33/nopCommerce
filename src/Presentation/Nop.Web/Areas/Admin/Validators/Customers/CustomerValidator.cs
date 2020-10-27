@@ -2,7 +2,7 @@
 using System.Linq;
 using FluentValidation;
 using Nop.Core.Domain.Customers;
-using Nop.Data;
+using Nop.Data.Migrations;
 using Nop.Services.Customers;
 using Nop.Services.Directory;
 using Nop.Services.Localization;
@@ -16,7 +16,7 @@ namespace Nop.Web.Areas.Admin.Validators.Customers
         public CustomerValidator(CustomerSettings customerSettings,
             ICustomerService customerService,
             ILocalizationService localizationService,
-            INopDataProvider dataProvider,
+            IMigrationManager migrationManager,
             IStateProvinceService stateProvinceService)
         {
             //ensure that valid email address is entered if Registered role is checked to avoid registered customers with empty email address
@@ -120,7 +120,7 @@ namespace Nop.Web.Areas.Admin.Validators.Customers
                     .When(x => IsRegisteredCustomerRoleChecked(x, customerService));
             }
 
-            SetDatabaseValidationRules<Customer>(dataProvider);
+            SetDatabaseValidationRules<Customer>(migrationManager);
         }
 
         private bool IsRegisteredCustomerRoleChecked(CustomerModel model, ICustomerService customerService)

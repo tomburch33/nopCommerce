@@ -4,6 +4,7 @@ using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using LinqToDB;
 using LinqToDB.Data;
 using LinqToDB.DataProvider;
@@ -18,7 +19,7 @@ using StackExchange.Profiling.Data;
 
 namespace Nop.Data
 {
-    public abstract class BaseDataProvider
+    public abstract class BaseSqlDataProvider
     {
         #region Utils
 
@@ -51,40 +52,27 @@ namespace Nop.Data
 
         }
 
-        private void UpdateParameterValue(DataConnection dataConnection, DataParameter parameter)
-        {
-            if (dataConnection is null)
-                throw new ArgumentNullException(nameof(dataConnection));
-
-            if (parameter is null)
-                throw new ArgumentNullException(nameof(parameter));
-
-            if (dataConnection.Command is IDbCommand command &&
-                command.Parameters.Count > 0 &&
-                command.Parameters.Contains(parameter.Name) &&
-                command.Parameters[parameter.Name] is IDbDataParameter param)
-            {
-                parameter.Value = param.Value;
-            }
-        }
-
-        private void UpdateOutputParameters(DataConnection dataConnection, DataParameter[] dataParameters)
-        {
-            if (dataParameters is null || dataParameters.Length == 0)
-                return;
-
-            foreach (var dataParam in dataParameters.Where(p => p.Direction == ParameterDirection.Output))
-            {
-                UpdateParameterValue(dataConnection, dataParam);
-            }
-        }
-
         /// <summary>
         /// Gets a connection to the database for a current data provider
         /// </summary>
         /// <param name="connectionString">Connection string</param>
         /// <returns>Connection to a database</returns>
         protected abstract IDbConnection GetInternalDbConnection(string connectionString);
+
+        /// <summary>
+        /// Gets a data hash from database side
+        /// </summary>
+        /// <param name="binaryData">Array for a hashing function</param>
+        /// <param name="limit">Allowed limit input value</param>
+        /// <returns>Data hash</returns>
+        /// <remarks>
+        /// For SQL Server 2014 (12.x) and earlier, allowed input values are limited to 8000 bytes. 
+        /// https://docs.microsoft.com/en-us/sql/t-sql/functions/hashbytes-transact-sql
+        /// </remarks>
+        [Sql.Expression("CONVERT(VARCHAR(128), HASHBYTES('SHA2_512', SUBSTRING({0}, 0, {1})), 2)", ServerSideOnly = true, Configuration = ProviderName.SqlServer2008)]
+        [Sql.Expression("SHA2({0}, 512)", ServerSideOnly = true, Configuration = ProviderName.MySql)]
+        protected static string Hash(object binaryData, int limit)
+            => throw new InvalidOperationException("This function should be used only in database code");
 
         /// <summary>
         /// Creates the database connection
@@ -141,14 +129,27 @@ namespace Nop.Data
             return new TempSqlDataStorage<TItem>(storeKey, query, CreateDataConnection);
         }
 
-        /// <summary>
-        /// Returns mapped entity descriptor.
-        /// </summary>
-        /// <typeparam name="TEntity">Entity type</typeparam>
-        /// <returns>Mapping descriptor</returns>
-        public EntityDescriptor GetEntityDescriptor<TEntity>() where TEntity : BaseEntity
+        public virtual IDictionary<int, string> GetFieldHashes<TEntity>(Expression<Func<TEntity, bool>> predicate,
+            Expression<Func<TEntity, int>> keySelector,
+            Expression<Func<TEntity, object>> fieldSelector) where TEntity : BaseEntity
         {
-            return GetMappingSchema()?.GetEntityDescriptor(typeof(TEntity));
+            if (!(keySelector.Body is MemberExpression keyMember) ||
+                !(keyMember.Member is PropertyInfo keyPropInfo))
+                throw new ArgumentException($"Expression '{keySelector}' refers to method or field, not a property.");
+
+            if (!(fieldSelector.Body is MemberExpression member) ||
+                !(member.Member is PropertyInfo propInfo))
+                throw new ArgumentException($"Expression '{fieldSelector}' refers to a method or field, not a property.");
+
+            var hashes = GetTable<TEntity>()
+                .Where(predicate)
+                .Select(x => new
+                {
+                    Id = Sql.Property<int>(x, keyPropInfo.Name),
+                    Hash = Hash(Sql.Property<object>(x, propInfo.Name), 8000)
+                });
+
+            return hashes.ToDictionary(p => p.Id, p => p.Hash);
         }
 
         /// <summary>
@@ -157,7 +158,7 @@ namespace Nop.Data
         /// </summary>
         /// <typeparam name="TEntity">Entity type</typeparam>
         /// <returns>Queryable source</returns>
-        public virtual ITable<TEntity> GetTable<TEntity>() where TEntity : BaseEntity
+        public virtual IQueryable<TEntity> GetTable<TEntity>() where TEntity : BaseEntity
         {
             return new DataContext(LinqToDbDataProvider, CurrentConnectionString) { MappingSchema = GetMappingSchema() }
                 .GetTable<TEntity>();
@@ -243,87 +244,14 @@ namespace Nop.Data
         }
 
         /// <summary>
-        /// Executes command returns number of affected records.
+        /// Truncates database table
         /// </summary>
-        /// <param name="sqlStatement">Command text</param>
-        /// <param name="dataParameters">Command parameters</param>
-        /// <returns>Number of records, affected by command execution.</returns>
-        public virtual int ExecuteNonQuery(string sqlStatement, params DataParameter[] dataParameters)
+        /// <param name="resetIdentity">Performs reset identity column</param>
+        /// <typeparam name="TEntity">Entity type</typeparam>
+        public virtual void Truncate<TEntity>(bool resetIdentity = false) where TEntity : BaseEntity
         {
-            using var dataContext = CreateDataConnection();
-            var command = new CommandInfo(dataContext, sqlStatement, dataParameters);
-            var affectedRecords = command.Execute();
-
-            UpdateOutputParameters(dataContext, dataParameters);
-
-            return affectedRecords;
-        }
-
-        /// <summary>
-        /// Executes command using LinqToDB.Mapping.StoredProcedure command type and returns
-        /// single value
-        /// </summary>
-        /// <typeparam name="T">Result record type</typeparam>
-        /// <param name="procedureName">Procedure name</param>
-        /// <param name="parameters">Command parameters</param>
-        /// <returns>Resulting value</returns>
-        public virtual T ExecuteStoredProcedure<T>(string procedureName, params DataParameter[] parameters)
-        {
-            using var dataContext = CreateDataConnection();
-            var command = new CommandInfo(dataContext, procedureName, parameters);
-
-            var result = command.ExecuteProc<T>();
-            UpdateOutputParameters(dataContext, parameters);
-
-            return result;
-        }
-
-        /// <summary>
-        /// Executes command using LinqToDB.Mapping.StoredProcedure command type and returns
-        /// number of affected records.
-        /// </summary>
-        /// <param name="procedureName">Procedure name</param>
-        /// <param name="parameters">Command parameters</param>
-        /// <returns>Number of records, affected by command execution.</returns>
-        public virtual int ExecuteStoredProcedure(string procedureName, params DataParameter[] parameters)
-        {
-            using var dataContext = CreateDataConnection();
-            var command = new CommandInfo(dataContext, procedureName, parameters);
-
-            var affectedRecords = command.ExecuteProc();
-            UpdateOutputParameters(dataContext, parameters);
-
-            return affectedRecords;
-        }
-
-        /// <summary>
-        /// Executes command using System.Data.CommandType.StoredProcedure command type and
-        /// returns results as collection of values of specified type
-        /// </summary>
-        /// <typeparam name="T">Result record type</typeparam>
-        /// <param name="procedureName">Procedure name</param>
-        /// <param name="parameters">Command parameters</param>
-        /// <returns>Returns collection of query result records</returns>
-        public virtual IList<T> QueryProc<T>(string procedureName, params DataParameter[] parameters)
-        {
-            using var dataContext = CreateDataConnection();
-            var command = new CommandInfo(dataContext, procedureName, parameters);
-            var rez = command.QueryProc<T>()?.ToList();
-            UpdateOutputParameters(dataContext, parameters);
-            return rez ?? new List<T>();
-        }
-
-        /// <summary>
-        /// Executes SQL command and returns results as collection of values of specified type
-        /// </summary>
-        /// <typeparam name="T">Type of result items</typeparam>
-        /// <param name="sql">SQL command text</param>
-        /// <param name="parameters">Parameters to execute the SQL command</param>
-        /// <returns>Collection of values of specified type</returns>
-        public virtual IList<T> Query<T>(string sql, params DataParameter[] parameters)
-        {
-            using var dataContext = CreateDataConnection();
-            return dataContext.Query<T>(sql, parameters)?.ToList() ?? new List<T>();
+            using var dataContext = CreateDataConnection(LinqToDbDataProvider);
+            dataContext.GetTable<TEntity>().Truncate(resetIdentity);
         }
 
         #endregion

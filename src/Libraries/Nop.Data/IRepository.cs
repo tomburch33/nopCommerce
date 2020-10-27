@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using LinqToDB.Data;
 using Nop.Core;
 using Nop.Core.Caching;
 
@@ -107,14 +106,6 @@ namespace Nop.Data
         /// <param name="entity">Entity entry</param>
         /// <returns>Copy of the passed entity entry</returns>
         TEntity LoadOriginalCopy(TEntity entity);
-
-        /// <summary>
-        /// Executes SQL using System.Data.CommandType.StoredProcedure command type and returns results as collection of values of specified type
-        /// </summary>
-        /// <param name="procedureName">Procedure name</param>
-        /// <param name="parameters">Command parameters</param>
-        /// <returns>Entity entries</returns>
-        IList<TEntity> EntityFromSql(string procedureName, params DataParameter[] parameters);
 
         /// <summary>
         /// Truncates database table

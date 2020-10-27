@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using FluentValidation;
 using Nop.Core.Domain.Localization;
-using Nop.Data;
+using Nop.Data.Migrations;
 using Nop.Services.Localization;
 using Nop.Web.Areas.Admin.Models.Localization;
 using Nop.Web.Framework.Validators;
@@ -10,7 +10,7 @@ namespace Nop.Web.Areas.Admin.Validators.Localization
 {
     public partial class LanguageValidator : BaseNopValidator<LanguageModel>
     {
-        public LanguageValidator(ILocalizationService localizationService, INopDataProvider dataProvider)
+        public LanguageValidator(ILocalizationService localizationService, IMigrationManager migrationManager)
         {
             RuleFor(x => x.Name).NotEmpty().WithMessage(localizationService.GetResource("Admin.Configuration.Languages.Fields.Name.Required"));
             RuleFor(x => x.LanguageCulture)
@@ -33,7 +33,7 @@ namespace Nop.Web.Areas.Admin.Validators.Localization
             RuleFor(x => x.UniqueSeoCode).NotEmpty().WithMessage(localizationService.GetResource("Admin.Configuration.Languages.Fields.UniqueSeoCode.Required"));
             RuleFor(x => x.UniqueSeoCode).Length(2).WithMessage(localizationService.GetResource("Admin.Configuration.Languages.Fields.UniqueSeoCode.Length"));
 
-            SetDatabaseValidationRules<Language>(dataProvider, "UniqueSeoCode");
+            SetDatabaseValidationRules<Language>(migrationManager, "UniqueSeoCode");
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 using Nop.Core.Domain.Vendors;
-using Nop.Data;
+using Nop.Data.Migrations;
 using Nop.Services.Localization;
 using Nop.Services.Seo;
 using Nop.Web.Areas.Admin.Models.Vendors;
@@ -10,7 +10,7 @@ namespace Nop.Web.Areas.Admin.Validators.Vendors
 {
     public partial class VendorValidator : BaseNopValidator<VendorModel>
     {
-        public VendorValidator(ILocalizationService localizationService, INopDataProvider dataProvider)
+        public VendorValidator(ILocalizationService localizationService, IMigrationManager migrationManager)
         {
             RuleFor(x => x.Name).NotEmpty().WithMessage(localizationService.GetResource("Admin.Vendors.Fields.Name.Required"));
 
@@ -27,7 +27,7 @@ namespace Nop.Web.Areas.Admin.Validators.Vendors
             RuleFor(x => x.SeName).Length(0, NopSeoDefaults.SearchEngineNameLength)
                 .WithMessage(string.Format(localizationService.GetResource("Admin.SEO.SeName.MaxLengthValidation"), NopSeoDefaults.SearchEngineNameLength));
 
-            SetDatabaseValidationRules<Vendor>(dataProvider);
+            SetDatabaseValidationRules<Vendor>(migrationManager);
         }
     }
 }

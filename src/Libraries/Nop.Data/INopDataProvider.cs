@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
-using LinqToDB;
-using LinqToDB.Data;
 using LinqToDB.Mapping;
 using Nop.Core;
 
@@ -116,7 +114,7 @@ namespace Nop.Data
         /// </summary>
         /// <typeparam name="TEntity">Entity type</typeparam>
         /// <returns>Queryable source</returns>
-        ITable<TEntity> GetTable<TEntity>() where TEntity : BaseEntity;
+        IQueryable<TEntity> GetTable<TEntity>() where TEntity : BaseEntity;
 
         /// <summary>
         /// Get the current identity value
@@ -162,57 +160,14 @@ namespace Nop.Data
         void SetTableIdent<TEntity>(int ident) where TEntity : BaseEntity;
 
         /// <summary>
-        /// Returns mapped entity descriptor
+        /// Truncates database table
         /// </summary>
-        /// <typeparam name="TEntity">Type of entity</typeparam>
-        /// <returns>Mapped entity descriptor</returns>
-        EntityDescriptor GetEntityDescriptor<TEntity>() where TEntity : BaseEntity;
+        /// <param name="resetIdentity">Performs reset identity column</param>
+        void Truncate<TEntity>(bool resetIdentity = false) where TEntity : BaseEntity;
 
-        /// <summary>
-        /// Executes command using System.Data.CommandType.StoredProcedure command type and
-        /// returns results as collection of values of specified type
-        /// </summary>
-        /// <typeparam name="T">Result record type</typeparam>
-        /// <param name="procedureName">Procedure name</param>
-        /// <param name="parameters">Command parameters</param>
-        /// <returns>Returns collection of query result records</returns>
-        IList<T> QueryProc<T>(string procedureName, params DataParameter[] parameters);
-
-        /// <summary>
-        /// Executes command and returns results as collection of values of specified type
-        /// </summary>
-        /// <typeparam name="T">Result record type</typeparam>
-        /// <param name="sql">Command text</param>
-        /// <param name="parameters">Command parameters</param>
-        /// <returns>Returns collection of query result records</returns>
-        IList<T> Query<T>(string sql, params DataParameter[] parameters);
-
-        /// <summary>
-        /// Executes command and returns number of affected records.
-        /// </summary>
-        /// <param name="sqlStatement">Command text</param>
-        /// <param name="dataParameters">Command parameters</param>
-        /// <returns>Number of records, affected by command execution.</returns>
-        int ExecuteNonQuery(string sqlStatement, params DataParameter[] dataParameters);
-
-        /// <summary>
-        /// Executes command using LinqToDB.Mapping.StoredProcedure command type and returns
-        /// single value
-        /// </summary>
-        /// <typeparam name="T">Result record type</typeparam>
-        /// <param name="procedureName">Procedure name</param>
-        /// <param name="parameters">Command parameters</param>
-        /// <returns>Resulting value</returns>
-        T ExecuteStoredProcedure<T>(string procedureName, params DataParameter[] parameters);
-
-        /// <summary>
-        /// Executes command using LinqToDB.Mapping.StoredProcedure command type and returns
-        /// number of affected records.
-        /// </summary>
-        /// <param name="procedureName">Procedure name</param>
-        /// <param name="parameters">Command parameters</param>
-        /// <returns>Returns collection of query result records</returns>
-        int ExecuteStoredProcedure(string procedureName, params DataParameter[] parameters);
+        IDictionary<int, string> GetFieldHashes<TEntity>(Expression<Func<TEntity, bool>> predicate, 
+            Expression<Func<TEntity, int>> keySelector,
+            Expression<Func<TEntity, object>> fieldSelector) where TEntity : BaseEntity;
 
         #endregion
 

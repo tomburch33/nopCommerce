@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
 using LinqToDB;
 using LinqToDB.Data;
@@ -18,7 +16,7 @@ using Nop.Data.Migrations;
 
 namespace Nop.Data
 {
-    public class MySqlNopDataProvider : BaseDataProvider, INopDataProvider
+    public class MySqlNopDataProvider : BaseSqlDataProvider, INopDataProvider
     {
         #region Fields
 

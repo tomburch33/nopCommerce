@@ -18,7 +18,7 @@ namespace Nop.Data
     /// <summary>
     /// Represents the MS SQL Server data provider
     /// </summary>
-    public partial class MsSqlNopDataProvider : BaseDataProvider, INopDataProvider
+    public partial class MsSqlNopDataProvider : BaseSqlDataProvider, INopDataProvider
     {
         #region Utils
 

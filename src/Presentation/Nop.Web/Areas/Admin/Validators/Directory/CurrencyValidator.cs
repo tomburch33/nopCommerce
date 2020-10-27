@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using FluentValidation;
 using Nop.Core.Domain.Directory;
-using Nop.Data;
+using Nop.Data.Migrations;
 using Nop.Services.Localization;
 using Nop.Web.Areas.Admin.Models.Directory;
 using Nop.Web.Framework.Validators;
@@ -10,7 +10,7 @@ namespace Nop.Web.Areas.Admin.Validators.Directory
 {
     public partial class CurrencyValidator : BaseNopValidator<CurrencyModel>
     {
-        public CurrencyValidator(ILocalizationService localizationService, INopDataProvider dataProvider)
+        public CurrencyValidator(ILocalizationService localizationService, IMigrationManager migrationManager)
         {
             RuleFor(x => x.Name)
                 .NotEmpty().WithMessage(localizationService.GetResource("Admin.Configuration.Currencies.Fields.Name.Required"))
@@ -41,7 +41,7 @@ namespace Nop.Web.Areas.Admin.Validators.Directory
                 })
                 .WithMessage(localizationService.GetResource("Admin.Configuration.Currencies.Fields.DisplayLocale.Validation"));
 
-            SetDatabaseValidationRules<Currency>(dataProvider);
+            SetDatabaseValidationRules<Currency>(migrationManager);
         }
     }
 }

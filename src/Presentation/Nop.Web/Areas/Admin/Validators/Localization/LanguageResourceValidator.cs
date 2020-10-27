@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 using Nop.Core.Domain.Localization;
-using Nop.Data;
+using Nop.Data.Migrations;
 using Nop.Services.Localization;
 using Nop.Web.Areas.Admin.Models.Localization;
 using Nop.Web.Framework.Validators;
@@ -9,7 +9,7 @@ namespace Nop.Web.Areas.Admin.Validators.Localization
 {
     public partial class LanguageResourceValidator : BaseNopValidator<LocaleResourceModel>
     {
-        public LanguageResourceValidator(ILocalizationService localizationService, INopDataProvider dataProvider)
+        public LanguageResourceValidator(ILocalizationService localizationService, IMigrationManager migrationManager)
         {
             //if validation without this set rule is applied, in this case nothing will be validated
             //it's used to prevent auto-validation of child models
@@ -23,7 +23,7 @@ namespace Nop.Web.Areas.Admin.Validators.Localization
                     .NotEmpty()
                     .WithMessage(localizationService.GetResource("Admin.Configuration.Languages.Resources.Fields.Value.Required"));
 
-                SetDatabaseValidationRules<LocaleStringResource>(dataProvider);
+                SetDatabaseValidationRules<LocaleStringResource>(migrationManager);
             });
         }
     }
