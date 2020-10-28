@@ -63,15 +63,14 @@ namespace Nop.Data
         /// Gets a data hash from database side
         /// </summary>
         /// <param name="binaryData">Array for a hashing function</param>
-        /// <param name="limit">Allowed limit input value</param>
         /// <returns>Data hash</returns>
         /// <remarks>
         /// For SQL Server 2014 (12.x) and earlier, allowed input values are limited to 8000 bytes. 
         /// https://docs.microsoft.com/en-us/sql/t-sql/functions/hashbytes-transact-sql
         /// </remarks>
-        [Sql.Expression("CONVERT(VARCHAR(128), HASHBYTES('SHA2_512', SUBSTRING({0}, 0, {1})), 2)", ServerSideOnly = true, Configuration = ProviderName.SqlServer2008)]
-        [Sql.Expression("SHA2({0}, 512)", ServerSideOnly = true, Configuration = ProviderName.MySql)]
-        protected static string Hash(object binaryData, int limit)
+        [Sql.Expression("CONVERT(VARCHAR(128), HASHBYTES('SHA2_512', SUBSTRING({0}, 0, 8000)), 2)", ServerSideOnly = true, Configuration = ProviderName.SqlServer2008)]
+        [Sql.Expression("SHA2({0}, 512)", ServerSideOnly = true, Configuration = ProviderName.MySqlOfficial)]
+        protected static string SqlSha2(object binaryData)
             => throw new InvalidOperationException("This function should be used only in database code");
 
         /// <summary>
@@ -129,6 +128,14 @@ namespace Nop.Data
             return new TempSqlDataStorage<TItem>(storeKey, query, CreateDataConnection);
         }
 
+        /// <summary>
+        /// Get hash values of a stored entity field
+        /// </summary>
+        /// <param name="predicate">A function to test each element for a condition.</param>
+        /// <param name="keySelector">A key selector which should project to a dictionary key</param>
+        /// <param name="fieldSelector">A field selector to apply a transform to a hash value</param>
+        /// <typeparam name="TEntity">Entity type</typeparam>
+        /// <returns>Dictionary</returns>
         public virtual IDictionary<int, string> GetFieldHashes<TEntity>(Expression<Func<TEntity, bool>> predicate,
             Expression<Func<TEntity, int>> keySelector,
             Expression<Func<TEntity, object>> fieldSelector) where TEntity : BaseEntity
@@ -146,7 +153,7 @@ namespace Nop.Data
                 .Select(x => new
                 {
                     Id = Sql.Property<int>(x, keyPropInfo.Name),
-                    Hash = Hash(Sql.Property<object>(x, propInfo.Name), 8000)
+                    Hash = SqlSha2(Sql.Property<object>(x, propInfo.Name))
                 });
 
             return hashes.ToDictionary(p => p.Id, p => p.Hash);

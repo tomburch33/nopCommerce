@@ -41,7 +41,6 @@ namespace Nop.Services.Media
         #region Ctor
 
         public AzurePictureService(AppSettings appSettings,
-            INopDataProvider dataProvider,
             IDownloadService downloadService,
             IHttpContextAccessor httpContextAccessor,
             INopFileProvider fileProvider,
@@ -54,8 +53,7 @@ namespace Nop.Services.Media
             IUrlRecordService urlRecordService,
             IWebHelper webHelper,
             MediaSettings mediaSettings)
-            : base(dataProvider,
-                  downloadService,
+            : base(downloadService,
                   httpContextAccessor,
                   fileProvider,
                   productAttributeParser,

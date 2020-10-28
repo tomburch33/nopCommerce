@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
-using LinqToDB.Mapping;
 using Nop.Core;
 
 namespace Nop.Data
@@ -165,6 +164,14 @@ namespace Nop.Data
         /// <param name="resetIdentity">Performs reset identity column</param>
         void Truncate<TEntity>(bool resetIdentity = false) where TEntity : BaseEntity;
 
+        /// <summary>
+        /// Get hash values of a stored entity field
+        /// </summary>
+        /// <param name="predicate">A function to test each element for a condition.</param>
+        /// <param name="keySelector">A key selector which should project to a dictionary key</param>
+        /// <param name="fieldSelector">A field selector to apply a transform to a hash value</param>
+        /// <typeparam name="TEntity">Entity type</typeparam>
+        /// <returns>Dictionary</returns>
         IDictionary<int, string> GetFieldHashes<TEntity>(Expression<Func<TEntity, bool>> predicate, 
             Expression<Func<TEntity, int>> keySelector,
             Expression<Func<TEntity, object>> fieldSelector) where TEntity : BaseEntity;

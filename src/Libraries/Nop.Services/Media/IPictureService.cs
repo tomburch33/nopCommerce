@@ -181,13 +181,6 @@ namespace Nop.Services.Media
         bool StoreInDb { get; set; }
 
         /// <summary>
-        /// Get pictures hashes
-        /// </summary>
-        /// <param name="picturesIds">Pictures Ids</param>
-        /// <returns></returns>
-        IDictionary<int, string> GetPicturesHash(int[] picturesIds);
-
-        /// <summary>
         /// Get product picture (for shopping cart and order details pages)
         /// </summary>
         /// <param name="product">Product</param>

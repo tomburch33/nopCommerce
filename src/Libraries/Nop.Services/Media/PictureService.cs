@@ -31,7 +31,6 @@ namespace Nop.Services.Media
     {
         #region Fields
 
-        private readonly INopDataProvider _dataProvider;
         private readonly IDownloadService _downloadService;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly INopFileProvider _fileProvider;
@@ -48,8 +47,7 @@ namespace Nop.Services.Media
 
         #region Ctor
 
-        public PictureService(INopDataProvider dataProvider,
-            IDownloadService downloadService,
+        public PictureService(IDownloadService downloadService,
             IHttpContextAccessor httpContextAccessor,
             INopFileProvider fileProvider,
             IProductAttributeParser productAttributeParser,
@@ -61,7 +59,6 @@ namespace Nop.Services.Media
             IWebHelper webHelper,
             MediaSettings mediaSettings)
         {
-            _dataProvider = dataProvider;
             _downloadService = downloadService;
             _httpContextAccessor = httpContextAccessor;
             _fileProvider = fileProvider;
@@ -964,21 +961,6 @@ namespace Nop.Services.Media
             }
 
             return EncodeImage(image, imageFormat);
-        }
-
-        /// <summary>
-        /// Get pictures hashes
-        /// </summary>
-        /// <param name="picturesIds">Pictures Ids</param>
-        /// <returns></returns>
-        public IDictionary<int, string> GetPicturesHash(int[] picturesIds)
-        {
-            if (!picturesIds.Any())
-                return new Dictionary<int, string>();
-
-            return _dataProvider.GetFieldHashes<PictureBinary>(p => picturesIds.Contains(p.PictureId), 
-                p => p.PictureId,
-                p => p.BinaryData);
         }
 
         /// <summary>
