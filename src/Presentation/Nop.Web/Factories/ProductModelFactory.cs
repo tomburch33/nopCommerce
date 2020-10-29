@@ -1187,6 +1187,56 @@ namespace Nop.Web.Factories
         }
 
         /// <summary>
+        /// Prepare the product combination models
+        /// </summary>
+        /// <param name="product">Product</param>
+        /// <returns>Product combination models</returns>
+        public virtual IEnumerable<ProductCombinationModel> PrepareProductCombinationModels(Product product)
+        {
+            if (product == null)
+                throw new ArgumentNullException(nameof(product));
+
+            var result = new List<ProductCombinationModel>();
+
+            var combinations = _productAttributeService.GetAllProductAttributeCombinations(product.Id);
+            if (combinations?.Any() == true)
+            {
+                foreach (var combination in combinations)
+                {
+                    var combinationModel = new ProductCombinationModel
+                    {
+                        InStock = combination.StockQuantity > 0 || combination.AllowOutOfStockOrders
+                    };
+
+                    var mappings = _productAttributeParser.ParseProductAttributeMappings(combination.AttributesXml);
+                    if (mappings == null || mappings.Count == 0)
+                        continue;
+
+                    foreach (var mapping in mappings)
+                    {
+                        var attributeModel = new ProductAttributeModel
+                        {
+                            Id = mapping.Id
+                        };
+
+                        var values = _productAttributeParser.ParseProductAttributeValues(combination.AttributesXml, mapping.Id);
+                        if (values == null || values.Count == 0)
+                            continue;
+
+                        foreach (var value in values)
+                            attributeModel.ValueIds.Add(value.Id);
+
+                        combinationModel.Attributes.Add(attributeModel);
+                    }
+
+                    result.Add(combinationModel);
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
         /// Prepare the product details model
         /// </summary>
         /// <param name="product">Product</param>
@@ -1222,7 +1272,8 @@ namespace Nop.Web.Factories
                 StockAvailability = _productService.FormatStockMessage(product, string.Empty),
                 HasSampleDownload = product.IsDownload && product.HasSampleDownload,
                 DisplayDiscontinuedMessage = !product.Published && _catalogSettings.DisplayDiscontinuedMessageForUnpublishedProducts,
-                AvailableEndDate = product.AvailableEndDateTimeUtc
+                AvailableEndDate = product.AvailableEndDateTimeUtc,
+                AllowAddingOnlyExistingAttributeCombinations = product.AllowAddingOnlyExistingAttributeCombinations
             };
 
             //automatically generate product description?

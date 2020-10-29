@@ -2625,6 +2625,18 @@ label, label + * {
   text-align: center;
 }
 
+.attributes .disabled {
+  opacity: .5;
+}
+.attributes .disabled .attribute-square {
+  cursor: default;
+}
+
+.attributes select option.disabled,
+.attributes select option:disabled {
+  color: #cecece;
+}
+
 .ui-datepicker {
   width: 280px;
   box-shadow: 0 0 3px rgba(0, 0, 0, 0.15);
