@@ -152,12 +152,12 @@
                 <div class="card-body">
                     @await Html.PartialAsync("Table", new DataTablesModel
                     {
-                        Name = "productreviews-grid",
-                        UrlRead = new DataUrl("List", "ProductReview", null),
-                        SearchButtonId = "search-productreviews",
-                        Length = Model.PageSize,
-                        LengthMenu = Model.AvailablePageSizes,
-                        Filters = new List<FilterParameter>
+                       Name = "productreviews-grid",
+                       UrlRead = new DataUrl("List", "ProductReview", null),
+                       SearchButtonId = "search-productreviews",
+                       Length = Model.PageSize,
+                       LengthMenu = Model.AvailablePageSizes,
+                       Filters = new List<FilterParameter>
                         {
                             new FilterParameter(nameof(Model.CreatedOnFrom)),
                             new FilterParameter(nameof(Model.CreatedOnTo)),
@@ -176,38 +176,25 @@
                                 ClassName =  NopColumnClassDefaults.CenterAll,
                                 Width = "50"
                             },
-                            new ColumnProperty(nameof(ProductReviewModel.StoreName))
-                            {
-                                Title = T("Admin.Catalog.ProductReviews.Fields.Store").Text,
-                                Visible = storeService.GetAllStores().Count > 1 ? true : false,
-                                Width = "150"
-                            },
                             new ColumnProperty(nameof(ProductReviewModel.ProductName))
                             {
                                 Title = T("Admin.Catalog.ProductReviews.Fields.Product").Text,
-                                Width = "200",
+                                Width = "100",
                                 Render = new RenderLink(new DataUrl("~/Admin/Product/Edit", nameof(ProductReviewModel.ProductId)))
                             },
                             new ColumnProperty(nameof(ProductReviewModel.CustomerInfo))
                             {
                                 Title = T("Admin.Catalog.ProductReviews.Fields.Customer").Text,
-                                Width = "200",
+                                Width = "150",
+                                ClassName =  NopColumnClassDefaults.Button,
                                 Render = new RenderLink(new DataUrl("~/Admin/Customer/Edit", nameof(ProductReviewModel.CustomerId)))
-                            },
-                            new ColumnProperty(nameof(ProductReviewModel.Title))
-                            {
-                                Title = T("Admin.Catalog.ProductReviews.Fields.Title").Text,
-                                Width = "200"
                             },
                             new ColumnProperty(nameof(ProductReviewModel.ReviewText))
                             {
-                                Title = T("Admin.Catalog.ProductReviews.Fields.ReviewText").Text,                                
-                                Encode = false
-                            },
-                            new ColumnProperty(nameof(ProductReviewModel.ReplyText))
-                            {
-                                Title = T("Admin.Catalog.ProductReviews.Fields.ReplyText").Text,
-                                Encode = false
+                                Title = T("Admin.Catalog.ProductReviews.Fields.ReviewText").Text,
+                                Width = "300",
+                                Encode = false,
+                                Render = new RenderCustom("renderColumnText")
                             },
                             new ColumnProperty(nameof(ProductReviewModel.Rating))
                             {
@@ -218,25 +205,37 @@
                             new ColumnProperty(nameof(ProductReviewModel.IsApproved))
                             {
                                 Title = T("Admin.Catalog.ProductReviews.Fields.IsApproved").Text,
-                                Width = "100",
+                                Width = "50",
                                 ClassName =  NopColumnClassDefaults.CenterAll,
                                 Render = new RenderBoolean()
                             },
                             new ColumnProperty(nameof(ProductReviewModel.CreatedOn))
                             {
                                 Title = T("Admin.Catalog.ProductReviews.Fields.CreatedOn").Text,
-                                Width = "150",
+                                Width = "90",
                                 Render = new RenderDate()
                             },
                             new ColumnProperty(nameof(ProductReviewModel.Id))
                             {
                                 Title = T("Admin.Common.Edit").Text,
-                                Width = "100",
+                                Width = "70",
                                 ClassName =  NopColumnClassDefaults.Button,
                                 Render = new RenderButtonEdit(new DataUrl("Edit"))
                             }
                         }
                     })
+
+                    <script>
+                        function renderColumnText(data, type, row, meta) {
+                            var replyContent = '';
+
+                            if (row.ReplyText) {
+                                replyContent = '<div class="mt-2"><i class="fa fa-reply"></i><b>@T("Admin.Catalog.ProductReviews.Reply"):</b> <div class="bg-light p-1 mt-1">' + row.ReplyText + '</div></div>';
+                            }
+
+                            return '<b>' + row.Title + '</b></br>' + row.ReviewText + replyContent;
+                        }
+                    </script>
 
                     <script>
                         $(document).ready(function() {
