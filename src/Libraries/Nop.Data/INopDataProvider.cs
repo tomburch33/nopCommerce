@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
+using LinqToDB.Data;
 using Nop.Core;
 
 namespace Nop.Data
@@ -175,6 +176,29 @@ namespace Nop.Data
         IDictionary<int, string> GetFieldHashes<TEntity>(Expression<Func<TEntity, bool>> predicate, 
             Expression<Func<TEntity, int>> keySelector,
             Expression<Func<TEntity, object>> fieldSelector) where TEntity : BaseEntity;
+
+        #region SQL specific methods
+
+        /// <summary>	
+        /// Executes command and returns results as collection of values of specified type	
+        /// </summary>	
+        /// <typeparam name="T">Result record type</typeparam>	
+        /// <param name="sql">Command text</param>	
+        /// <param name="parameters">Command parameters</param>	
+        /// <returns>Returns collection of query result records</returns>	
+        IList<T> Query<T>(string sql, params DataParameter[] parameters);
+        
+        /// <summary>
+        /// Executes command using System.Data.CommandType.StoredProcedure command type and
+        /// returns results as collection of values of specified type
+        /// </summary>	
+        /// <typeparam name="T">Result record type</typeparam>	
+        /// <param name="procedureName">Procedure name</param>	
+        /// <param name="parameters">Command parameters</param>	
+        /// <returns>Returns collection of query result records</returns>
+        IList<T> QueryProc<T>(string procedureName, params DataParameter[] parameters);
+
+        #endregion
 
         #endregion
 

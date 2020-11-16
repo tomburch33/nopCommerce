@@ -36,6 +36,34 @@ namespace Nop.Tests
 
         #endregion
 
+        #region Utils
+
+        private void UpdateOutputParameters(DataConnection dataConnection, DataParameter[] dataParameters)
+        {
+            if (dataParameters is null || dataParameters.Length == 0)
+                return;
+
+            foreach (var dataParam in dataParameters.Where(p => p.Direction == ParameterDirection.Output))
+                UpdateParameterValue(dataConnection, dataParam);
+        }
+
+        private void UpdateParameterValue(DataConnection dataConnection, DataParameter parameter)
+        {
+            if (dataConnection is null)
+                throw new ArgumentNullException(nameof(dataConnection));
+
+            if (parameter is null)
+                throw new ArgumentNullException(nameof(parameter));
+
+            if (dataConnection.Command is IDbCommand command &&
+                command.Parameters.Count > 0 &&
+                command.Parameters.Contains(parameter.Name) &&
+                command.Parameters[parameter.Name] is IDbDataParameter param)
+                parameter.Value = param.Value;
+        }
+
+        #endregion
+
         #region Methods
 
         public void CreateDatabase(string collation, int triesToConnect = 10)
@@ -298,6 +326,42 @@ namespace Nop.Tests
         {
             throw new NotImplementedException();
         }
+
+        #region SQL specific methods
+
+        /// <summary>	
+        /// Executes command using System.Data.CommandType.StoredProcedure command type and	
+        /// returns results as collection of values of specified type	
+        /// </summary>	
+        /// <typeparam name="T">Result record type</typeparam>	
+        /// <param name="procedureName">Procedure name</param>	
+        /// <param name="parameters">Command parameters</param>	
+        /// <returns>Returns collection of query result records</returns>	
+        public virtual IList<T> QueryProc<T>(string procedureName, params DataParameter[] parameters)	
+        {	
+            using (new ReaderWriteLockDisposable(_locker, ReaderWriteLockType.Read))
+            {
+                var command = new CommandInfo(DataContext, procedureName, parameters);
+                var rez = command.QueryProc<T>()?.ToList();
+                UpdateOutputParameters(DataContext, parameters);
+                return rez ?? new List<T>();
+            }	
+        }	
+
+        /// <summary>	
+        /// Executes SQL command and returns results as collection of values of specified type	
+        /// </summary>	
+        /// <typeparam name="T">Type of result items</typeparam>	
+        /// <param name="sql">SQL command text</param>	
+        /// <param name="parameters">Parameters to execute the SQL command</param>	
+        /// <returns>Collection of values of specified type</returns>	
+        public virtual IList<T> Query<T>(string sql, params DataParameter[] parameters)	
+        {
+            using (new ReaderWriteLockDisposable(_locker, ReaderWriteLockType.Read))
+                return DataContext.Query<T>(sql, parameters)?.ToList() ?? new List<T>();
+        }
+
+        #endregion
 
         #endregion
 
