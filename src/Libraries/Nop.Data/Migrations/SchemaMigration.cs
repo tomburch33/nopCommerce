@@ -24,6 +24,7 @@ using Nop.Core.Domain.Tasks;
 using Nop.Core.Domain.Tax;
 using Nop.Core.Domain.Topics;
 using Nop.Core.Domain.Vendors;
+using Nop.Data.Extensions;
 
 namespace Nop.Data.Migrations
 {
@@ -31,13 +32,6 @@ namespace Nop.Data.Migrations
     [NopMigration("2020/01/31 11:24:16:2551771", "Nop.Data base schema")]
     public class SchemaMigration : AutoReversingMigration
     {
-        private readonly IMigrationManager _migrationManager;
-
-        public SchemaMigration(IMigrationManager migrationManager)
-        {
-            _migrationManager = migrationManager;
-        }
-
         /// <summary>
         /// Collect the UP migration expressions
         /// <remarks>
@@ -47,169 +41,169 @@ namespace Nop.Data.Migrations
         /// </summary>
         public override void Up()
         {
-            _migrationManager.BuildTable<AddressAttribute>(Create);
-            _migrationManager.BuildTable<AddressAttributeValue>(Create);
-            _migrationManager.BuildTable<GenericAttribute>(Create);
-            _migrationManager.BuildTable<SearchTerm>(Create);
-            _migrationManager.BuildTable<Country>(Create);
-            _migrationManager.BuildTable<Currency>(Create);
-            _migrationManager.BuildTable<MeasureDimension>(Create);
-            _migrationManager.BuildTable<MeasureWeight>(Create);
-            _migrationManager.BuildTable<StateProvince>(Create);
-            _migrationManager.BuildTable<Address>(Create);
-            _migrationManager.BuildTable<Affiliate>(Create);
+            Create.TableFor<AddressAttribute>();;
+            Create.TableFor<AddressAttributeValue>();;
+            Create.TableFor<GenericAttribute>();;
+            Create.TableFor<SearchTerm>();;
+            Create.TableFor<Country>();;
+            Create.TableFor<Currency>();;
+            Create.TableFor<MeasureDimension>();;
+            Create.TableFor<MeasureWeight>();;
+            Create.TableFor<StateProvince>();;
+            Create.TableFor<Address>();;
+            Create.TableFor<Affiliate>();;
 
-            _migrationManager.BuildTable<CustomerAttribute>(Create);
-            _migrationManager.BuildTable<CustomerAttributeValue>(Create);
+            Create.TableFor<CustomerAttribute>();;
+            Create.TableFor<CustomerAttributeValue>();;
 
-            _migrationManager.BuildTable<Customer>(Create);
-            _migrationManager.BuildTable<CustomerPassword>(Create);
-            _migrationManager.BuildTable<CustomerAddressMapping>(Create);
+            Create.TableFor<Customer>();;
+            Create.TableFor<CustomerPassword>();;
+            Create.TableFor<CustomerAddressMapping>();;
 
-            _migrationManager.BuildTable<CustomerRole>(Create);
-            _migrationManager.BuildTable<CustomerCustomerRoleMapping>(Create);
+            Create.TableFor<CustomerRole>();;
+            Create.TableFor<CustomerCustomerRoleMapping>();;
 
-            _migrationManager.BuildTable<ExternalAuthenticationRecord>(Create);
+            Create.TableFor<ExternalAuthenticationRecord>();;
 
-            _migrationManager.BuildTable<CheckoutAttribute>(Create);
-            _migrationManager.BuildTable<CheckoutAttributeValue>(Create);
+            Create.TableFor<CheckoutAttribute>();;
+            Create.TableFor<CheckoutAttributeValue>();;
 
-            _migrationManager.BuildTable<ReturnRequestAction>(Create);
-            _migrationManager.BuildTable<ReturnRequest>(Create);
-            _migrationManager.BuildTable<ReturnRequestReason>(Create);
+            Create.TableFor<ReturnRequestAction>();;
+            Create.TableFor<ReturnRequest>();;
+            Create.TableFor<ReturnRequestReason>();;
 
-            _migrationManager.BuildTable<ProductAttribute>(Create);
-            _migrationManager.BuildTable<PredefinedProductAttributeValue>(Create);
-            _migrationManager.BuildTable<ProductTag>(Create);
+            Create.TableFor<ProductAttribute>();;
+            Create.TableFor<PredefinedProductAttributeValue>();;
+            Create.TableFor<ProductTag>();;
 
-            _migrationManager.BuildTable<Product>(Create);
-            _migrationManager.BuildTable<ProductTemplate>(Create);
-            _migrationManager.BuildTable<BackInStockSubscription>(Create);
-            _migrationManager.BuildTable<RelatedProduct>(Create);
-            _migrationManager.BuildTable<ReviewType>(Create);
-            _migrationManager.BuildTable<SpecificationAttributeGroup>(Create);
-            _migrationManager.BuildTable<SpecificationAttribute>(Create);
-            _migrationManager.BuildTable<ProductAttributeCombination>(Create);
-            _migrationManager.BuildTable<ProductAttributeMapping>(Create);
-            _migrationManager.BuildTable<ProductAttributeValue>(Create);
+            Create.TableFor<Product>();;
+            Create.TableFor<ProductTemplate>();;
+            Create.TableFor<BackInStockSubscription>();;
+            Create.TableFor<RelatedProduct>();;
+            Create.TableFor<ReviewType>();;
+            Create.TableFor<SpecificationAttributeGroup>();;
+            Create.TableFor<SpecificationAttribute>();;
+            Create.TableFor<ProductAttributeCombination>();;
+            Create.TableFor<ProductAttributeMapping>();;
+            Create.TableFor<ProductAttributeValue>();;
 
-            _migrationManager.BuildTable<Order>(Create);
-            _migrationManager.BuildTable<OrderItem>(Create);
-            _migrationManager.BuildTable<RewardPointsHistory>(Create);
+            Create.TableFor<Order>();;
+            Create.TableFor<OrderItem>();;
+            Create.TableFor<RewardPointsHistory>();;
 
-            _migrationManager.BuildTable<GiftCard>(Create);
-            _migrationManager.BuildTable<GiftCardUsageHistory>(Create);
+            Create.TableFor<GiftCard>();;
+            Create.TableFor<GiftCardUsageHistory>();;
 
-            _migrationManager.BuildTable<OrderNote>(Create);
+            Create.TableFor<OrderNote>();;
 
-            _migrationManager.BuildTable<RecurringPayment>(Create);
-            _migrationManager.BuildTable<RecurringPaymentHistory>(Create);
+            Create.TableFor<RecurringPayment>();;
+            Create.TableFor<RecurringPaymentHistory>();;
 
-            _migrationManager.BuildTable<ShoppingCartItem>(Create);
+            Create.TableFor<ShoppingCartItem>();;
 
-            _migrationManager.BuildTable<Store>(Create);
-            _migrationManager.BuildTable<StoreMapping>(Create);
+            Create.TableFor<Store>();;
+            Create.TableFor<StoreMapping>();;
 
-            _migrationManager.BuildTable<Language>(Create);
-            _migrationManager.BuildTable<LocaleStringResource>(Create);
-            _migrationManager.BuildTable<LocalizedProperty>(Create);
+            Create.TableFor<Language>();;
+            Create.TableFor<LocaleStringResource>();;
+            Create.TableFor<LocalizedProperty>();;
 
-            _migrationManager.BuildTable<BlogPost>(Create);
-            _migrationManager.BuildTable<BlogComment>(Create);
+            Create.TableFor<BlogPost>();;
+            Create.TableFor<BlogComment>();;
 
-            _migrationManager.BuildTable<Category>(Create);
-            _migrationManager.BuildTable<CategoryTemplate>(Create);
+            Create.TableFor<Category>();;
+            Create.TableFor<CategoryTemplate>();;
 
-            _migrationManager.BuildTable<ProductCategory>(Create);
+            Create.TableFor<ProductCategory>();;
 
-            _migrationManager.BuildTable<CrossSellProduct>(Create);
-            _migrationManager.BuildTable<Manufacturer>(Create);
-            _migrationManager.BuildTable<ManufacturerTemplate>(Create);
+            Create.TableFor<CrossSellProduct>();;
+            Create.TableFor<Manufacturer>();;
+            Create.TableFor<ManufacturerTemplate>();;
 
-            _migrationManager.BuildTable<ProductManufacturer>(Create);
-            _migrationManager.BuildTable<ProductProductTagMapping>(Create);
-            _migrationManager.BuildTable<ProductReview>(Create);
+            Create.TableFor<ProductManufacturer>();;
+            Create.TableFor<ProductProductTagMapping>();;
+            Create.TableFor<ProductReview>();;
 
-            _migrationManager.BuildTable<ProductReviewHelpfulness>(Create);
-            _migrationManager.BuildTable<ProductReviewReviewTypeMapping>(Create);
+            Create.TableFor<ProductReviewHelpfulness>();;
+            Create.TableFor<ProductReviewReviewTypeMapping>();;
 
-            _migrationManager.BuildTable<SpecificationAttributeOption>(Create);
-            _migrationManager.BuildTable<ProductSpecificationAttribute>(Create);
+            Create.TableFor<SpecificationAttributeOption>();;
+            Create.TableFor<ProductSpecificationAttribute>();;
 
-            _migrationManager.BuildTable<TierPrice>(Create);
+            Create.TableFor<TierPrice>();;
 
-            _migrationManager.BuildTable<Warehouse>(Create);
-            _migrationManager.BuildTable<DeliveryDate>(Create);
-            _migrationManager.BuildTable<ProductAvailabilityRange>(Create);
-            _migrationManager.BuildTable<Shipment>(Create);
-            _migrationManager.BuildTable<ShipmentItem>(Create);
-            _migrationManager.BuildTable<ShippingMethod>(Create);
-            _migrationManager.BuildTable<ShippingMethodCountryMapping>(Create);
+            Create.TableFor<Warehouse>();;
+            Create.TableFor<DeliveryDate>();;
+            Create.TableFor<ProductAvailabilityRange>();;
+            Create.TableFor<Shipment>();;
+            Create.TableFor<ShipmentItem>();;
+            Create.TableFor<ShippingMethod>();;
+            Create.TableFor<ShippingMethodCountryMapping>();;
 
-            _migrationManager.BuildTable<ProductWarehouseInventory>(Create);
-            _migrationManager.BuildTable<StockQuantityHistory>(Create);
+            Create.TableFor<ProductWarehouseInventory>();;
+            Create.TableFor<StockQuantityHistory>();;
 
-            _migrationManager.BuildTable<Download>(Create);
-            _migrationManager.BuildTable<Picture>(Create);
-            _migrationManager.BuildTable<PictureBinary>(Create);
+            Create.TableFor<Download>();;
+            Create.TableFor<Picture>();;
+            Create.TableFor<PictureBinary>();;
 
-            _migrationManager.BuildTable<ProductPicture>(Create);
+            Create.TableFor<ProductPicture>();;
 
-            _migrationManager.BuildTable<Setting>(Create);
+            Create.TableFor<Setting>();;
 
-            _migrationManager.BuildTable<Discount>(Create);
+            Create.TableFor<Discount>();;
 
-            _migrationManager.BuildTable<DiscountCategoryMapping>(Create);
-            _migrationManager.BuildTable<DiscountProductMapping>(Create);
-            _migrationManager.BuildTable<DiscountRequirement>(Create);
-            _migrationManager.BuildTable<DiscountUsageHistory>(Create);
-            _migrationManager.BuildTable<DiscountManufacturerMapping>(Create);
+            Create.TableFor<DiscountCategoryMapping>();;
+            Create.TableFor<DiscountProductMapping>();;
+            Create.TableFor<DiscountRequirement>();;
+            Create.TableFor<DiscountUsageHistory>();;
+            Create.TableFor<DiscountManufacturerMapping>();;
 
-            _migrationManager.BuildTable<PrivateMessage>(Create);
-            _migrationManager.BuildTable<ForumGroup>(Create);
-            _migrationManager.BuildTable<Forum>(Create);
-            _migrationManager.BuildTable<ForumTopic>(Create);
-            _migrationManager.BuildTable<ForumPost>(Create);
-            _migrationManager.BuildTable<ForumPostVote>(Create);
-            _migrationManager.BuildTable<ForumSubscription>(Create);
+            Create.TableFor<PrivateMessage>();;
+            Create.TableFor<ForumGroup>();;
+            Create.TableFor<Forum>();;
+            Create.TableFor<ForumTopic>();;
+            Create.TableFor<ForumPost>();;
+            Create.TableFor<ForumPostVote>();;
+            Create.TableFor<ForumSubscription>();;
 
-            _migrationManager.BuildTable<GdprConsent>(Create);
-            _migrationManager.BuildTable<GdprLog>(Create);
+            Create.TableFor<GdprConsent>();;
+            Create.TableFor<GdprLog>();;
 
-            _migrationManager.BuildTable<ActivityLogType>(Create);
-            _migrationManager.BuildTable<ActivityLog>(Create);
-            _migrationManager.BuildTable<Log>(Create);
+            Create.TableFor<ActivityLogType>();;
+            Create.TableFor<ActivityLog>();;
+            Create.TableFor<Log>();;
 
-            _migrationManager.BuildTable<Campaign>(Create);
-            _migrationManager.BuildTable<EmailAccount>(Create);
-            _migrationManager.BuildTable<MessageTemplate>(Create);
-            _migrationManager.BuildTable<NewsLetterSubscription>(Create);
-            _migrationManager.BuildTable<QueuedEmail>(Create);
+            Create.TableFor<Campaign>();;
+            Create.TableFor<EmailAccount>();;
+            Create.TableFor<MessageTemplate>();;
+            Create.TableFor<NewsLetterSubscription>();;
+            Create.TableFor<QueuedEmail>();;
 
-            _migrationManager.BuildTable<NewsItem>(Create);
-            _migrationManager.BuildTable<NewsComment>(Create);
+            Create.TableFor<NewsItem>();;
+            Create.TableFor<NewsComment>();;
 
-            _migrationManager.BuildTable<Poll>(Create);
-            _migrationManager.BuildTable<PollAnswer>(Create);
-            _migrationManager.BuildTable<PollVotingRecord>(Create);
+            Create.TableFor<Poll>();;
+            Create.TableFor<PollAnswer>();;
+            Create.TableFor<PollVotingRecord>();;
 
-            _migrationManager.BuildTable<AclRecord>(Create);
-            _migrationManager.BuildTable<PermissionRecord>(Create);
-            _migrationManager.BuildTable<PermissionRecordCustomerRoleMapping>(Create);
+            Create.TableFor<AclRecord>();;
+            Create.TableFor<PermissionRecord>();;
+            Create.TableFor<PermissionRecordCustomerRoleMapping>();;
 
-            _migrationManager.BuildTable<UrlRecord>(Create);
+            Create.TableFor<UrlRecord>();;
 
-            _migrationManager.BuildTable<ScheduleTask>(Create);
+            Create.TableFor<ScheduleTask>();;
 
-            _migrationManager.BuildTable<TaxCategory>(Create);
+            Create.TableFor<TaxCategory>();;
 
-            _migrationManager.BuildTable<TopicTemplate>(Create);
-            _migrationManager.BuildTable<Topic>(Create);
+            Create.TableFor<TopicTemplate>();;
+            Create.TableFor<Topic>();;
 
-            _migrationManager.BuildTable<Vendor>(Create);
-            _migrationManager.BuildTable<VendorAttribute>(Create);
-            _migrationManager.BuildTable<VendorAttributeValue>(Create);
-            _migrationManager.BuildTable<VendorNote>(Create);
+            Create.TableFor<Vendor>();;
+            Create.TableFor<VendorAttribute>();;
+            Create.TableFor<VendorAttributeValue>();;
+            Create.TableFor<VendorNote>();;
         }
     }
 }

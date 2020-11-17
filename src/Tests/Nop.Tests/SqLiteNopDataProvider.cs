@@ -294,16 +294,6 @@ namespace Nop.Tests
             }
         }
 
-        /// <summary>
-        /// Returns mapped entity descriptor.
-        /// </summary>
-        /// <typeparam name="TEntity">Entity type</typeparam>
-        /// <returns>Mapping descriptor</returns>
-        public EntityDescriptor GetEntityDescriptor<TEntity>() where TEntity : BaseEntity
-        {
-            return AdditionalSchema?.GetEntityDescriptor(typeof(TEntity));
-        }
-
         public ITempDataStorage<TItem> CreateTempDataStorage<TItem>(string storageKey, IQueryable<TItem> query) where TItem : class
         {
             throw new NotImplementedException();

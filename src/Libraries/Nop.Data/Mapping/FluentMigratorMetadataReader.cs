@@ -2,7 +2,6 @@
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
-using FluentMigrator.Expressions;
 using LinqToDB.Mapping;
 using LinqToDB.Metadata;
 using LinqToDB.SqlQuery;
@@ -38,31 +37,29 @@ namespace Nop.Data.Mapping
         {
             var attribute = Types.GetOrAdd((type, memberInfo), t =>
             {
-                var tableExpr = Expressions.GetOrAdd(type, entityType => _migrationManager.GetCreateTableExpression(entityType));
+                var entityDescriptor = _migrationManager.GetEntityDescriptor(type);
 
                 if (typeof(T) == typeof(TableAttribute))
-                    return new TableAttribute(tableExpr.TableName) { Schema = tableExpr.SchemaName };
+                    return new TableAttribute(entityDescriptor.EntityName);
 
                 if (typeof(T) != typeof(ColumnAttribute))
                     return null;
 
-                var column = tableExpr.Columns.SingleOrDefault(cd => cd.Name.Equals(NameCompatibilityManager.GetColumnName(type, memberInfo.Name), StringComparison.OrdinalIgnoreCase));
+                var entityField = entityDescriptor.Fields.SingleOrDefault(cd => cd.Name.Equals(NameCompatibilityManager.GetColumnName(type, memberInfo.Name), StringComparison.OrdinalIgnoreCase));
 
-                if (column is null)
+                if (entityField is null)
                     return null;
-
-                var columnSystemType = (memberInfo as PropertyInfo)?.PropertyType ?? typeof(string);
 
                 return new ColumnAttribute
                 {
-                    Name = column.Name,
-                    IsPrimaryKey = column.IsPrimaryKey,
+                    Name = entityField.Name,
+                    IsPrimaryKey = entityField.IsPrimaryKey,
                     IsColumn = true,
-                    CanBeNull = column.IsNullable ?? false,
-                    Length = column.Size ?? 0,
-                    Precision = column.Precision ?? 0,
-                    IsIdentity = column.IsIdentity,
-                    DataType = SqlDataType.GetDataType(columnSystemType).Type.DataType
+                    CanBeNull = entityField.IsNullable ?? false,
+                    Length = entityField.Size ?? 0,
+                    Precision = entityField.Precision ?? 0,
+                    IsIdentity = entityField.IsIdentity,
+                    DataType = SqlDataType.GetDataType(entityField.Type).Type.DataType
                 };
             });
 
@@ -124,7 +121,6 @@ namespace Nop.Data.Mapping
         #region Properties
 
         protected static ConcurrentDictionary<(Type, MemberInfo), Attribute> Types { get; } = new ConcurrentDictionary<(Type, MemberInfo), Attribute>();
-        protected static ConcurrentDictionary<Type, CreateTableExpression> Expressions { get; } = new ConcurrentDictionary<Type, CreateTableExpression>();
 
         #endregion
     }

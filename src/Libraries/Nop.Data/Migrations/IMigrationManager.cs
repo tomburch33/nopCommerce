@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Reflection;
-using FluentMigrator.Builders.Create;
-using FluentMigrator.Expressions;
 
 namespace Nop.Data.Migrations
 {
@@ -24,17 +22,10 @@ namespace Nop.Data.Migrations
         void ApplyDownMigrations(Assembly assembly);
 
         /// <summary>
-        /// Retrieves expressions into ICreateExpressionRoot
+        /// Get an entity descriptor for entity type
         /// </summary>
-        /// <param name="expressionRoot">The root expression for a CREATE operation</param>
-        /// <typeparam name="TEntity">Entity type</typeparam>
-        void BuildTable<TEntity>(ICreateExpressionRoot expressionRoot);
-
-        /// <summary>
-        /// Gets create table expression for entity type
-        /// </summary>
-        /// <param name="type">Entity type</param>
-        /// <returns>Expression to create a table</returns>
-        CreateTableExpression GetCreateTableExpression(Type type);
+        /// <param name="entityType">Entity type</param>
+        /// <returns>An entity descriptor</returns>
+        EntityDescriptor GetEntityDescriptor(Type entityType);
     }
 }

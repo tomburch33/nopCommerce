@@ -2,7 +2,6 @@
 using System.Data;
 using System.Linq;
 using System.Linq.Dynamic.Core;
-using FluentMigrator.Expressions;
 using FluentValidation;
 using Nop.Core;
 using Nop.Core.Infrastructure;
@@ -47,10 +46,10 @@ namespace Nop.Web.Framework.Validators
             if (migrationManager is null)
                 throw new ArgumentNullException(nameof(migrationManager));
 
-            var tblExpression = migrationManager.GetCreateTableExpression(typeof(TEntity));
+            var entityDescriptor = migrationManager.GetEntityDescriptor(typeof(TEntity));
 
-            SetStringPropertiesMaxLength(tblExpression, filterStringPropertyNames);
-            SetDecimalMaxValue(tblExpression);
+            SetStringPropertiesMaxLength(entityDescriptor, filterStringPropertyNames);
+            SetDecimalMaxValue(entityDescriptor);
         }
 
         /// <summary>
@@ -58,9 +57,9 @@ namespace Nop.Web.Framework.Validators
         /// </summary>
         /// <param name="entityDescriptor">Entity descriptor</param>
         /// <param name="filterPropertyNames">Properties to skip</param>
-        protected virtual void SetStringPropertiesMaxLength(CreateTableExpression tblExpression, params string[] filterPropertyNames)
+        protected virtual void SetStringPropertiesMaxLength(EntityDescriptor descriptor, params string[] filterPropertyNames)
         {
-            if (tblExpression is null)
+            if (descriptor is null)
                 return;
 
             //filter model properties for which need to get max lengths
@@ -69,8 +68,8 @@ namespace Nop.Web.Framework.Validators
                 .Select(property => property.Name).ToList();
 
             //get max length of these properties
-            var columnsMaxLengths = tblExpression.Columns.Where(column =>
-                modelPropertyNames.Contains(column.Name) && column.Type == DbType.String && column.Size.HasValue);
+            var columnsMaxLengths = descriptor.Fields.Where(field =>
+                modelPropertyNames.Contains(field.Name) && field.Type == typeof(string) && field.Size.HasValue);
 
             //create expressions for the validation rules
             var maxLengthExpressions = columnsMaxLengths.Select(property => new
@@ -91,9 +90,9 @@ namespace Nop.Web.Framework.Validators
         /// Sets max value validation rule(s) to decimal properties according to appropriate database model
         /// </summary>
         /// <param name="entityDescriptor">Entity descriptor</param>
-        protected virtual void SetDecimalMaxValue(CreateTableExpression tblExpression)
+        protected virtual void SetDecimalMaxValue(EntityDescriptor descriptor)
         {
-            if (tblExpression is null)
+            if (descriptor is null)
                 return;
 
             //filter model properties for which need to get max values
@@ -102,9 +101,9 @@ namespace Nop.Web.Framework.Validators
                 .Select(property => property.Name).ToList();
 
             //get max values of these properties
-            var decimalColumnsMaxValues = tblExpression.Columns.Where(column =>
-                modelPropertyNames.Contains(column.Name) &&
-                column.Type == DbType.Decimal && column.Size.HasValue && column.Precision.HasValue);
+            var decimalColumnsMaxValues = descriptor.Fields.Where(field =>
+                modelPropertyNames.Contains(field.Name) &&
+                field.Type == typeof(decimal) && field.Size.HasValue && field.Precision.HasValue);
 
             if (!decimalColumnsMaxValues.Any())
                 return;

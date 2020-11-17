@@ -1,21 +1,19 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
 using FluentMigrator;
-using FluentMigrator.Builders.Create;
 using FluentMigrator.Builders.Create.Table;
 using FluentMigrator.Builders.IfDatabase;
 using FluentMigrator.Expressions;
 using FluentMigrator.Infrastructure;
-using FluentMigrator.Model;
 using FluentMigrator.Runner;
 using FluentMigrator.Runner.Initialization;
-using Nop.Core;
 using Nop.Core.Infrastructure;
+using Nop.Data.Extensions;
 using Nop.Data.Mapping;
-using Nop.Data.Mapping.Builders;
 
 namespace Nop.Data.Migrations
 {
@@ -69,79 +67,6 @@ namespace Nop.Data.Migrations
         #endregion
 
         #region Utils
-
-        /// <summary>
-        /// Defines the column specifications by default
-        /// </summary>
-        /// <param name="type">Type of entity</param>
-        /// <param name="create">An expression builder for a FluentMigrator.Expressions.CreateTableExpression</param>
-        /// <param name="propertyInfo">Property info</param>
-        /// <param name="canBeNullable">The value indicating whether this column is nullable</param>
-        protected virtual void DefineByOwnType(Type type, CreateTableExpressionBuilder create, PropertyInfo propertyInfo, bool canBeNullable = false)
-        {
-            var propType = propertyInfo.PropertyType;
-
-            if (Nullable.GetUnderlyingType(propType) is Type uType)
-            {
-                propType = uType;
-                canBeNullable = true;
-            }
-
-            if (!_typeMapping.ContainsKey(propType))
-                return;
-            
-            if (type == typeof(string) || propType.FindInterfaces((t, o) => t.FullName?.Equals(o.ToString(), StringComparison.InvariantCultureIgnoreCase) ?? false, "System.Collections.IEnumerable").Any())
-                canBeNullable = true;
-
-            var column = create.WithColumn(NameCompatibilityManager.GetColumnName(type, propertyInfo.Name));
-            _typeMapping[propType](column);
-
-            if (canBeNullable)
-                create.Nullable();
-        }
-
-        /// <summary>
-        /// Retrieves expressions for building an entity table
-        /// </summary>
-        /// <param name="type">Type of entity</param>
-        /// <param name="builder">An expression builder for a FluentMigrator.Expressions.CreateTableExpression</param>
-        protected void RetrieveTableExpressions(Type type, CreateTableExpressionBuilder builder)
-        {
-            var tp = _typeFinder
-                .FindClassesOfType(typeof(IEntityBuilder))
-                .FirstOrDefault(t => t.BaseType?.GetGenericArguments().Contains(type) ?? false);
-
-            if (tp != null)
-                (EngineContext.Current.ResolveUnregistered(tp) as IEntityBuilder)?.MapEntity(builder);
-
-            var expression = builder.Expression;
-
-            if (!expression.Columns.Any(c => c.IsPrimaryKey))
-            {
-                var pk = new ColumnDefinition
-                {
-                    Name = nameof(BaseEntity.Id),
-                    Type = DbType.Int32,
-                    IsIdentity = true,
-                    TableName = NameCompatibilityManager.GetTableName(type),
-                    ModificationType = ColumnModificationType.Create,
-                    IsPrimaryKey = true
-                };
-
-                expression.Columns.Insert(0, pk);
-                builder.CurrentColumn = pk;
-            }
-
-            var propertiesToAutoMap = type
-                .GetProperties(BindingFlags.Instance | BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.SetProperty)
-                .Where(p =>
-                    !expression.Columns.Any(x => x.Name.Equals(NameCompatibilityManager.GetColumnName(type, p.Name), StringComparison.OrdinalIgnoreCase)));
-
-            foreach (var prop in propertiesToAutoMap)
-            {
-                DefineByOwnType(type, builder, prop);
-            }
-        }
 
         /// <summary>
         /// Returns the instances for found types implementing FluentMigrator.IMigration
@@ -214,35 +139,45 @@ namespace Nop.Data.Migrations
             }
         }
 
-        /// <summary>
-        /// Retrieves expressions into ICreateExpressionRoot
-        /// </summary>
-        /// <param name="expressionRoot">The root expression for a CREATE operation</param>
-        /// <typeparam name="TEntity">Entity type</typeparam>
-        public virtual void BuildTable<TEntity>(ICreateExpressionRoot expressionRoot)
+        public virtual EntityDescriptor GetEntityDescriptor(Type entityType)
         {
-            var type = typeof(TEntity);
+            return EntityDescriptors.GetOrAdd(entityType, t => 
+            {
+                var tableName = NameCompatibilityManager.GetTableName(t);
+                var expression = new CreateTableExpression { TableName = tableName };
+                var builder = new CreateTableExpressionBuilder(expression, CreateNullMigrationContext());
+                
+                builder.RetrieveTableExpressions(t);
 
-            var builder = expressionRoot.Table(NameCompatibilityManager.GetTableName(type)) as CreateTableExpressionBuilder;
+                return new EntityDescriptor 
+                {
+                    EntityName = tableName,
+                    Fields = builder.Expression.Columns.Select(column => new EntityFieldDescriptor 
+                    {
+                        Name = column.Name,
+                        IsPrimaryKey = column.IsPrimaryKey,
+                        IsNullable = column.IsNullable,
+                        Size = column.Size,
+                        Precision = column.Precision,
+                        IsIdentity = column.IsIdentity,
+                        Type = getPropertyTypeByColumnName(t, column.Name)
+                    }).ToList()
+                };
+            });
 
-            RetrieveTableExpressions(type, builder);
-        }
+            static Type getPropertyTypeByColumnName(Type targetType, string name)
+            {
+                var (mappedType, _)  = targetType
+                    .GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.SetProperty)
+                    .FirstOrDefault(pi => name.Equals(NameCompatibilityManager.GetColumnName(targetType, pi.Name))).PropertyType.GetTypeToMap();
 
-        /// <summary>
-        /// Gets create table expression for entity type
-        /// </summary>
-        /// <param name="type">Entity type</param>
-        /// <returns>Expression to create a table</returns>
-        public virtual CreateTableExpression GetCreateTableExpression(Type type)
-        {
-            var expression = new CreateTableExpression { TableName = NameCompatibilityManager.GetTableName(type) };
-            var builder = new CreateTableExpressionBuilder(expression, CreateNullMigrationContext());
+                return mappedType;
 
-            RetrieveTableExpressions(type, builder);
-
-            return builder.Expression;
+            }
         }
 
         #endregion
+
+        protected static ConcurrentDictionary<Type, EntityDescriptor> EntityDescriptors { get; } = new ConcurrentDictionary<Type, EntityDescriptor>();
     }
 }
