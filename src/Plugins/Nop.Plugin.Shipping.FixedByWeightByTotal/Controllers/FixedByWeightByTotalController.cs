@@ -4,10 +4,12 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Nop.Core;
 using Nop.Core.Domain.Directory;
 using Nop.Plugin.Shipping.FixedByWeightByTotal.Domain;
 using Nop.Plugin.Shipping.FixedByWeightByTotal.Models;
 using Nop.Plugin.Shipping.FixedByWeightByTotal.Services;
+using Nop.Services.Common;
 using Nop.Services.Configuration;
 using Nop.Services.Directory;
 using Nop.Services.Localization;
@@ -41,6 +43,8 @@ namespace Nop.Plugin.Shipping.FixedByWeightByTotal.Controllers
         private readonly IShippingService _shippingService;
         private readonly IStateProvinceService _stateProvinceService;
         private readonly IStoreService _storeService;
+        private readonly IGenericAttributeService _genericAttributeService;
+        private readonly IWorkContext _workContext;
         private readonly MeasureSettings _measureSettings;
 
         #endregion
@@ -59,6 +63,8 @@ namespace Nop.Plugin.Shipping.FixedByWeightByTotal.Controllers
             IShippingService shippingService,
             IStateProvinceService stateProvinceService,
             IStoreService storeService,
+            IGenericAttributeService genericAttributeService,
+            IWorkContext workContext,
             MeasureSettings measureSettings)
         {
             _currencySettings = currencySettings;
@@ -73,6 +79,8 @@ namespace Nop.Plugin.Shipping.FixedByWeightByTotal.Controllers
             _stateProvinceService = stateProvinceService;
             _shippingService = shippingService;
             _storeService = storeService;
+            _genericAttributeService = genericAttributeService;
+            _workContext = workContext;
             _measureSettings = measureSettings;
         }
 
@@ -80,7 +88,7 @@ namespace Nop.Plugin.Shipping.FixedByWeightByTotal.Controllers
 
         #region Methods
 
-        public async Task<IActionResult> Configure()
+        public async Task<IActionResult> Configure(bool showtour = false)
         {
             if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageShippingSettings))
                 return AccessDeniedView();
@@ -111,6 +119,19 @@ namespace Nop.Plugin.Shipping.FixedByWeightByTotal.Controllers
             model.AvailableStates.Add(new SelectListItem { Text = "*", Value = "0" });
 
             model.SetGridPageSize();
+
+            //show configuration tour
+            if (showtour)
+            {
+                const string hideCardAttributeName = "HideConfigurationSteps";
+                var hideCard = await _genericAttributeService.GetAttributeAsync<bool>(await _workContext.GetCurrentCustomerAsync(), hideCardAttributeName);
+
+                const string closeCardAttributeName = "CloseConfigurationSteps";
+                var closeCard = await _genericAttributeService.GetAttributeAsync<bool>(await _workContext.GetCurrentCustomerAsync(), closeCardAttributeName);
+
+                if (!hideCard && !closeCard)
+                    ViewBag.showtour = true;
+            }
 
             return View("~/Plugins/Shipping.FixedByWeightByTotal/Views/Configure.cshtml", model);
         }

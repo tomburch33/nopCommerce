@@ -1,10 +1,44 @@
 @model ShippingProviderSearchModel
 
-@{    
+@{
     //page title
     ViewBag.PageTitle = T("Admin.Configuration.Shipping.Providers.Title").Text;
     //active menu item (system name)
     Html.SetActiveMenuItemSystemName("Shipping providers");
+
+    string editQueryString = string.Empty;
+    var showTour = ViewBag.showtour ?? false;
+    if (showTour)
+    {
+        Html.AppendCssFileParts("~/lib_npm/shepherd.js/css/shepherd.css");
+        Html.AppendScriptParts("~/lib_npm/shepherd.js/js/shepherd.min.js");
+        Html.AppendScriptParts("~/js/admintour/admin.tour.dataprovider.js");
+        Html.AppendScriptParts("~/js/admintour/admin.tour.shippingproviders.js");
+
+        editQueryString = "?showtour=true";
+
+        <script asp-location="Footer">
+            var localized_data = {
+                Back: '@T("Admin.ConfigurationSteps.Back")',
+                NextStep: '@T("Admin.ConfigurationSteps.NextStep")',
+                NextPage: '@T("Admin.ConfigurationSteps.NextPage")',
+
+                ShippingProvidersProvidersTitle: '@T("Admin.ConfigurationSteps.ShippingProviders.Providers.Title")',
+                ShippingProvidersProvidersText: '@T("Admin.ConfigurationSteps.ShippingProviders.Providers.Text")',
+
+                ShippingProvidersManualTitle: '@T("Admin.ConfigurationSteps.ShippingProviders.Manual.Title")',
+                ShippingProvidersManualText: '@T("Admin.ConfigurationSteps.ShippingProviders.Manual.Text")',
+
+                ShippingProvidersShipStationTitle: '@T("Admin.ConfigurationSteps.ShippingProviders.ShipStation.Title")',
+                ShippingProvidersShipStationText: '@T("Admin.ConfigurationSteps.ShippingProviders.ShipStation.Text")',
+
+                ShippingProvidersConfigureTitle: '@T("Admin.ConfigurationSteps.ShippingProviders.Configure.Title")',
+                ShippingProvidersConfigureText: '@T("Admin.ConfigurationSteps.ShippingProviders.Configure.Text")',
+            };
+
+            AdminTourDataProvider.init(localized_data);
+        </script>
+    }
 }
 
 <div class="content-header clearfix">
@@ -27,62 +61,65 @@
                             @T("Admin.Configuration.Shipping.Providers.DownloadMorePlugins")
                         </p>
 
-                        @await Html.PartialAsync("Table", new DataTablesModel
-                        {
-                            Name = "shippingproviders-grid",
-                            UrlRead = new DataUrl("Providers", "Shipping", null),
-                            UrlUpdate = new DataUrl("ProviderUpdate", "Shipping", null),
-                            Length = Model.PageSize,
-                            LengthMenu = Model.AvailablePageSizes,
-                            ColumnCollection = new List<ColumnProperty>
-                                {
-                                    new ColumnProperty(nameof(ShippingProviderModel.FriendlyName))
+                        <div id="shipping-methods-area">
+                            @await Html.PartialAsync("Table", new DataTablesModel
+                            {
+                                Name = "shippingproviders-grid",
+                                RowIdBasedOnField = nameof(ShippingProviderModel.SystemName),
+                                UrlRead = new DataUrl("Providers", "Shipping", null),
+                                UrlUpdate = new DataUrl("ProviderUpdate", "Shipping", null),
+                                Length = Model.PageSize,
+                                LengthMenu = Model.AvailablePageSizes,
+                                ColumnCollection = new List<ColumnProperty>
                                     {
-                                        Title = T("Admin.Configuration.Shipping.Providers.Fields.FriendlyName").Text
-                                    },
-                                    new ColumnProperty(nameof(ShippingProviderModel.SystemName))
-                                    {
-                                        Title = T("Admin.Configuration.Shipping.Providers.Fields.SystemName").Text,
-                                        Width = "250"
-                                    },                                
-                                    new ColumnProperty(nameof(ShippingProviderModel.DisplayOrder))
-                                    {
-                                        Title = T("Admin.Configuration.Shipping.Providers.Fields.DisplayOrder").Text,
-                                        Width = "100",
-                                        ClassName = NopColumnClassDefaults.CenterAll,
-                                        Editable = true,
-                                        EditType = EditType.Number
-                                    },
-                                    new ColumnProperty(nameof(ShippingProviderModel.IsActive))
-                                    {
-                                        Title = T("Admin.Configuration.Shipping.Providers.Fields.IsActive").Text,
-                                        Width = "100",
-                                        ClassName = NopColumnClassDefaults.CenterAll,
-                                        Render = new RenderBoolean(),
-                                        Editable = true,
-                                        EditType = EditType.Checkbox
-                                    },
-                                    new ColumnProperty(nameof(ShippingProviderModel.SystemName))
-                                    {
-                                        Title = T("Admin.Configuration.Shipping.Providers.Configure").Text,
-                                        Width = "200",
-                                        ClassName =  NopColumnClassDefaults.Button,
-                                        Render = new RenderCustom("renderColumnConfigure")
-                                    },
-                                    new ColumnProperty(nameof(ShippingProviderModel.SystemName))
-                                    {
-                                        Title = T("Admin.Common.Edit").Text,
-                                        Width = "150",
-                                        ClassName =  NopColumnClassDefaults.Button,
-                                        Render = new RenderButtonsInlineEdit()
+                                        new ColumnProperty(nameof(ShippingProviderModel.FriendlyName))
+                                        {
+                                            Title = T("Admin.Configuration.Shipping.Providers.Fields.FriendlyName").Text
+                                        },
+                                        new ColumnProperty(nameof(ShippingProviderModel.SystemName))
+                                        {
+                                            Title = T("Admin.Configuration.Shipping.Providers.Fields.SystemName").Text,
+                                            Width = "250"
+                                        },
+                                        new ColumnProperty(nameof(ShippingProviderModel.DisplayOrder))
+                                        {
+                                            Title = T("Admin.Configuration.Shipping.Providers.Fields.DisplayOrder").Text,
+                                            Width = "100",
+                                            ClassName = NopColumnClassDefaults.CenterAll,
+                                            Editable = true,
+                                            EditType = EditType.Number
+                                        },
+                                        new ColumnProperty(nameof(ShippingProviderModel.IsActive))
+                                        {
+                                            Title = T("Admin.Configuration.Shipping.Providers.Fields.IsActive").Text,
+                                            Width = "100",
+                                            ClassName = NopColumnClassDefaults.CenterAll,
+                                            Render = new RenderBoolean(),
+                                            Editable = true,
+                                            EditType = EditType.Checkbox
+                                        },
+                                        new ColumnProperty(nameof(ShippingProviderModel.SystemName))
+                                        {
+                                            Title = T("Admin.Configuration.Shipping.Providers.Configure").Text,
+                                            Width = "200",
+                                            ClassName =  NopColumnClassDefaults.Button + " column-configure",
+                                            Render = new RenderCustom("renderColumnConfigure")
+                                        },
+                                        new ColumnProperty(nameof(ShippingProviderModel.SystemName))
+                                        {
+                                            Title = T("Admin.Common.Edit").Text,
+                                            Width = "150",
+                                            ClassName =  NopColumnClassDefaults.Button,
+                                            Render = new RenderButtonsInlineEdit()
+                                        }
                                     }
-                                }
-                        })
-                        
+                            })
+                        </div>
+
                         <script>
                             function renderColumnConfigure(data, type, row, meta) {
                                 if (row.ConfigurationUrl && row.ConfigurationUrl.length > 0) {
-                                    return '<a class="btn btn-default" href="' + row.ConfigurationUrl + '"><i class="fa fa-cog"></i>@T("Admin.Configuration.Shipping.Providers.Configure").Text</a>';
+                                    return '<a class="btn btn-default" href="' + row.ConfigurationUrl + '@(editQueryString)"><i class="fa fa-cog"></i>@T("Admin.Configuration.Shipping.Providers.Configure").Text</a>';
                                 } else {
                                     return '';
                                 }

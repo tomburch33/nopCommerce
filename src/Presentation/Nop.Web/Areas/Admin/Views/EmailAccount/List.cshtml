@@ -1,10 +1,47 @@
 @model EmailAccountSearchModel
+@inject Nop.Services.Messages.IEmailAccountService emailAccountService
 
 @{
-    //page title
-    ViewBag.PageTitle = T("Admin.Configuration.EmailAccounts").Text;
-    //active menu item (system name)
-    Html.SetActiveMenuItemSystemName("Email accounts");
+  //page title
+  ViewBag.PageTitle = T("Admin.Configuration.EmailAccounts").Text;
+  //active menu item (system name)
+  Html.SetActiveMenuItemSystemName("Email accounts");
+
+  string editQueryString = string.Empty;
+  var showTour = ViewBag.showtour ?? false;
+  if (showTour)
+  {
+      Html.AppendCssFileParts("~/lib_npm/shepherd.js/css/shepherd.css");
+      Html.AppendScriptParts("~/lib_npm/shepherd.js/js/shepherd.min.js");
+      Html.AppendScriptParts("~/js/admintour/admin.tour.dataprovider.js");
+      Html.AppendScriptParts("~/js/admintour/admin.tour.emailaccountlist.js");
+
+      editQueryString = "?showtour=true";
+
+      var defaultEmailAccountId = (await emailAccountService.GetAllEmailAccountsAsync()).FirstOrDefault()?.Id ?? 0;
+
+    <script asp-location="Footer">
+        var localized_data = {
+            Back: '@T("Admin.ConfigurationSteps.Back")',
+            NextStep: '@T("Admin.ConfigurationSteps.NextStep")',
+            NextPage: '@T("Admin.ConfigurationSteps.NextPage")',
+
+            EmailAccountListEmailAccounts1Title: '@T("Admin.ConfigurationSteps.EmailAccountList.EmailAccounts1.Title")',
+            EmailAccountListEmailAccounts1Text: '@T("Admin.ConfigurationSteps.EmailAccountList.EmailAccounts1.Text")',
+
+            EmailAccountListEmailAccounts2Title: '@T("Admin.ConfigurationSteps.EmailAccountList.EmailAccounts2.Title")',
+            EmailAccountListEmailAccounts2Text: '@T("Admin.ConfigurationSteps.EmailAccountList.EmailAccounts2.Text")',
+
+            EmailAccountListDefaultEmailAccountTitle: '@T("Admin.ConfigurationSteps.EmailAccountList.DefaultEmailAccount.Title")',
+            EmailAccountListDefaultEmailAccountText: '@T("Admin.ConfigurationSteps.EmailAccountList.DefaultEmailAccount.Text")',
+
+            EmailAccountListEditTitle: '@T("Admin.ConfigurationSteps.EmailAccountList.Edit.Title")',
+            EmailAccountListEditText: '@T("Admin.ConfigurationSteps.EmailAccountList.Edit.Text")',
+        };
+
+        AdminTourDataProvider.init(localized_data, @defaultEmailAccountId);
+    </script>
+  }
 }
 
 <div class="content-header clearfix">
@@ -26,53 +63,61 @@
         <div class="cards-group">
             <div class="card card-default">
                 <div class="card-body">
-                    @await Html.PartialAsync("Table", new DataTablesModel
-                    {
-                        Name = "email-accounts-grid",
-                        UrlRead = new DataUrl("List", "EmailAccount", null),
-                        Length = Model.PageSize,
-                        LengthMenu = Model.AvailablePageSizes,
-                        ColumnCollection = new List<ColumnProperty>
+                    <div id="email-accounts-area">
+                        @await Html.PartialAsync("Table", new DataTablesModel
                         {
-                            new ColumnProperty(nameof(EmailAccountModel.Email))
+                            Name = "email-accounts-grid",
+                            RowIdBasedOnField = nameof(EmailAccountModel.Email),
+                            UrlRead = new DataUrl("List", "EmailAccount", null),
+                            Length = Model.PageSize,
+                            LengthMenu = Model.AvailablePageSizes,
+                            ColumnCollection = new List<ColumnProperty>
                             {
-                                Title = T("Admin.Configuration.EmailAccounts.Fields.Email").Text
-                            },
-                            new ColumnProperty(nameof(EmailAccountModel.DisplayName))
-                            {
-                                Title = T("Admin.Configuration.EmailAccounts.Fields.DisplayName").Text,
-                                Width = "200"
-                            },
-                            new ColumnProperty(nameof(EmailAccountModel.IsDefaultEmailAccount))
-                            {
-                                Title = T("Admin.Configuration.EmailAccounts.Fields.IsDefaultEmailAccount").Text,
-                                Width = "200",
-                                ClassName =  NopColumnClassDefaults.CenterAll,
-                                Render = new RenderBoolean()
-                            },
-                            new ColumnProperty(nameof(EmailAccountModel.Id))
-                            {
-                                Title = T("Admin.Configuration.EmailAccounts.Fields.MarkAsDefaultEmail").Text,
-                                Width = "300",
-                                ClassName =  NopColumnClassDefaults.CenterAll,
-                                Render = new RenderButtonCustom(NopButtonClassDefaults.Success, T("Admin.Configuration.EmailAccounts.Fields.MarkAsDefaultEmail").Text)
+                                new ColumnProperty(nameof(EmailAccountModel.Email))
                                 {
-                                    Url = Url.Content("~/Admin/EmailAccount/MarkAsDefaultEmail/")
+                                    Title = T("Admin.Configuration.EmailAccounts.Fields.Email").Text
+                                },
+                                new ColumnProperty(nameof(EmailAccountModel.DisplayName))
+                                {
+                                    Title = T("Admin.Configuration.EmailAccounts.Fields.DisplayName").Text,
+                                    Width = "200"
+                                },
+                                new ColumnProperty(nameof(EmailAccountModel.IsDefaultEmailAccount))
+                                {
+                                    Title = T("Admin.Configuration.EmailAccounts.Fields.IsDefaultEmailAccount").Text,
+                                    Width = "200",
+                                    ClassName =  NopColumnClassDefaults.CenterAll,
+                                    Render = new RenderBoolean()
+                                },
+                                new ColumnProperty(nameof(EmailAccountModel.Id))
+                                {
+                                    Title = T("Admin.Configuration.EmailAccounts.Fields.MarkAsDefaultEmail").Text,
+                                    Width = "300",
+                                    ClassName =  NopColumnClassDefaults.CenterAll + " column-default",
+                                    Render = new RenderButtonCustom(NopButtonClassDefaults.Success, T("Admin.Configuration.EmailAccounts.Fields.MarkAsDefaultEmail").Text)
+                                    {
+                                        Url = Url.Content("~/Admin/EmailAccount/MarkAsDefaultEmail/")
+                                    }
+                                },
+                                new ColumnProperty(nameof(EmailAccountModel.Id))
+                                {
+                                    Title = T("Admin.Common.Edit").Text,
+                                    Width = "100",
+                                    ClassName =  NopColumnClassDefaults.Button + " column-edit",
+                                    Render = new RenderCustom("renderColumnEdit")
                                 }
-
-                            },
-                            new ColumnProperty(nameof(EmailAccountModel.Id))
-                            {
-                                Title = T("Admin.Common.Edit").Text,
-                                Width = "100",
-                                ClassName =  NopColumnClassDefaults.Button,
-                                Render = new RenderButtonEdit(new DataUrl("Edit"))
                             }
-                        }
-                    })
+                        })
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 </section>
+
+<script>
+    function renderColumnEdit(data, type, row, meta) {
+        return '<a href="@Url.Content("~/Admin/EmailAccount/Edit/")' + data + '@(editQueryString)" class="btn btn-default"><i class="fa fa-pencil"></i>@T("Admin.Common.Edit").Text</a>';
+    }
+</script>

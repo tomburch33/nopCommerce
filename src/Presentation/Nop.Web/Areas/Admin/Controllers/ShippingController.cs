@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
+using Nop.Core;
 using Nop.Core.Domain.Common;
 using Nop.Core.Domain.Shipping;
 using Nop.Core.Events;
@@ -45,6 +46,8 @@ namespace Nop.Web.Areas.Admin.Controllers
         private readonly IShippingModelFactory _shippingModelFactory;
         private readonly IShippingPluginManager _shippingPluginManager;
         private readonly IShippingService _shippingService;
+        private readonly IGenericAttributeService _genericAttributeService;
+        private readonly IWorkContext _workContext;
         private readonly ShippingSettings _shippingSettings;
 
         #endregion
@@ -65,6 +68,8 @@ namespace Nop.Web.Areas.Admin.Controllers
             IShippingModelFactory shippingModelFactory,
             IShippingPluginManager shippingPluginManager,
             IShippingService shippingService,
+            IGenericAttributeService genericAttributeService,
+            IWorkContext workContext,
             ShippingSettings shippingSettings)
         {
             _addressService = addressService;
@@ -81,6 +86,8 @@ namespace Nop.Web.Areas.Admin.Controllers
             _shippingModelFactory = shippingModelFactory;
             _shippingPluginManager = shippingPluginManager;
             _shippingService = shippingService;
+            _genericAttributeService = genericAttributeService;
+            _workContext = workContext;
             _shippingSettings = shippingSettings;
         }
 
@@ -117,13 +124,26 @@ namespace Nop.Web.Areas.Admin.Controllers
 
         #region Shipping rate computation methods
 
-        public virtual async Task<IActionResult> Providers()
+        public virtual async Task<IActionResult> Providers(bool showtour = false)
         {
             if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageShippingSettings))
                 return AccessDeniedView();
 
             //prepare model
             var model = await _shippingModelFactory.PrepareShippingProviderSearchModelAsync(new ShippingProviderSearchModel());
+
+            //show configuration tour
+            if (showtour)
+            {
+                const string hideCardAttributeName = "HideConfigurationSteps";
+                var hideCard = await _genericAttributeService.GetAttributeAsync<bool>(await _workContext.GetCurrentCustomerAsync(), hideCardAttributeName);
+
+                const string closeCardAttributeName = "CloseConfigurationSteps";
+                var closeCard = await _genericAttributeService.GetAttributeAsync<bool>(await _workContext.GetCurrentCustomerAsync(), closeCardAttributeName);
+
+                if (!hideCard && !closeCard)
+                    ViewBag.showtour = true;
+            }
 
             return View(model);
         }

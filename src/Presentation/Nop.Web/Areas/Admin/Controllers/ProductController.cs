@@ -71,6 +71,7 @@ namespace Nop.Web.Areas.Admin.Controllers
         private readonly ISpecificationAttributeService _specificationAttributeService;
         private readonly IStoreContext _storeContext;
         private readonly IUrlRecordService _urlRecordService;
+        private readonly IGenericAttributeService _genericAttributeService;
         private readonly IWorkContext _workContext;
         private readonly VendorSettings _vendorSettings;
 
@@ -108,6 +109,7 @@ namespace Nop.Web.Areas.Admin.Controllers
             ISpecificationAttributeService specificationAttributeService,
             IStoreContext storeContext,
             IUrlRecordService urlRecordService,
+            IGenericAttributeService genericAttributeService,
             IWorkContext workContext,
             VendorSettings vendorSettings)
         {
@@ -141,6 +143,7 @@ namespace Nop.Web.Areas.Admin.Controllers
             _specificationAttributeService = specificationAttributeService;
             _storeContext = storeContext;
             _urlRecordService = urlRecordService;
+            _genericAttributeService = genericAttributeService;
             _workContext = workContext;
             _vendorSettings = vendorSettings;
         }
@@ -770,7 +773,7 @@ namespace Nop.Web.Areas.Admin.Controllers
             return await List();
         }
 
-        public virtual async Task<IActionResult> Create()
+        public virtual async Task<IActionResult> Create(bool showtour = false)
         {
             if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageProducts))
                 return AccessDeniedView();
@@ -786,6 +789,19 @@ namespace Nop.Web.Areas.Admin.Controllers
 
             //prepare model
             var model = await _productModelFactory.PrepareProductModelAsync(new ProductModel(), null);
+
+            //show configuration tour
+            if (showtour)
+            {
+                const string hideCardAttributeName = "HideConfigurationSteps";
+                var hideCard = await _genericAttributeService.GetAttributeAsync<bool>(await _workContext.GetCurrentCustomerAsync(), hideCardAttributeName);
+
+                const string closeCardAttributeName = "CloseConfigurationSteps";
+                var closeCard = await _genericAttributeService.GetAttributeAsync<bool>(await _workContext.GetCurrentCustomerAsync(), closeCardAttributeName);
+
+                if (!hideCard && !closeCard)
+                    ViewBag.showtour = true;
+            }
 
             return View(model);
         }

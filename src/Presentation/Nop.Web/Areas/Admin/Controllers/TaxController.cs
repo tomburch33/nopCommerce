@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Nop.Core;
 using Nop.Core.Domain.Tax;
+using Nop.Services.Common;
 using Nop.Services.Configuration;
 using Nop.Services.Security;
 using Nop.Services.Tax;
@@ -20,6 +22,8 @@ namespace Nop.Web.Areas.Admin.Controllers
         private readonly IPermissionService _permissionService;
         private readonly ISettingService _settingService;
         private readonly ITaxCategoryService _taxCategoryService;
+        private readonly IGenericAttributeService _genericAttributeService;
+        private readonly IWorkContext _workContext;
         private readonly ITaxModelFactory _taxModelFactory;
         private readonly ITaxPluginManager _taxPluginManager;
         private readonly TaxSettings _taxSettings;
@@ -31,6 +35,8 @@ namespace Nop.Web.Areas.Admin.Controllers
         public TaxController(IPermissionService permissionService,
             ISettingService settingService,
             ITaxCategoryService taxCategoryService,
+            IGenericAttributeService genericAttributeService,
+            IWorkContext workContext,
             ITaxModelFactory taxModelFactory,
             ITaxPluginManager taxPluginManager,
             TaxSettings taxSettings)
@@ -38,6 +44,8 @@ namespace Nop.Web.Areas.Admin.Controllers
             _permissionService = permissionService;
             _settingService = settingService;
             _taxCategoryService = taxCategoryService;
+            _genericAttributeService = genericAttributeService;
+            _workContext = workContext;
             _taxModelFactory = taxModelFactory;
             _taxPluginManager = taxPluginManager;
             _taxSettings = taxSettings;
@@ -54,13 +62,26 @@ namespace Nop.Web.Areas.Admin.Controllers
             return RedirectToAction("Providers");
         }
 
-        public virtual async Task<IActionResult> Providers()
+        public virtual async Task<IActionResult> Providers(bool showtour = false)
         {
             if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageTaxSettings))
                 return AccessDeniedView();
 
             //prepare model
             var model = await _taxModelFactory.PrepareTaxProviderSearchModelAsync(new TaxProviderSearchModel());
+
+            //show configuration tour
+            if (showtour)
+            {
+                const string hideCardAttributeName = "HideConfigurationSteps";
+                var hideCard = await _genericAttributeService.GetAttributeAsync<bool>(await _workContext.GetCurrentCustomerAsync(), hideCardAttributeName);
+
+                const string closeCardAttributeName = "CloseConfigurationSteps";
+                var closeCard = await _genericAttributeService.GetAttributeAsync<bool>(await _workContext.GetCurrentCustomerAsync(), closeCardAttributeName);
+
+                if (!hideCard && !closeCard)
+                    ViewBag.showtour = true;
+            }
 
             return View(model);
         }

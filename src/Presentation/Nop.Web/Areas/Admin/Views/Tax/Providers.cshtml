@@ -5,6 +5,43 @@
     ViewBag.PageTitle = T("Admin.Configuration.Tax.Providers").Text;
     //active menu item (system name)
     Html.SetActiveMenuItemSystemName("Tax providers");
+
+    string editQueryString = string.Empty;
+    var showTour = ViewBag.showtour ?? false;
+    if (showTour)
+    {
+        Html.AppendCssFileParts("~/lib_npm/shepherd.js/css/shepherd.css");
+        Html.AppendScriptParts("~/lib_npm/shepherd.js/js/shepherd.min.js");
+        Html.AppendScriptParts("~/js/admintour/admin.tour.dataprovider.js");
+        Html.AppendScriptParts("~/js/admintour/admin.tour.taxproviders.js");
+
+        editQueryString = "?showtour=true";
+
+        <script asp-location="Footer">
+            var localized_data = {
+                Back: '@T("Admin.ConfigurationSteps.Back")',
+                NextStep: '@T("Admin.ConfigurationSteps.NextStep")',
+                NextPage: '@T("Admin.ConfigurationSteps.NextPage")',
+
+                TaxProvidersTaxProvidersTitle: '@T("Admin.ConfigurationSteps.TaxProviders.TaxProviders.Title")',
+                TaxProvidersTaxProvidersText: '@T("Admin.ConfigurationSteps.TaxProviders.TaxProviders.Text")',
+
+                TaxProvidersAvalaraTitle: '@T("Admin.ConfigurationSteps.TaxProviders.Avalara.Title")',
+                TaxProvidersAvalaraText: '@T("Admin.ConfigurationSteps.TaxProviders.Avalara.Text")',
+
+                TaxProvidersManualTitle: '@T("Admin.ConfigurationSteps.TaxProviders.Manual.Title")',
+                TaxProvidersManualText: '@T("Admin.ConfigurationSteps.TaxProviders.Manual.Text")',
+
+                TaxProvidersPrimaryProviderTitle: '@T("Admin.ConfigurationSteps.TaxProviders.PrimaryProvider.Title")',
+                TaxProvidersPrimaryProviderText: '@T("Admin.ConfigurationSteps.TaxProviders.PrimaryProvider.Text")',
+
+                TaxProvidersConfigureTitle: '@T("Admin.ConfigurationSteps.TaxProviders.Configure.Title")',
+                TaxProvidersConfigureText: '@T("Admin.ConfigurationSteps.TaxProviders.Configure.Text")',
+            };
+
+            AdminTourDataProvider.init(localized_data);
+        </script>
+    }
 }
 
 <form asp-controller="Tax" asp-action="Providers" method="post">
@@ -15,75 +52,79 @@
     </div>
 
     <section class="content">
-    <div class="container-fluid">
-        <div class="form-horizontal">
-            <div class="cards-group">
-                @await Component.InvokeAsync("AdminWidget", new { widgetZone = AdminWidgetZones.TaxProviderListButtons })
-                <div class="card card-default">
-                    <div class="card-body">
-                        <p>
-                            @T("Admin.Configuration.Tax.Providers.DownloadMorePlugins")
-                        </p>
-                        @await Html.PartialAsync("Table", new DataTablesModel
-                        {
-                            Name = "tax-providers-grid",
-                            UrlRead = new DataUrl("Providers", "Tax", null),
-                            Length = Model.PageSize,
-                            LengthMenu = Model.AvailablePageSizes,
-                            ColumnCollection = new List<ColumnProperty>
-                            {
-                                new ColumnProperty(nameof(TaxProviderModel.FriendlyName))
-                                {
-                                    Title = T("Admin.Configuration.Tax.Providers.Fields.FriendlyName").Text,
-                                    Width = "250"
-                                },
-                                new ColumnProperty(nameof(TaxProviderModel.SystemName))
-                                {
-                                    Title = T("Admin.Configuration.Tax.Providers.Fields.SystemName").Text,
-                                    Width = "250"
-                                },
-                                new ColumnProperty(nameof(TaxProviderModel.IsPrimaryTaxProvider))
-                                {
-                                    Title = T("Admin.Configuration.Tax.Providers.Fields.IsPrimaryTaxProvider").Text,
-                                    Width = "100",
-                                    ClassName =  NopColumnClassDefaults.CenterAll,
-                                    Render = new RenderBoolean()
-                                },
-                                new ColumnProperty(nameof(TaxProviderModel.SystemName))
-                                {
-                                    Title = T("Admin.Configuration.Tax.Providers.Fields.MarkAsPrimaryProvider").Text,
-                                    Width = "200",
-                                    ClassName =  NopColumnClassDefaults.Button,
-                                    Render = new RenderCustom("renderColumnSystemName")
-                                },
-                                new ColumnProperty(nameof(TaxProviderModel.SystemName))
-                                {
-                                    Title = T("Admin.Configuration.Tax.Providers.Configure").Text,
-                                    Width = "150",
-                                    ClassName =  NopColumnClassDefaults.Button,
-                                    Render = new RenderCustom("renderColumnConfigure")
-                                }
-                            }
-                        })
+        <div class="container-fluid">
+            <div class="form-horizontal">
+                <div class="cards-group">
+                    @await Component.InvokeAsync("AdminWidget", new { widgetZone = AdminWidgetZones.TaxProviderListButtons })
+                    <div class="card card-default">
+                        <div class="card-body">
+                            <p>
+                                @T("Admin.Configuration.Tax.Providers.DownloadMorePlugins")
+                            </p>
 
-                        <script>
+                            <div id="tax-providers-area">
+                                @await Html.PartialAsync("Table", new DataTablesModel
+                                {
+                                    Name = "tax-providers-grid",
+                                    RowIdBasedOnField = nameof(PaymentMethodModel.SystemName),
+                                    UrlRead = new DataUrl("Providers", "Tax", null),
+                                    Length = Model.PageSize,
+                                    LengthMenu = Model.AvailablePageSizes,
+                                    ColumnCollection = new List<ColumnProperty>
+                                    {
+                                        new ColumnProperty(nameof(TaxProviderModel.FriendlyName))
+                                        {
+                                            Title = T("Admin.Configuration.Tax.Providers.Fields.FriendlyName").Text,
+                                            Width = "250"
+                                        },
+                                        new ColumnProperty(nameof(TaxProviderModel.SystemName))
+                                        {
+                                            Title = T("Admin.Configuration.Tax.Providers.Fields.SystemName").Text,
+                                            Width = "250"
+                                        },
+                                        new ColumnProperty(nameof(TaxProviderModel.IsPrimaryTaxProvider))
+                                        {
+                                            Title = T("Admin.Configuration.Tax.Providers.Fields.IsPrimaryTaxProvider").Text,
+                                            Width = "100",
+                                            ClassName =  NopColumnClassDefaults.CenterAll,
+                                            Render = new RenderBoolean()
+                                        },
+                                        new ColumnProperty(nameof(TaxProviderModel.SystemName))
+                                        {
+                                            Title = T("Admin.Configuration.Tax.Providers.Fields.MarkAsPrimaryProvider").Text,
+                                            Width = "200",
+                                            ClassName =  NopColumnClassDefaults.Button + " column-primary",
+                                            Render = new RenderCustom("renderColumnSystemName")
+                                        },
+                                        new ColumnProperty(nameof(TaxProviderModel.SystemName))
+                                        {
+                                            Title = T("Admin.Configuration.Tax.Providers.Configure").Text,
+                                            Width = "150",
+                                            ClassName =  NopColumnClassDefaults.Button + " column-configure",
+                                            Render = new RenderCustom("renderColumnConfigure")
+                                        }
+                                    }
+                                })
+                            </div>
+
+                            <script>
                             function renderColumnSystemName(data, type, row, meta) {
                                 return '<a href="@Url.Content("~/Admin/Tax/MarkAsPrimaryProvider/")?systemName=' + row.SystemName +'" class="btn bg-green">@T("Admin.Configuration.Tax.Providers.Fields.MarkAsPrimaryProvider").Text</a>';
                             }
 
                             function renderColumnConfigure(data, type, row, meta) {
                                 if (row.ConfigurationUrl && row.ConfigurationUrl.length > 0) {
-                                    return '<a class="btn btn-default" href="' + row.ConfigurationUrl + '"><i class="fa fa-cog"></i>@T("Admin.Configuration.Tax.Providers.Configure").Text</a>';
+                                    return '<a class="btn btn-default" href="' + row.ConfigurationUrl + '@(editQueryString)"><i class="fa fa-cog"></i>@T("Admin.Configuration.Tax.Providers.Configure").Text</a>';
                                 } else {
                                     return '';
                                 }
                             }
-                        </script>
+                            </script>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
     </section>
 </form>
 

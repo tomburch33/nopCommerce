@@ -1,6 +1,43 @@
 ﻿@model Nop.Plugin.Shipping.FixedByWeightByTotal.Models.ConfigurationModel
 @{
     Layout = "_ConfigurePlugin";
+
+    var showTour = ViewBag.showtour ?? false;
+    if (showTour)
+    {
+        Html.AppendCssFileParts("~/lib_npm/shepherd.js/css/shepherd.css");
+        Html.AppendScriptParts("~/lib_npm/shepherd.js/js/shepherd.min.js");
+        Html.AppendScriptParts("~/js/admintour/admin.tour.dataprovider.js");
+        Html.AppendScriptParts("~/js/admintour/admin.tour.shippingmanual.js");
+
+        <script asp-location="Footer">
+            var localized_data = {
+                Back: '@T("Admin.ConfigurationSteps.Back")',
+                NextStep: '@T("Admin.ConfigurationSteps.NextStep")',
+                NextPage: '@T("Admin.ConfigurationSteps.NextPage")',
+
+                ConfigureManualSwitchTitle: '@T("Admin.ConfigurationSteps.ConfigureManual.Switch.Title")',
+                ConfigureManualSwitchText: '@T("Admin.ConfigurationSteps.ConfigureManual.Switch.Text")',
+
+                ConfigureManualFixedRateTitle: '@T("Admin.ConfigurationSteps.ConfigureManual.FixedRate.Title")',
+                ConfigureManualFixedRateText: '@T("Admin.ConfigurationSteps.ConfigureManual.FixedRate.Text")',
+
+                ConfigureManualByWeightTitle: '@T("Admin.ConfigurationSteps.ConfigureManual.ByWeight.Title")',
+                ConfigureManualByWeightText: '@T("Admin.ConfigurationSteps.ConfigureManual.ByWeight.Text")',
+
+                ConfigureManualMethodsTitle: '@T("Admin.ConfigurationSteps.ConfigureManual.Methods.Title")',
+                ConfigureManualMethodsText: '@T("Admin.ConfigurationSteps.ConfigureManual.Methods.Text")',
+
+                ConfigureManualEditTitle: '@T("Admin.ConfigurationSteps.ConfigureManual.Edit.Title")',
+                ConfigureManualEditText: '@T("Admin.ConfigurationSteps.ConfigureManual.Edit.Text")',
+
+                ConfigureManualManageTitle: '@T("Admin.ConfigurationSteps.ConfigureManual.Manage.Title")',
+                ConfigureManualManageText: '@T("Admin.ConfigurationSteps.ConfigureManual.Manage.Text")',
+            };
+
+            AdminTourDataProvider.init(localized_data);
+        </script>
+    }
 }
 
 <div class="row">
@@ -9,15 +46,15 @@
             <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="advanced-settings-mode" checked="@Model.ShippingByWeightByTotalEnabled">
             <label class="onoffswitch-label" for="advanced-settings-mode">
                 <span class="onoffswitch-inner"
-                          data-locale-basic="@T("Plugins.Shipping.FixedByWeightByTotal.Fixed")"
-                          data-locale-advanced="@T("Plugins.Shipping.FixedByWeightByTotal.ShippingByWeight")"></span>
+                      data-locale-basic="@T("Plugins.Shipping.FixedByWeightByTotal.Fixed")"
+                      data-locale-advanced="@T("Plugins.Shipping.FixedByWeightByTotal.ShippingByWeight")"></span>
                 <span class="onoffswitch-switch"></span>
             </label>
         </div>
     </div>
     <div class="col-md-9">
         <div class="pull-right">
-            <a asp-controller="Shipping" asp-action="Methods" class="btn btn-primary">
+            <a asp-controller="Shipping" asp-action="Methods" class="btn btn-primary" id="manage-shipping-methods-button">
                 <i class="fa fa-truck"></i>
                 @T("Admin.Configuration.Shipping.Methods.Manage")
             </a>

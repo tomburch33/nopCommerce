@@ -5,6 +5,46 @@
     ViewBag.PageTitle = T("Admin.Catalog.Products.AddNew").Text;
     //active menu item (system name)
     Html.SetActiveMenuItemSystemName("Products");
+
+    var showTour = ViewBag.showtour ?? false;
+    if (showTour)
+    {
+        Html.AppendCssFileParts("~/lib_npm/shepherd.js/css/shepherd.css");
+        Html.AppendScriptParts("~/lib_npm/shepherd.js/js/shepherd.min.js");
+        Html.AppendScriptParts("~/js/admintour/admin.tour.dataprovider.js");
+        Html.AppendScriptParts("~/js/admintour/admin.tour.product.js");
+
+    <script asp-location="Footer">
+            var localized_data = {
+                Back: '@T("Admin.ConfigurationSteps.Back")',
+                NextStep: '@T("Admin.ConfigurationSteps.NextStep")',
+                NextPage: '@T("Admin.ConfigurationSteps.NextPage")',
+
+                ProductSettingsButtonTitle: '@T("Admin.ConfigurationSteps.Product.SettingsButton.Title")',
+                ProductSettingsButtonText: '@T("Admin.ConfigurationSteps.Product.SettingsButton.Text")',
+
+                ProductDetailsTitle: '@T("Admin.ConfigurationSteps.Product.Details.Title")',
+                ProductDetailsText: '@T("Admin.ConfigurationSteps.Product.Details.Text")',
+
+                ProductPriceTitle: '@T("Admin.ConfigurationSteps.Product.Price.Title")',
+                ProductPriceText: '@T("Admin.ConfigurationSteps.Product.Price.Text")',
+
+                ProductTaxTitle: '@T("Admin.ConfigurationSteps.Product.Tax.Title")',
+                ProductTaxText: '@T("Admin.ConfigurationSteps.Product.Tax.Text")',
+
+                ProductShippingTitle: '@T("Admin.ConfigurationSteps.Product.Shipping.Title")',
+                ProductShippingText: '@T("Admin.ConfigurationSteps.Product.Shipping.Text")',
+
+                ProductInventoryTitle: '@T("Admin.ConfigurationSteps.Product.Inventory.Title")',
+                ProductInventoryText: '@T("Admin.ConfigurationSteps.Product.Inventory.Text")',
+
+                ProductPicturesTitle: '@T("Admin.ConfigurationSteps.Product.Pictures.Title")',
+                ProductPicturesText: '@T("Admin.ConfigurationSteps.Product.Pictures.Text")',
+            };
+
+            AdminTourDataProvider.init(localized_data);
+    </script>
+    }
 }
 
 <form asp-controller="Product" asp-action="Create" method="post" id="product-form">

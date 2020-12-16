@@ -5,16 +5,16 @@
     var hideInfoBlock = await genericAttributeService.GetAttributeAsync<bool>(await workContext.GetCurrentCustomerAsync(), hideInfoBlockAttributeName);
 
     const string hidePricesBlockAttributeName = "ProductPage.HidePricesBlock";
-    var hidePricesBlock = await genericAttributeService.GetAttributeAsync<bool>(await workContext.GetCurrentCustomerAsync(), hidePricesBlockAttributeName, defaultValue: true);
+    var hidePricesBlock = await genericAttributeService.GetAttributeAsync<bool>(await workContext.GetCurrentCustomerAsync(), hidePricesBlockAttributeName);
 
     const string hideShippingBlockAttributeName = "ProductPage.HideShippingBlock";
-    var hideShippingBlock = await genericAttributeService.GetAttributeAsync<bool>(await workContext.GetCurrentCustomerAsync(), hideShippingBlockAttributeName, defaultValue: true);
+    var hideShippingBlock = await genericAttributeService.GetAttributeAsync<bool>(await workContext.GetCurrentCustomerAsync(), hideShippingBlockAttributeName);
 
     const string hideInventoryBlockAttributeName = "ProductPage.HideInventoryBlock";
-    var hideInventoryBlock = await genericAttributeService.GetAttributeAsync<bool>(await workContext.GetCurrentCustomerAsync(), hideInventoryBlockAttributeName, defaultValue: true);
+    var hideInventoryBlock = await genericAttributeService.GetAttributeAsync<bool>(await workContext.GetCurrentCustomerAsync(), hideInventoryBlockAttributeName);
 
     const string hidePicturesBlockAttributeName = "ProductPage.HidePicturesBlock";
-    var hidePicturesBlock = await genericAttributeService.GetAttributeAsync<bool>(await workContext.GetCurrentCustomerAsync(), hidePicturesBlockAttributeName, defaultValue: true);
+    var hidePicturesBlock = await genericAttributeService.GetAttributeAsync<bool>(await workContext.GetCurrentCustomerAsync(), hidePicturesBlockAttributeName);
 
     const string hideProductAttributesBlockAttributeName = "ProductPage.HideProductAttributesBlock";
     var hideProductAttributesBlock = await genericAttributeService.GetAttributeAsync<bool>(await workContext.GetCurrentCustomerAsync(), hideProductAttributesBlockAttributeName, defaultValue: true);
@@ -63,7 +63,7 @@
                     </div>
                     @if (!Model.IsLoggedInAsVendor)
                     {
-                        <button type="button" class="btn btn-info pull-left mx-1" id="product-editor-settings" data-toggle="modal" data-target="#productsettings-window">
+                        <button type="button" class="btn btn-info pull-left mx-2" id="product-editor-settings" data-toggle="modal" data-target="#productsettings-window">
                             <i class="fa fa-gear"></i>
                             @T("Admin.Configuration.Settings.ProductEditor.Button")
                         </button>

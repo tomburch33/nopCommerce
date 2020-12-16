@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Nop.Core;
 using Nop.Core.Domain.Messages;
+using Nop.Services.Common;
 using Nop.Services.Configuration;
 using Nop.Services.Localization;
 using Nop.Services.Logging;
@@ -29,6 +30,8 @@ namespace Nop.Web.Areas.Admin.Controllers
         private readonly INotificationService _notificationService;
         private readonly IPermissionService _permissionService;
         private readonly ISettingService _settingService;
+        private readonly IGenericAttributeService _genericAttributeService;
+        private readonly IWorkContext _workContext;
         private readonly IStoreContext _storeContext;
 
         #endregion
@@ -44,6 +47,8 @@ namespace Nop.Web.Areas.Admin.Controllers
             INotificationService notificationService,
             IPermissionService permissionService,
             ISettingService settingService,
+            IGenericAttributeService genericAttributeService,
+            IWorkContext workContext,
             IStoreContext storeContext)
         {
             _emailAccountSettings = emailAccountSettings;
@@ -55,6 +60,8 @@ namespace Nop.Web.Areas.Admin.Controllers
             _notificationService = notificationService;
             _permissionService = permissionService;
             _settingService = settingService;
+            _genericAttributeService = genericAttributeService;
+            _workContext = workContext;
             _storeContext = storeContext;
         }
 
@@ -62,13 +69,26 @@ namespace Nop.Web.Areas.Admin.Controllers
 
         #region Methods
 
-        public virtual async Task<IActionResult> List()
+        public virtual async Task<IActionResult> List(bool showtour = false)
         {
             if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageEmailAccounts))
                 return AccessDeniedView();
 
             //prepare model
             var model = await _emailAccountModelFactory.PrepareEmailAccountSearchModelAsync(new EmailAccountSearchModel());
+
+            //show configuration tour
+            if (showtour)
+            {
+                const string hideCardAttributeName = "HideConfigurationSteps";
+                var hideCard = await _genericAttributeService.GetAttributeAsync<bool>(await _workContext.GetCurrentCustomerAsync(), hideCardAttributeName);
+
+                const string closeCardAttributeName = "CloseConfigurationSteps";
+                var closeCard = await _genericAttributeService.GetAttributeAsync<bool>(await _workContext.GetCurrentCustomerAsync(), closeCardAttributeName);
+
+                if (!hideCard && !closeCard)
+                    ViewBag.showtour = true;
+            }
 
             return View(model);
         }
@@ -141,7 +161,7 @@ namespace Nop.Web.Areas.Admin.Controllers
             return View(model);
         }
 
-        public virtual async Task<IActionResult> Edit(int id)
+        public virtual async Task<IActionResult> Edit(int id, bool showtour = false)
         {
             if (!await _permissionService.AuthorizeAsync(StandardPermissionProvider.ManageEmailAccounts))
                 return AccessDeniedView();
@@ -153,6 +173,19 @@ namespace Nop.Web.Areas.Admin.Controllers
 
             //prepare model
             var model = await _emailAccountModelFactory.PrepareEmailAccountModelAsync(null, emailAccount);
+
+            //show configuration tour
+            if (showtour)
+            {
+                const string hideCardAttributeName = "HideConfigurationSteps";
+                var hideCard = await _genericAttributeService.GetAttributeAsync<bool>(await _workContext.GetCurrentCustomerAsync(), hideCardAttributeName);
+
+                const string closeCardAttributeName = "CloseConfigurationSteps";
+                var closeCard = await _genericAttributeService.GetAttributeAsync<bool>(await _workContext.GetCurrentCustomerAsync(), closeCardAttributeName);
+
+                if (!hideCard && !closeCard)
+                    ViewBag.showtour = true;
+            }
 
             return View(model);
         }
