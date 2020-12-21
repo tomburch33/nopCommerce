@@ -1,11 +1,11 @@
-﻿@model CatalogPagingFilteringModel.PriceRangeFilterModel
+﻿@model PriceRangeFilterModel
 @{
     var selectedItem = Model.Items.FirstOrDefault(x => x.Selected);
 }
 
 @functions{
 
-    public string FormatPriceRangeText(CatalogPagingFilteringModel.PriceRangeFilterItem filterItem)
+    public string FormatPriceRangeText(PriceRangeFilterItem filterItem)
     {
         var rangeText = "";
         if (string.IsNullOrWhiteSpace(filterItem.From))

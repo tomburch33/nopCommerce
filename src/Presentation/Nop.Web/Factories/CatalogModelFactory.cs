@@ -149,18 +149,18 @@ namespace Nop.Web.Factories
         /// <summary>
         /// Prepare sorting options
         /// </summary>
-        /// <param name="pagingFilteringModel">Catalog paging filtering model</param>
-        /// <param name="command">Catalog paging filtering command</param>
-        public virtual async Task PrepareSortingOptionsAsync(CatalogPagingFilteringModel pagingFilteringModel, CatalogPagingFilteringModel command)
+        /// <param name="displayingModel">Products displaying model</param>
+        /// <param name="command">Products displaying model</param>
+        public virtual async Task PrepareSortingOptionsAsync(CatalogProductsDisplayingModel displayingModel, CatalogProductsDisplayingModel command)
         {
-            if (pagingFilteringModel == null)
-                throw new ArgumentNullException(nameof(pagingFilteringModel));
+            if (displayingModel == null)
+                throw new ArgumentNullException(nameof(displayingModel));
 
             if (command == null)
                 throw new ArgumentNullException(nameof(command));
 
             //set the order by position by default
-            pagingFilteringModel.OrderBy = command.OrderBy;
+            displayingModel.OrderBy = command.OrderBy;
             command.OrderBy = (int)ProductSortingEnum.Position;
 
             //ensure that product sorting is enabled
@@ -178,14 +178,14 @@ namespace Nop.Web.Factories
                 .Select(id => new { Id = id, Order = _catalogSettings.ProductSortingEnumDisplayOrder.TryGetValue(id, out var order) ? order : id })
                 .OrderBy(option => option.Order).ToList();
 
-            pagingFilteringModel.AllowProductSorting = true;
-            command.OrderBy = pagingFilteringModel.OrderBy ?? orderedActiveSortingOptions.FirstOrDefault().Id;
+            displayingModel.AllowProductSorting = true;
+            command.OrderBy = displayingModel.OrderBy ?? orderedActiveSortingOptions.FirstOrDefault().Id;
 
             //prepare available model sorting options
             var currentPageUrl = _webHelper.GetThisPageUrl(true);
             foreach (var option in orderedActiveSortingOptions)
             {
-                pagingFilteringModel.AvailableSortOptions.Add(new SelectListItem
+                displayingModel.AvailableSortOptions.Add(new SelectListItem
                 {
                     Text = await _localizationService.GetLocalizedEnumAsync((ProductSortingEnum)option.Id),
                     Value = _webHelper.ModifyQueryString(currentPageUrl, "orderby", option.Id.ToString()),
@@ -197,34 +197,34 @@ namespace Nop.Web.Factories
         /// <summary>
         /// Prepare view modes
         /// </summary>
-        /// <param name="pagingFilteringModel">Catalog paging filtering model</param>
-        /// <param name="command">Catalog paging filtering command</param>
-        public virtual async Task PrepareViewModesAsync(CatalogPagingFilteringModel pagingFilteringModel, CatalogPagingFilteringModel command)
+        /// <param name="displayingModel">Products displaying model</param>
+        /// <param name="command">Products displaying model</param>
+        public virtual async Task PrepareViewModesAsync(CatalogProductsDisplayingModel displayingModel, CatalogProductsDisplayingModel command)
         {
-            if (pagingFilteringModel == null)
-                throw new ArgumentNullException(nameof(pagingFilteringModel));
+            if (displayingModel == null)
+                throw new ArgumentNullException(nameof(displayingModel));
 
             if (command == null)
                 throw new ArgumentNullException(nameof(command));
 
-            pagingFilteringModel.AllowProductViewModeChanging = _catalogSettings.AllowProductViewModeChanging;
+            displayingModel.AllowProductViewModeChanging = _catalogSettings.AllowProductViewModeChanging;
 
             var viewMode = !string.IsNullOrEmpty(command.ViewMode)
                 ? command.ViewMode
                 : _catalogSettings.DefaultViewMode;
-            pagingFilteringModel.ViewMode = viewMode;
-            if (pagingFilteringModel.AllowProductViewModeChanging)
+            displayingModel.ViewMode = viewMode;
+            if (displayingModel.AllowProductViewModeChanging)
             {
                 var currentPageUrl = _webHelper.GetThisPageUrl(true);
                 //grid
-                pagingFilteringModel.AvailableViewModes.Add(new SelectListItem
+                displayingModel.AvailableViewModes.Add(new SelectListItem
                 {
                     Text = await _localizationService.GetResourceAsync("Catalog.ViewMode.Grid"),
                     Value = _webHelper.ModifyQueryString(currentPageUrl, "viewmode", "grid"),
                     Selected = viewMode == "grid"
                 });
                 //list
-                pagingFilteringModel.AvailableViewModes.Add(new SelectListItem
+                displayingModel.AvailableViewModes.Add(new SelectListItem
                 {
                     Text = await _localizationService.GetResourceAsync("Catalog.ViewMode.List"),
                     Value = _webHelper.ModifyQueryString(currentPageUrl, "viewmode", "list"),
@@ -236,16 +236,16 @@ namespace Nop.Web.Factories
         /// <summary>
         /// Prepare page size options
         /// </summary>
-        /// <param name="pagingFilteringModel">Catalog paging filtering model</param>
-        /// <param name="command">Catalog paging filtering command</param>
+        /// <param name="productsModel">Catalog products model</param>
+        /// <param name="command">Catalog products model</param>
         /// <param name="allowCustomersToSelectPageSize">Are customers allowed to select page size?</param>
         /// <param name="pageSizeOptions">Page size options</param>
         /// <param name="fixedPageSize">Fixed page size</param>
-        public virtual Task PreparePageSizeOptionsAsync(CatalogPagingFilteringModel pagingFilteringModel, CatalogPagingFilteringModel command,
+        public virtual Task PreparePageSizeOptionsAsync(CatalogProductsModel productsModel, CatalogProductsModel command,
             bool allowCustomersToSelectPageSize, string pageSizeOptions, int fixedPageSize)
         {
-            if (pagingFilteringModel == null)
-                throw new ArgumentNullException(nameof(pagingFilteringModel));
+            if (productsModel == null)
+                throw new ArgumentNullException(nameof(productsModel));
 
             if (command == null)
                 throw new ArgumentNullException(nameof(command));
@@ -253,7 +253,7 @@ namespace Nop.Web.Factories
             if (command.PageNumber <= 0)
                 command.PageNumber = 1;
 
-            pagingFilteringModel.AllowCustomersToSelectPageSize = false;
+            productsModel.DisplayingModel.AllowCustomersToSelectPageSize = false;
             if (allowCustomersToSelectPageSize && pageSizeOptions != null)
             {
                 var pageSizes = pageSizeOptions.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
@@ -283,7 +283,7 @@ namespace Nop.Web.Factories
                         if (temp <= 0)
                             continue;
 
-                        pagingFilteringModel.PageSizeOptions.Add(new SelectListItem
+                        productsModel.DisplayingModel.PageSizeOptions.Add(new SelectListItem
                         {
                             Text = pageSize,
                             Value = _webHelper.ModifyQueryString(sortUrl, "pagesize", pageSize),
@@ -291,14 +291,14 @@ namespace Nop.Web.Factories
                         });
                     }
 
-                    if (pagingFilteringModel.PageSizeOptions.Any())
+                    if (productsModel.DisplayingModel.PageSizeOptions.Any())
                     {
-                        pagingFilteringModel.PageSizeOptions = pagingFilteringModel.PageSizeOptions.OrderBy(x => int.Parse(x.Text)).ToList();
-                        pagingFilteringModel.AllowCustomersToSelectPageSize = true;
+                        productsModel.DisplayingModel.PageSizeOptions = productsModel.DisplayingModel.PageSizeOptions.OrderBy(x => int.Parse(x.Text)).ToList();
+                        productsModel.DisplayingModel.AllowCustomersToSelectPageSize = true;
 
                         if (command.PageSize <= 0)
                         {
-                            command.PageSize = int.Parse(pagingFilteringModel.PageSizeOptions.First().Text);
+                            command.PageSize = int.Parse(productsModel.DisplayingModel.PageSizeOptions.First().Text);
                         }
                     }
                 }
@@ -326,9 +326,9 @@ namespace Nop.Web.Factories
         /// Prepare category model
         /// </summary>
         /// <param name="category">Category</param>
-        /// <param name="command">Catalog paging filtering command</param>
+        /// <param name="command">Catalog products model</param>
         /// <returns>Category model</returns>
-        public virtual async Task<CategoryModel> PrepareCategoryModelAsync(Category category, CatalogPagingFilteringModel command)
+        public virtual async Task<CategoryModel> PrepareCategoryModelAsync(Category category, CatalogProductsModel command)
         {
             if (category == null)
                 throw new ArgumentNullException(nameof(category));
@@ -345,18 +345,18 @@ namespace Nop.Web.Factories
             };
 
             //sorting
-            await PrepareSortingOptionsAsync(model.PagingFilteringContext, command);
+            await PrepareSortingOptionsAsync(model.CatalogProductsModel.DisplayingModel, command.DisplayingModel);
             //view mode
-            await PrepareViewModesAsync(model.PagingFilteringContext, command);
+            await PrepareViewModesAsync(model.CatalogProductsModel.DisplayingModel, command.DisplayingModel);
             //page size
-            await PreparePageSizeOptionsAsync(model.PagingFilteringContext, command,
+            await PreparePageSizeOptionsAsync(model.CatalogProductsModel, command,
                 category.AllowCustomersToSelectPageSize,
                 category.PageSizeOptions,
                 category.PageSize);
 
             //price ranges
-            await model.PagingFilteringContext.PriceRangeFilter.LoadPriceRangeFiltersAsync(category.PriceRanges, _webHelper, _priceFormatter);
-            var selectedPriceRange = await model.PagingFilteringContext.PriceRangeFilter.GetSelectedPriceRangeAsync(_webHelper, category.PriceRanges);
+            await model.CatalogProductsModel.FilteringModel.PriceRangeFilter.LoadPriceRangeFiltersAsync(category.PriceRanges, _webHelper, _priceFormatter);
+            var selectedPriceRange = await model.CatalogProductsModel.FilteringModel.PriceRangeFilter.GetSelectedPriceRangeAsync(_webHelper, category.PriceRanges);
             decimal? minPriceConverted = null;
             decimal? maxPriceConverted = null;
             if (selectedPriceRange != null)
@@ -441,7 +441,7 @@ namespace Nop.Web.Factories
                 categoryIds.AddRange(await _categoryService.GetChildCategoryIdsAsync(category.Id, (await _storeContext.GetCurrentStoreAsync()).Id));
 
             //products
-            IList<int> alreadyFilteredSpecOptionIds = await model.PagingFilteringContext.SpecificationFilter.GetAlreadyFilteredSpecOptionIdsAsync(_webHelper);
+            IList<int> alreadyFilteredSpecOptionIds = await model.CatalogProductsModel.FilteringModel.SpecificationFilter.GetAlreadyFilteredSpecOptionIdsAsync(_webHelper);
             var (products, filterableSpecificationAttributeOptionIds) = await _productService.SearchProductsAsync(true,
                 categoryIds: categoryIds,
                 storeId: (await _storeContext.GetCurrentStoreAsync()).Id,
@@ -450,15 +450,15 @@ namespace Nop.Web.Factories
                 priceMin: minPriceConverted,
                 priceMax: maxPriceConverted,
                 filteredSpecs: alreadyFilteredSpecOptionIds,
-                orderBy: (ProductSortingEnum)command.OrderBy,
+                orderBy: (ProductSortingEnum)command.DisplayingModel.OrderBy,
                 pageIndex: command.PageNumber - 1,
                 pageSize: command.PageSize);
-            model.Products = (await _productModelFactory.PrepareProductOverviewModelsAsync(products)).ToList();
+            model.CatalogProductsModel.Products = (await _productModelFactory.PrepareProductOverviewModelsAsync(products)).ToList();
 
-            model.PagingFilteringContext.LoadPagedList(products);
+            model.CatalogProductsModel.LoadPagedList(products);
 
             //specs
-            await model.PagingFilteringContext.SpecificationFilter.PrepareSpecsFiltersAsync(alreadyFilteredSpecOptionIds,
+            await model.CatalogProductsModel.FilteringModel.SpecificationFilter.PrepareSpecsFiltersAsync(alreadyFilteredSpecOptionIds,
                 filterableSpecificationAttributeOptionIds?.ToArray(), _specificationAttributeService, _localizationService, _webHelper, _workContext, _staticCacheManager);
 
             return model;
@@ -751,9 +751,9 @@ namespace Nop.Web.Factories
         /// Prepare manufacturer model
         /// </summary>
         /// <param name="manufacturer">Manufacturer identifier</param>
-        /// <param name="command">Catalog paging filtering command</param>
+        /// <param name="command">Catalog products model</param>
         /// <returns>Manufacturer model</returns>
-        public virtual async Task<ManufacturerModel> PrepareManufacturerModelAsync(Manufacturer manufacturer, CatalogPagingFilteringModel command)
+        public virtual async Task<ManufacturerModel> PrepareManufacturerModelAsync(Manufacturer manufacturer, CatalogProductsModel command)
         {
             if (manufacturer == null)
                 throw new ArgumentNullException(nameof(manufacturer));
@@ -770,18 +770,18 @@ namespace Nop.Web.Factories
             };
 
             //sorting
-            await PrepareSortingOptionsAsync(model.PagingFilteringContext, command);
+            await PrepareSortingOptionsAsync(model.CatalogProductsModel.DisplayingModel, command.DisplayingModel);
             //view mode
-            await PrepareViewModesAsync(model.PagingFilteringContext, command);
+            await PrepareViewModesAsync(model.CatalogProductsModel.DisplayingModel, command.DisplayingModel);
             //page size
-            await PreparePageSizeOptionsAsync(model.PagingFilteringContext, command,
+            await PreparePageSizeOptionsAsync(model.CatalogProductsModel, command,
                 manufacturer.AllowCustomersToSelectPageSize,
                 manufacturer.PageSizeOptions,
                 manufacturer.PageSize);
 
             //price ranges
-            await model.PagingFilteringContext.PriceRangeFilter.LoadPriceRangeFiltersAsync(manufacturer.PriceRanges, _webHelper, _priceFormatter);
-            var selectedPriceRange = await model.PagingFilteringContext.PriceRangeFilter.GetSelectedPriceRangeAsync(_webHelper, manufacturer.PriceRanges);
+            await model.CatalogProductsModel.FilteringModel.PriceRangeFilter.LoadPriceRangeFiltersAsync(manufacturer.PriceRanges, _webHelper, _priceFormatter);
+            var selectedPriceRange = await model.CatalogProductsModel.FilteringModel.PriceRangeFilter.GetSelectedPriceRangeAsync(_webHelper, manufacturer.PriceRanges);
             decimal? minPriceConverted = null;
             decimal? maxPriceConverted = null;
             if (selectedPriceRange != null)
@@ -810,10 +810,10 @@ namespace Nop.Web.Factories
                 excludeFeaturedProducts: !_catalogSettings.IgnoreFeaturedProducts && !_catalogSettings.IncludeFeaturedProductsInNormalLists,
                 priceMin: minPriceConverted,
                 priceMax: maxPriceConverted,
-                orderBy: (ProductSortingEnum)command.OrderBy);
-            model.Products = (await _productModelFactory.PrepareProductOverviewModelsAsync(products)).ToList();
+                orderBy: (ProductSortingEnum)command.DisplayingModel.OrderBy);
+            model.CatalogProductsModel.Products = (await _productModelFactory.PrepareProductOverviewModelsAsync(products)).ToList();
 
-            model.PagingFilteringContext.LoadPagedList(products);
+            model.CatalogProductsModel.LoadPagedList(products);
 
             return model;
         }
@@ -934,9 +934,9 @@ namespace Nop.Web.Factories
         /// Prepare vendor model
         /// </summary>
         /// <param name="vendor">Vendor</param>
-        /// <param name="command">Catalog paging filtering command</param>
+        /// <param name="command">Catalog products model</param>
         /// <returns>Vendor model</returns>
-        public virtual async Task<VendorModel> PrepareVendorModelAsync(Vendor vendor, CatalogPagingFilteringModel command)
+        public virtual async Task<VendorModel> PrepareVendorModelAsync(Vendor vendor, CatalogProductsModel command)
         {
             if (vendor == null)
                 throw new ArgumentNullException(nameof(vendor));
@@ -954,11 +954,11 @@ namespace Nop.Web.Factories
             };
 
             //sorting
-            await PrepareSortingOptionsAsync(model.PagingFilteringContext, command);
+            await PrepareSortingOptionsAsync(model.CatalogProductsModel.DisplayingModel, command.DisplayingModel);
             //view mode
-            await PrepareViewModesAsync(model.PagingFilteringContext, command);
+            await PrepareViewModesAsync(model.CatalogProductsModel.DisplayingModel, command.DisplayingModel);
             //page size
-            await PreparePageSizeOptionsAsync(model.PagingFilteringContext, command,
+            await PreparePageSizeOptionsAsync(model.CatalogProductsModel, command,
                 vendor.AllowCustomersToSelectPageSize,
                 vendor.PageSizeOptions,
                 vendor.PageSize);
@@ -968,10 +968,10 @@ namespace Nop.Web.Factories
                 vendorId: vendor.Id,
                 storeId: (await _storeContext.GetCurrentStoreAsync()).Id,
                 visibleIndividuallyOnly: true,
-                orderBy: (ProductSortingEnum)command.OrderBy);
-            model.Products = (await _productModelFactory.PrepareProductOverviewModelsAsync(products)).ToList();
+                orderBy: (ProductSortingEnum)command.DisplayingModel.OrderBy);
+            model.CatalogProductsModel.Products = (await _productModelFactory.PrepareProductOverviewModelsAsync(products)).ToList();
 
-            model.PagingFilteringContext.LoadPagedList(products);
+            model.CatalogProductsModel.LoadPagedList(products);
 
             return model;
         }
@@ -1099,9 +1099,9 @@ namespace Nop.Web.Factories
         /// Prepare products by tag model
         /// </summary>
         /// <param name="productTag">Product tag</param>
-        /// <param name="command">Catalog paging filtering command</param>
+        /// <param name="command">Catalog products model</param>
         /// <returns>Products by tag model</returns>
-        public virtual async Task<ProductsByTagModel> PrepareProductsByTagModelAsync(ProductTag productTag, CatalogPagingFilteringModel command)
+        public virtual async Task<ProductsByTagModel> PrepareProductsByTagModelAsync(ProductTag productTag, CatalogProductsModel command)
         {
             if (productTag == null)
                 throw new ArgumentNullException(nameof(productTag));
@@ -1114,11 +1114,11 @@ namespace Nop.Web.Factories
             };
 
             //sorting
-            await PrepareSortingOptionsAsync(model.PagingFilteringContext, command);
+            await PrepareSortingOptionsAsync(model.CatalogProductsModel.DisplayingModel, command.DisplayingModel);
             //view mode
-            await PrepareViewModesAsync(model.PagingFilteringContext, command);
+            await PrepareViewModesAsync(model.CatalogProductsModel.DisplayingModel, command.DisplayingModel);
             //page size
-            await PreparePageSizeOptionsAsync(model.PagingFilteringContext, command,
+            await PreparePageSizeOptionsAsync(model.CatalogProductsModel, command,
                 _catalogSettings.ProductsByTagAllowCustomersToSelectPageSize,
                 _catalogSettings.ProductsByTagPageSizeOptions,
                 _catalogSettings.ProductsByTagPageSize);
@@ -1128,12 +1128,12 @@ namespace Nop.Web.Factories
                 storeId: (await _storeContext.GetCurrentStoreAsync()).Id,
                 productTagId: productTag.Id,
                 visibleIndividuallyOnly: true,
-                orderBy: (ProductSortingEnum)command.OrderBy,
+                orderBy: (ProductSortingEnum)command.DisplayingModel.OrderBy,
                 pageIndex: command.PageNumber - 1,
                 pageSize: command.PageSize);
-            model.Products = (await _productModelFactory.PrepareProductOverviewModelsAsync(products)).ToList();
+            model.CatalogProductsModel.Products = (await _productModelFactory.PrepareProductOverviewModelsAsync(products)).ToList();
 
-            model.PagingFilteringContext.LoadPagedList(products);
+            model.CatalogProductsModel.LoadPagedList(products);
             return model;
         }
 
@@ -1174,9 +1174,9 @@ namespace Nop.Web.Factories
         /// Prepare search model
         /// </summary>
         /// <param name="model">Search model</param>
-        /// <param name="command">Catalog paging filtering command</param>
+        /// <param name="command">Catalog products model</param>
         /// <returns>Search model</returns>
-        public virtual async Task<SearchModel> PrepareSearchModelAsync(SearchModel model, CatalogPagingFilteringModel command)
+        public virtual async Task<SearchModel> PrepareSearchModelAsync(SearchModel model, CatalogProductsModel command)
         {
             if (model == null)
                 throw new ArgumentNullException(nameof(model));
@@ -1186,11 +1186,11 @@ namespace Nop.Web.Factories
             searchTerms = searchTerms.Trim();
 
             //sorting
-            await PrepareSortingOptionsAsync(model.PagingFilteringContext, command);
+            await PrepareSortingOptionsAsync(model.CatalogProductsModel.DisplayingModel, command.DisplayingModel);
             //view mode
-            await PrepareViewModesAsync(model.PagingFilteringContext, command);
+            await PrepareViewModesAsync(model.CatalogProductsModel.DisplayingModel, command.DisplayingModel);
             //page size
-            await PreparePageSizeOptionsAsync(model.PagingFilteringContext, command,
+            await PreparePageSizeOptionsAsync(model.CatalogProductsModel, command,
                 _catalogSettings.SearchPageAllowCustomersToSelectPageSize,
                 _catalogSettings.SearchPagePageSizeOptions,
                 _catalogSettings.SearchPageProductsPerPage);
@@ -1352,13 +1352,13 @@ namespace Nop.Web.Factories
                         searchDescriptions: searchInDescriptions,
                         searchProductTags: searchInProductTags,
                         languageId: (await _workContext.GetWorkingLanguageAsync()).Id,
-                        orderBy: (ProductSortingEnum)command.OrderBy,
+                        orderBy: (ProductSortingEnum)command.DisplayingModel.OrderBy,
                         pageIndex: command.PageNumber - 1,
                         pageSize: command.PageSize,
                         vendorId: vendorId);
-                    model.Products = (await _productModelFactory.PrepareProductOverviewModelsAsync(products)).ToList();
+                    model.CatalogProductsModel.Products = (await _productModelFactory.PrepareProductOverviewModelsAsync(products)).ToList();
 
-                    model.NoResults = !model.Products.Any();
+                    model.NoResults = !model.CatalogProductsModel.Products.Any();
 
                     //search term statistics
                     if (!string.IsNullOrEmpty(searchTerms))
@@ -1395,7 +1395,7 @@ namespace Nop.Web.Factories
                 }
             }
 
-            model.PagingFilteringContext.LoadPagedList(products);
+            model.CatalogProductsModel.LoadPagedList(products);
             return model;
         }
 

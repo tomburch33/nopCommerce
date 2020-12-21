@@ -15,28 +15,28 @@ namespace Nop.Web.Factories
         /// <summary>
         /// Prepare sorting options
         /// </summary>
-        /// <param name="pagingFilteringModel">Catalog paging filtering model</param>
-        /// <param name="command">Catalog paging filtering command</param>
-        Task PrepareSortingOptionsAsync(CatalogPagingFilteringModel pagingFilteringModel, CatalogPagingFilteringModel command);
+        /// <param name="displayingModel">Products displaying model</param>
+        /// <param name="command">Products displaying model</param>
+        Task PrepareSortingOptionsAsync(CatalogProductsDisplayingModel displayingModel, CatalogProductsDisplayingModel command);
 
         //TODO: may be deleted from interface
         /// <summary>
         /// Prepare view modes
         /// </summary>
-        /// <param name="pagingFilteringModel">Catalog paging filtering model</param>
-        /// <param name="command">Catalog paging filtering command</param>
-        Task PrepareViewModesAsync(CatalogPagingFilteringModel pagingFilteringModel, CatalogPagingFilteringModel command);
+        /// <param name="displayingModel">Products displaying model</param>
+        /// <param name="command">Products displaying model</param>
+        Task PrepareViewModesAsync(CatalogProductsDisplayingModel displayingModel, CatalogProductsDisplayingModel command);
 
         //TODO: may be deleted from interface
         /// <summary>
         /// Prepare page size options
         /// </summary>
-        /// <param name="pagingFilteringModel">Catalog paging filtering model</param>
-        /// <param name="command">Catalog paging filtering command</param>
+        /// <param name="productsModel">Catalog products model</param>
+        /// <param name="command">Catalog products model</param>
         /// <param name="allowCustomersToSelectPageSize">Are customers allowed to select page size?</param>
         /// <param name="pageSizeOptions">Page size options</param>
         /// <param name="fixedPageSize">Fixed page size</param>
-        Task PreparePageSizeOptionsAsync(CatalogPagingFilteringModel pagingFilteringModel, CatalogPagingFilteringModel command,
+        Task PreparePageSizeOptionsAsync(CatalogProductsModel productsModel, CatalogProductsModel command,
             bool allowCustomersToSelectPageSize, string pageSizeOptions, int fixedPageSize);
 
         #endregion
@@ -47,9 +47,9 @@ namespace Nop.Web.Factories
         /// Prepare category model
         /// </summary>
         /// <param name="category">Category</param>
-        /// <param name="command">Catalog paging filtering command</param>
+        /// <param name="command">Catalog products model</param>
         /// <returns>Category model</returns>
-        Task<CategoryModel> PrepareCategoryModelAsync(Category category, CatalogPagingFilteringModel command);
+        Task<CategoryModel> PrepareCategoryModelAsync(Category category, CatalogProductsModel command);
 
         /// <summary>
         /// Prepare category template view path
@@ -123,9 +123,9 @@ namespace Nop.Web.Factories
         /// Prepare manufacturer model
         /// </summary>
         /// <param name="manufacturer">Manufacturer identifier</param>
-        /// <param name="command">Catalog paging filtering command</param>
+        /// <param name="command">Catalog products model</param>
         /// <returns>Manufacturer model</returns>
-        Task<ManufacturerModel> PrepareManufacturerModelAsync(Manufacturer manufacturer, CatalogPagingFilteringModel command);
+        Task<ManufacturerModel> PrepareManufacturerModelAsync(Manufacturer manufacturer, CatalogProductsModel command);
 
         /// <summary>
         /// Prepare manufacturer template view path
@@ -155,9 +155,9 @@ namespace Nop.Web.Factories
         /// Prepare vendor model
         /// </summary>
         /// <param name="vendor">Vendor</param>
-        /// <param name="command">Catalog paging filtering command</param>
+        /// <param name="command">Catalog products model</param>
         /// <returns>Vendor model</returns>
-        Task<VendorModel> PrepareVendorModelAsync(Vendor vendor, CatalogPagingFilteringModel command);
+        Task<VendorModel> PrepareVendorModelAsync(Vendor vendor, CatalogProductsModel command);
 
         /// <summary>
         /// Prepare vendor all models
@@ -185,10 +185,9 @@ namespace Nop.Web.Factories
         /// Prepare products by tag model
         /// </summary>
         /// <param name="productTag">Product tag</param>
-        /// <param name="command">Catalog paging filtering command</param>
+        /// <param name="command">Catalog products model</param>
         /// <returns>Products by tag model</returns>
-        Task<ProductsByTagModel> PrepareProductsByTagModelAsync(ProductTag productTag,
-            CatalogPagingFilteringModel command);
+        Task<ProductsByTagModel> PrepareProductsByTagModelAsync(ProductTag productTag, CatalogProductsModel command);
 
         /// <summary>
         /// Prepare product tags all model
@@ -204,9 +203,9 @@ namespace Nop.Web.Factories
         /// Prepare search model
         /// </summary>
         /// <param name="model">Search model</param>
-        /// <param name="command">Catalog paging filtering command</param>
+        /// <param name="command">Catalog products model</param>
         /// <returns>Search model</returns>
-        Task<SearchModel> PrepareSearchModelAsync(SearchModel model, CatalogPagingFilteringModel command);
+        Task<SearchModel> PrepareSearchModelAsync(SearchModel model, CatalogProductsModel command);
 
         /// <summary>
         /// Prepare search box model

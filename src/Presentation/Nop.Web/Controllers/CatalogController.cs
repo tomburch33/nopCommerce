@@ -92,7 +92,7 @@ namespace Nop.Web.Controllers
         
         #region Categories
         
-        public virtual async Task<IActionResult> Category(int categoryId, CatalogPagingFilteringModel command)
+        public virtual async Task<IActionResult> Category(int categoryId, CatalogProductsModel command)
         {
             var category = await _categoryService.GetCategoryByIdAsync(categoryId);
             if (category == null || category.Deleted)
@@ -155,7 +155,7 @@ namespace Nop.Web.Controllers
 
         #region Manufacturers
 
-        public virtual async Task<IActionResult> Manufacturer(int manufacturerId, CatalogPagingFilteringModel command)
+        public virtual async Task<IActionResult> Manufacturer(int manufacturerId, CatalogProductsModel command)
         {
             var manufacturer = await _manufacturerService.GetManufacturerByIdAsync(manufacturerId);
             if (manufacturer == null || manufacturer.Deleted)
@@ -208,7 +208,7 @@ namespace Nop.Web.Controllers
 
         #region Vendors
 
-        public virtual async Task<IActionResult> Vendor(int vendorId, CatalogPagingFilteringModel command)
+        public virtual async Task<IActionResult> Vendor(int vendorId, CatalogProductsModel command)
         {
             var vendor = await _vendorService.GetVendorByIdAsync(vendorId);
             if (vendor == null || vendor.Deleted || !vendor.Active)
@@ -244,7 +244,7 @@ namespace Nop.Web.Controllers
 
         #region Product tags
         
-        public virtual async Task<IActionResult> ProductsByTag(int productTagId, CatalogPagingFilteringModel command)
+        public virtual async Task<IActionResult> ProductsByTag(int productTagId, CatalogProductsModel command)
         {
             var productTag = await _productTagService.GetProductTagByIdAsync(productTagId);
             if (productTag == null)
@@ -266,7 +266,7 @@ namespace Nop.Web.Controllers
 
         #region Searching
 
-        public virtual async Task<IActionResult> Search(SearchModel model, CatalogPagingFilteringModel command)
+        public virtual async Task<IActionResult> Search(SearchModel model, CatalogProductsModel command)
         {
             //'Continue shopping' URL
             await _genericAttributeService.SaveAttributeAsync(await _workContext.GetCurrentCustomerAsync(),
