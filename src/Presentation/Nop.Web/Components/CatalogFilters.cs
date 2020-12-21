@@ -32,6 +32,9 @@ namespace Nop.Web.Components
             if (currentCategoryId > 0)
                 model = await _catalogModelFactory.PrepareCategoryFilteringModelAsync(currentCategoryId);
             else
+            if (currentManufacturerId > 0)
+                model = await _catalogModelFactory.PrepareManufacturerFilteringModelAsync(currentManufacturerId);
+            else
                 return Content(string.Empty);
 
             return View(model);

@@ -154,6 +154,13 @@ namespace Nop.Web.Factories
         /// <returns>Manufacturer navigation model</returns>
         Task<ManufacturerNavigationModel> PrepareManufacturerNavigationModelAsync(int currentManufacturerId);
 
+        /// <summary>
+        /// Prepares the manufacturer products filtering model
+        /// </summary>
+        /// <param name="manufacturerId">The manufacturer id</param>
+        /// <returns>The manufacturer products filtering model</returns>
+        Task<CatalogProductsFilteringModel> PrepareManufacturerFilteringModelAsync(int manufacturerId);
+
         #endregion
 
         #region Vendors

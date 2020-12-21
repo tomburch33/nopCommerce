@@ -172,6 +172,13 @@ namespace Nop.Services.Catalog
         /// <returns>The specification attribute options</returns>
         Task<IList<SpecificationAttributeOption>> GetFiltrableSpecificationAttributeOptionsByCategoryIdAsync(int categoryId);
 
+        /// <summary>
+        /// Gets the filtrable specification attribute options by manufacturer id
+        /// </summary>
+        /// <param name="manufacturerId">The manufacturer id</param>
+        /// <returns>The specification attribute options</returns>
+        Task<IList<SpecificationAttributeOption>> GetFiltrableSpecificationAttributeOptionsByManufacturerIdAsync(int manufacturerId);
+
         #endregion
 
         #region Product specification attribute

@@ -953,6 +953,32 @@ namespace Nop.Web.Factories
             return cachedModel;
         }
 
+        /// <summary>
+        /// Prepares the manufacturer products filtering model
+        /// </summary>
+        /// <param name="manufacturerId">The manufacturer id</param>
+        /// <returns>The manufacturer products filtering model</returns>
+        public virtual async Task<CatalogProductsFilteringModel> PrepareManufacturerFilteringModelAsync(int manufacturerId)
+        {
+            var model = new CatalogProductsFilteringModel();
+
+            var manufacturer = await _manufacturerService.GetManufacturerByIdAsync(manufacturerId);
+            if (manufacturer == null)
+                return model;
+
+            // todo: How to prepare prices?
+            await model.PriceRangeFilter.LoadPriceRangeFiltersAsync(manufacturer.PriceRanges, _webHelper, _priceFormatter);
+
+            var filterableSpecificationAttributeOptions = await _specificationAttributeService
+                .GetFiltrableSpecificationAttributeOptionsByManufacturerIdAsync(manufacturer.Id);
+            var filterableSpecificationAttributeOptionIds = filterableSpecificationAttributeOptions.Select(option => option.Id);
+
+            await model.SpecificationFilter.PrepareSpecsFiltersAsync(Array.Empty<int>(),
+                filterableSpecificationAttributeOptionIds?.ToArray(), _specificationAttributeService, _localizationService, _webHelper, _workContext, _staticCacheManager);
+
+            return model;
+        }
+
         #endregion
 
         #region Vendors

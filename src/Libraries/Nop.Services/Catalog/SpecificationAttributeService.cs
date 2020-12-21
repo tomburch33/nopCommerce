@@ -25,6 +25,7 @@ namespace Nop.Services.Catalog
         private readonly ICustomerService _customerService;
         private readonly IRepository<Product> _productRepository;
         private readonly IRepository<ProductCategory> _productCategoryRepository;
+        private readonly IRepository<ProductManufacturer> _productManufacturerRepository;
         private readonly IRepository<ProductSpecificationAttribute> _productSpecificationAttributeRepository;
         private readonly IRepository<SpecificationAttribute> _specificationAttributeRepository;
         private readonly IRepository<SpecificationAttributeOption> _specificationAttributeOptionRepository;
@@ -45,6 +46,7 @@ namespace Nop.Services.Catalog
             ICustomerService customerService,
             IRepository<Product> productRepository,
             IRepository<ProductCategory> productCategoryRepository,
+            IRepository<ProductManufacturer> productManufacturerRepository,
             IRepository<ProductSpecificationAttribute> productSpecificationAttributeRepository,
             IRepository<SpecificationAttribute> specificationAttributeRepository,
             IRepository<SpecificationAttributeOption> specificationAttributeOptionRepository,
@@ -60,6 +62,7 @@ namespace Nop.Services.Catalog
             _customerService = customerService;
             _productRepository = productRepository;
             _productCategoryRepository = productCategoryRepository;
+            _productManufacturerRepository = productManufacturerRepository;
             _productSpecificationAttributeRepository = productSpecificationAttributeRepository;
             _specificationAttributeRepository = specificationAttributeRepository;
             _specificationAttributeOptionRepository = specificationAttributeOptionRepository;
@@ -68,6 +71,41 @@ namespace Nop.Services.Catalog
             _storeMappingService = storeMappingService;
             _staticCacheManager = staticCacheManager;
             _workContext = workContext;
+        }
+
+        #endregion
+
+        #region Utilities
+
+        protected virtual async Task<IQueryable<Product>> GetAvailableProductsQueryAsync()
+        {
+            var store = await _storeContext.GetCurrentStoreAsync();
+            var productsQuery = _productRepository.Table;
+
+            //apply store mapping constraints
+            if (!_catalogSettings.IgnoreStoreLimitations)
+            {
+                if (await _storeMappingService.IsEntityMappingExistsAsync<Product>(store.Id))
+                    productsQuery = productsQuery.Where(_storeMappingService.ApplyStoreMapping<Product>(store.Id));
+            }
+
+            //apply ACL constraints
+            if (!_catalogSettings.IgnoreAcl)
+            {
+                var currentCustomer = await _workContext.GetCurrentCustomerAsync();
+                var customerRoleIds = await _customerService.GetCustomerRoleIdsAsync(currentCustomer);
+                if (await _aclService.IsEntityAclMappingExistAsync<Product>(customerRoleIds))
+                    productsQuery = productsQuery.Where(_aclService.ApplyAcl<Product>(customerRoleIds));
+            }
+
+            productsQuery = from p in productsQuery
+                            where !p.Deleted && p.Published &&
+                                  (p.ParentGroupedProductId == 0 || p.VisibleIndividually) &&
+                                  (!p.AvailableStartDateTimeUtc.HasValue || p.AvailableStartDateTimeUtc <= DateTime.UtcNow) &&
+                                  (!p.AvailableEndDateTimeUtc.HasValue || p.AvailableEndDateTimeUtc >= DateTime.UtcNow)
+                            select p;
+
+            return productsQuery;
         }
 
         #endregion
@@ -241,7 +279,7 @@ namespace Nop.Services.Catalog
             if (specificationAttributes == null)
                 throw new ArgumentNullException(nameof(specificationAttributes));
 
-            foreach (var specificationAttribute in specificationAttributes) 
+            foreach (var specificationAttribute in specificationAttributes)
                 await DeleteSpecificationAttributeAsync(specificationAttribute);
         }
 
@@ -359,32 +397,10 @@ namespace Nop.Services.Catalog
             if (categoryId == 0)
                 return new List<SpecificationAttributeOption>();
 
+            // todo: add caching ?
+            var productsQuery = await GetAvailableProductsQueryAsync();
+
             var store = await _storeContext.GetCurrentStoreAsync();
-            var productsQuery = _productRepository.Table;
-
-            //apply store mapping constraints
-            if (!_catalogSettings.IgnoreStoreLimitations)
-            {
-                if (await _storeMappingService.IsEntityMappingExistsAsync<Product>(store.Id))
-                    productsQuery = productsQuery.Where(_storeMappingService.ApplyStoreMapping<Product>(store.Id));
-            }
-
-            //apply ACL constraints
-            if (!_catalogSettings.IgnoreAcl)
-            {
-                var currentCustomer = await _workContext.GetCurrentCustomerAsync();
-                var customerRoleIds = await _customerService.GetCustomerRoleIdsAsync(currentCustomer);
-                if (await _aclService.IsEntityAclMappingExistAsync<Product>(customerRoleIds))
-                    productsQuery = productsQuery.Where(_aclService.ApplyAcl<Product>(customerRoleIds));
-            }
-
-            productsQuery = from p in productsQuery
-                            where !p.Deleted && p.Published &&
-                                  (p.ParentGroupedProductId == 0 || p.VisibleIndividually) &&
-                                  (!p.AvailableStartDateTimeUtc.HasValue || p.AvailableStartDateTimeUtc <= DateTime.UtcNow) &&
-                                  (!p.AvailableEndDateTimeUtc.HasValue || p.AvailableEndDateTimeUtc >= DateTime.UtcNow)
-                            select p;
-
             var subCategoryIds = await _categoryService.GetChildCategoryIdsAsync(categoryId, store.Id);
             var productCategoryQuery = from pc in _productCategoryRepository.Table
                                        where (pc.CategoryId == categoryId || (_catalogSettings.ShowProductsFromSubcategories && subCategoryIds.Contains(pc.CategoryId))) &&
@@ -395,6 +411,34 @@ namespace Nop.Services.Catalog
                          join psa in _productSpecificationAttributeRepository.Table on sao.Id equals psa.SpecificationAttributeOptionId
                          join p in productsQuery on psa.ProductId equals p.Id
                          join pc in productCategoryQuery on p.Id equals pc.ProductId
+                         where psa.AllowFiltering
+                         select sao;
+
+            return await result.Distinct().ToListAsync();
+        }
+
+        /// <summary>
+        /// Gets the filtrable specification attribute options by manufacturer id
+        /// </summary>
+        /// <param name="manufacturerId">The manufacturer id</param>
+        /// <returns>The specification attribute options</returns>
+        public virtual async Task<IList<SpecificationAttributeOption>> GetFiltrableSpecificationAttributeOptionsByManufacturerIdAsync(int manufacturerId)
+        {
+            if (manufacturerId == 0)
+                return new List<SpecificationAttributeOption>();
+
+            // todo: add caching ?
+            var productsQuery = await GetAvailableProductsQueryAsync();
+
+            var productManufacturerQuery = from pm in _productManufacturerRepository.Table
+                                           where pm.ManufacturerId == manufacturerId && 
+                                                 (_catalogSettings.IncludeFeaturedProductsInNormalLists || !pm.IsFeaturedProduct)
+                                           select pm;
+
+            var result = from sao in _specificationAttributeOptionRepository.Table
+                         join psa in _productSpecificationAttributeRepository.Table on sao.Id equals psa.SpecificationAttributeOptionId
+                         join p in productsQuery on psa.ProductId equals p.Id
+                         join pm in productManufacturerQuery on p.Id equals pm.ProductId
                          where psa.AllowFiltering
                          select sao;
 
