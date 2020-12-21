@@ -1,0 +1,12 @@
+﻿@model CatalogProductsFilteringModel
+
+<div class="product-filters">
+    @if (Model.PriceRangeFilter.Enabled)
+    {
+        @await Html.PartialAsync("_FilterPriceBox", Model.PriceRangeFilter)
+    }
+    @if (Model.SpecificationFilter.Enabled)
+    {
+        @await Html.PartialAsync("_FilterSpecsBox", Model.SpecificationFilter)
+    }
+</div>
