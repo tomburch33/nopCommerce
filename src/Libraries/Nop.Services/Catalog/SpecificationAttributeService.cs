@@ -6,7 +6,9 @@ using Nop.Core;
 using Nop.Core.Caching;
 using Nop.Core.Domain.Catalog;
 using Nop.Data;
-using Nop.Data.Extensions;
+using Nop.Services.Customers;
+using Nop.Services.Security;
+using Nop.Services.Stores;
 
 namespace Nop.Services.Catalog
 {
@@ -17,30 +19,55 @@ namespace Nop.Services.Catalog
     {
         #region Fields
 
+        private readonly CatalogSettings _catalogSettings;
+        private readonly IAclService _aclService;
+        private readonly ICategoryService _categoryService;
+        private readonly ICustomerService _customerService;
         private readonly IRepository<Product> _productRepository;
+        private readonly IRepository<ProductCategory> _productCategoryRepository;
         private readonly IRepository<ProductSpecificationAttribute> _productSpecificationAttributeRepository;
         private readonly IRepository<SpecificationAttribute> _specificationAttributeRepository;
         private readonly IRepository<SpecificationAttributeOption> _specificationAttributeOptionRepository;
         private readonly IRepository<SpecificationAttributeGroup> _specificationAttributeGroupRepository;
+        private readonly IStoreContext _storeContext;
+        private readonly IStoreMappingService _storeMappingService;
         private readonly IStaticCacheManager _staticCacheManager;
+        private readonly IWorkContext _workContext;
 
         #endregion
 
         #region Ctor
 
-        public SpecificationAttributeService(IRepository<Product> productRepository,
+        public SpecificationAttributeService(
+            CatalogSettings catalogSettings,
+            IAclService aclService,
+            ICategoryService categoryService,
+            ICustomerService customerService,
+            IRepository<Product> productRepository,
+            IRepository<ProductCategory> productCategoryRepository,
             IRepository<ProductSpecificationAttribute> productSpecificationAttributeRepository,
             IRepository<SpecificationAttribute> specificationAttributeRepository,
             IRepository<SpecificationAttributeOption> specificationAttributeOptionRepository,
             IRepository<SpecificationAttributeGroup> specificationAttributeGroupRepository,
-            IStaticCacheManager staticCacheManager)
+            IStoreContext storeContext,
+            IStoreMappingService storeMappingService,
+            IStaticCacheManager staticCacheManager,
+            IWorkContext workContext)
         {
+            _catalogSettings = catalogSettings;
+            _aclService = aclService;
+            _categoryService = categoryService;
+            _customerService = customerService;
             _productRepository = productRepository;
+            _productCategoryRepository = productCategoryRepository;
             _productSpecificationAttributeRepository = productSpecificationAttributeRepository;
             _specificationAttributeRepository = specificationAttributeRepository;
             _specificationAttributeOptionRepository = specificationAttributeOptionRepository;
             _specificationAttributeGroupRepository = specificationAttributeGroupRepository;
+            _storeContext = storeContext;
+            _storeMappingService = storeMappingService;
             _staticCacheManager = staticCacheManager;
+            _workContext = workContext;
         }
 
         #endregion
@@ -320,6 +347,58 @@ namespace Nop.Services.Catalog
                 .Where(m => queryFilter.Contains(m))
                 .ToListAsync();
             return queryFilter.Except(filter).ToArray();
+        }
+
+        /// <summary>
+        /// Gets the filtrable specification attribute options by category id
+        /// </summary>
+        /// <param name="categoryId">The category id</param>
+        /// <returns>The specification attribute options</returns>
+        public virtual async Task<IList<SpecificationAttributeOption>> GetFiltrableSpecificationAttributeOptionsByCategoryIdAsync(int categoryId)
+        {
+            if (categoryId == 0)
+                return new List<SpecificationAttributeOption>();
+
+            var store = await _storeContext.GetCurrentStoreAsync();
+            var productsQuery = _productRepository.Table;
+
+            //apply store mapping constraints
+            if (!_catalogSettings.IgnoreStoreLimitations)
+            {
+                if (await _storeMappingService.IsEntityMappingExistsAsync<Product>(store.Id))
+                    productsQuery = productsQuery.Where(_storeMappingService.ApplyStoreMapping<Product>(store.Id));
+            }
+
+            //apply ACL constraints
+            if (!_catalogSettings.IgnoreAcl)
+            {
+                var currentCustomer = await _workContext.GetCurrentCustomerAsync();
+                var customerRoleIds = await _customerService.GetCustomerRoleIdsAsync(currentCustomer);
+                if (await _aclService.IsEntityAclMappingExistAsync<Product>(customerRoleIds))
+                    productsQuery = productsQuery.Where(_aclService.ApplyAcl<Product>(customerRoleIds));
+            }
+
+            productsQuery = from p in productsQuery
+                            where !p.Deleted && p.Published &&
+                                  (p.ParentGroupedProductId == 0 || p.VisibleIndividually) &&
+                                  (!p.AvailableStartDateTimeUtc.HasValue || p.AvailableStartDateTimeUtc <= DateTime.UtcNow) &&
+                                  (!p.AvailableEndDateTimeUtc.HasValue || p.AvailableEndDateTimeUtc >= DateTime.UtcNow)
+                            select p;
+
+            var subCategoryIds = await _categoryService.GetChildCategoryIdsAsync(categoryId, store.Id);
+            var productCategoryQuery = from pc in _productCategoryRepository.Table
+                                       where (pc.CategoryId == categoryId || (_catalogSettings.ShowProductsFromSubcategories && subCategoryIds.Contains(pc.CategoryId))) &&
+                                             (_catalogSettings.IncludeFeaturedProductsInNormalLists || !pc.IsFeaturedProduct)
+                                       select pc;
+
+            var result = from sao in _specificationAttributeOptionRepository.Table
+                         join psa in _productSpecificationAttributeRepository.Table on sao.Id equals psa.SpecificationAttributeOptionId
+                         join p in productsQuery on psa.ProductId equals p.Id
+                         join pc in productCategoryQuery on p.Id equals pc.ProductId
+                         where psa.AllowFiltering
+                         select sao;
+
+            return await result.Distinct().ToListAsync();
         }
 
         #endregion

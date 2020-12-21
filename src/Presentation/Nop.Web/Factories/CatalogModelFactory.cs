@@ -743,6 +743,33 @@ namespace Nop.Web.Factories
             return models.ToList();
         }
 
+        /// <summary>
+        /// Prepares the category products filtering model
+        /// </summary>
+        /// <param name="categoryId">The category id</param>
+        /// <returns>The category products filtering model</returns>
+        public virtual async Task<CatalogProductsFilteringModel> PrepareCategoryFilteringModelAsync(int categoryId)
+        {
+            var model = new CatalogProductsFilteringModel();
+
+            var category = await _categoryService.GetCategoryByIdAsync(categoryId);
+            if (category == null)
+                return model;
+
+            // todo: How to prepare prices?
+            await model.PriceRangeFilter.LoadPriceRangeFiltersAsync(category.PriceRanges, _webHelper, _priceFormatter);
+
+            var filterableSpecificationAttributeOptions = await _specificationAttributeService
+                .GetFiltrableSpecificationAttributeOptionsByCategoryIdAsync(category.Id);
+            var filterableSpecificationAttributeOptionIds = filterableSpecificationAttributeOptions.Select(option => option.Id);
+
+            await model.SpecificationFilter.PrepareSpecsFiltersAsync(Array.Empty<int>(),
+                filterableSpecificationAttributeOptionIds?.ToArray(), _specificationAttributeService, _localizationService, _webHelper, _workContext, _staticCacheManager);
+
+            return model;
+        }
+
+
         #endregion
 
         #region Manufacturers

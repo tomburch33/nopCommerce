@@ -115,6 +115,13 @@ namespace Nop.Web.Factories
         /// <returns></returns>
         Task<List<CategorySimpleModel>> PrepareSubCategoriesAsync(int id);
 
+        /// <summary>
+        /// Prepares the category products filtering model
+        /// </summary>
+        /// <param name="categoryId">The category id</param>
+        /// <returns>The category products filtering model</returns>
+        Task<CatalogProductsFilteringModel> PrepareCategoryFilteringModelAsync(int categoryId);
+
         #endregion
 
         #region Manufacturers

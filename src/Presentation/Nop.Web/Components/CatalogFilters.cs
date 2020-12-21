@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Nop.Web.Factories;
 using Nop.Web.Framework.Components;
 using Nop.Web.Models.Catalog;
 
@@ -6,30 +8,35 @@ namespace Nop.Web.Components
 {
     public class CatalogFiltersViewComponent : NopViewComponent
     {
-        public CatalogFiltersViewComponent()
-        {
+        #region Fields
+        
+        private readonly ICatalogModelFactory _catalogModelFactory;
 
+        #endregion
+
+        #region Ctor
+
+        public CatalogFiltersViewComponent(ICatalogModelFactory catalogModelFactory)
+        {
+            _catalogModelFactory = catalogModelFactory;
         }
 
-        public IViewComponentResult Invoke(int currentCategoryId, int currentManufacturerId)
+        #endregion
+
+        #region Methods
+
+        public async Task<IViewComponentResult> InvokeAsync(int currentCategoryId, int currentManufacturerId)
         {
+            CatalogProductsFilteringModel model = null;
+
             if (currentCategoryId > 0)
-                return PrepareCategoryFilters(currentCategoryId);
-            else
-            if (currentManufacturerId > 0)
-                return PrepareManufacturerFilters(currentManufacturerId);
+                model = await _catalogModelFactory.PrepareCategoryFilteringModelAsync(currentCategoryId);
             else
                 return Content(string.Empty);
+
+            return View(model);
         }
 
-        private IViewComponentResult PrepareCategoryFilters(int categoryId)
-        {
-            return View(new CatalogProductsFilteringModel());
-        }
-
-        private IViewComponentResult PrepareManufacturerFilters(int manufacturerId)
-        {
-            return View(new CatalogProductsFilteringModel());
-        }
+        #endregion
     }
 }
