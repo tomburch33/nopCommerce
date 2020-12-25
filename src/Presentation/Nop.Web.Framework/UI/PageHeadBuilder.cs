@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Hosting;
 using Nop.Core;
@@ -33,6 +34,7 @@ namespace Nop.Web.Framework.UI
         private readonly AppSettings _appSettings;
         private readonly CommonSettings _commonSettings;
         private readonly IActionContextAccessor _actionContextAccessor;
+        private readonly IFileVersionProvider _fileVersionProvider;
         private readonly INopFileProvider _fileProvider;
         private readonly IStaticCacheManager _staticCacheManager;
         private readonly IUrlHelperFactory _urlHelperFactory;
@@ -60,6 +62,7 @@ namespace Nop.Web.Framework.UI
         public PageHeadBuilder(AppSettings appSettings,
             CommonSettings commonSettings,
             IActionContextAccessor actionContextAccessor,
+            IFileVersionProvider fileVersionProvider,
             INopFileProvider fileProvider,
             IStaticCacheManager staticCacheManager,
             IUrlHelperFactory urlHelperFactory,
@@ -70,6 +73,7 @@ namespace Nop.Web.Framework.UI
             _appSettings = appSettings;
             _commonSettings = commonSettings;
             _actionContextAccessor = actionContextAccessor;
+            _fileVersionProvider = fileVersionProvider;
             _fileProvider = fileProvider;
             _staticCacheManager = staticCacheManager;
             _urlHelperFactory = urlHelperFactory;
@@ -655,8 +659,9 @@ namespace Nop.Web.Framework.UI
                 var result = new StringBuilder();
                 foreach (var item in _cssParts[location].Distinct())
                 {
-                    var src = debugModel ? item.DebugSrc : item.Src;
-                    result.AppendFormat("<link href=\"{0}\" rel=\"stylesheet\" type=\"{1}\" />", urlHelper.Content(src), MimeTypes.TextCss);
+                    var src = urlHelper.Content(debugModel ? item.DebugSrc : item.Src);
+                    src = _fileVersionProvider.AddFileVersionToPath(urlHelper.ActionContext.HttpContext.Request.PathBase, src);
+                    result.AppendFormat("<link href=\"{0}\" rel=\"stylesheet\" type=\"{1}\" />", src, MimeTypes.TextCss);
                     result.AppendLine();
                 }
                 return result.ToString();

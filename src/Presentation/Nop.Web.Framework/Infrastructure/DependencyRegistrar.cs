@@ -6,6 +6,7 @@ using Autofac;
 using Autofac.Builder;
 using Autofac.Core;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Nop.Core;
 using Nop.Core.Caching;
 using Nop.Core.Configuration;
@@ -76,6 +77,7 @@ namespace Nop.Web.Framework.Infrastructure
         {
             //file provider
             builder.RegisterType<NopFileProvider>().As<INopFileProvider>().InstancePerLifetimeScope();
+            builder.RegisterType<NopFileVersionProvider>().As<IFileVersionProvider>().InstancePerLifetimeScope();
 
             //web helper
             builder.RegisterType<WebHelper>().As<IWebHelper>().InstancePerLifetimeScope();
