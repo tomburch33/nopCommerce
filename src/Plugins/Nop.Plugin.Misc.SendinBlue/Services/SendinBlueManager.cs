@@ -20,10 +20,10 @@ using Nop.Services.Directory;
 using Nop.Services.Logging;
 using Nop.Services.Messages;
 using Nop.Services.Stores;
-using SendinBlue.Api;
-using SendinBlue.Client;
-using SendinBlue.Model;
-using static SendinBlue.Model.GetAttributesAttributes;
+using sib_api_v3_sdk.Api;
+using sib_api_v3_sdk.Client;
+using sib_api_v3_sdk.Model;
+using static sib_api_v3_sdk.Model.GetAttributesAttributes;
 
 namespace Nop.Plugin.Misc.SendinBlue.Services
 {
@@ -98,7 +98,11 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
 
             var apiConfiguration = new Configuration()
             {
-                ApiKey = new Dictionary<string, string> { [SendinBlueDefaults.ApiKeyHeader] = sendinBlueSettings.ApiKey },
+                ApiKey = new Dictionary<string, string> { 
+                    [SendinBlueDefaults.ApiKeyHeader] = sendinBlueSettings.ApiKey, 
+                    [SendinBlueDefaults.PartnerKeyHeader] = sendinBlueSettings.ApiKey 
+                },
+                ApiKeyPrefix = new Dictionary<string, string> { [SendinBlueDefaults.PartnerKeyHeader] = SendinBlueDefaults.PartnerName },
                 UserAgent = SendinBlueDefaults.UserAgent
             };
 
@@ -764,31 +768,7 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
                 await _logger.ErrorAsync($"SendinBlue error: {exception.Message}.", exception, await _workContext.GetCurrentCustomerAsync());
                 return (null, false, null, exception.Message);
             }
-        }
-
-        /// <summary>
-        /// Set partner value
-        /// </summary>
-        /// <returns>True if partner successfully set; otherwise false</returns>
-        public async Task<bool> SetPartnerAsync()
-        {
-            try
-            {
-                //create API client
-                var client = await CreateApiClientAsync(config => new AccountApi(config));
-
-                //set partner
-                await client.SetPartnerAsync(new SetPartner(SendinBlueDefaults.PartnerName));
-            }
-            catch (Exception exception)
-            {
-                //log full error
-                await _logger.ErrorAsync($"SendinBlue error: {exception.Message}.", exception, await _workContext.GetCurrentCustomerAsync());
-                return false;
-            }
-
-            return true;
-        }
+        }        
 
         /// <summary>
         /// Get available lists to synchronize contacts
@@ -1143,7 +1123,7 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
             try
             {
                 //create API client
-                var client = await CreateApiClientAsync(config => new SMTPApi(config));
+                var client = await CreateApiClientAsync(config => new TransactionalEmailsApi(config));
 
                 //check whether email template already exists
                 if (templateId > 0)
@@ -1187,7 +1167,7 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
             try
             {
                 //create API client
-                var client = await CreateApiClientAsync(config => new SMTPApi(config));
+                var client = await CreateApiClientAsync(config => new TransactionalEmailsApi(config));
 
                 if (templateId == 0)
                     throw new NopException("Message template is empty");

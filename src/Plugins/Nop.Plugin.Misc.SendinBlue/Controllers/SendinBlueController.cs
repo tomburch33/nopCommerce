@@ -10,7 +10,6 @@ using Nop.Core.Caching;
 using Nop.Core.Domain.Messages;
 using Nop.Plugin.Misc.SendinBlue.Models;
 using Nop.Plugin.Misc.SendinBlue.Services;
-using Nop.Services.Caching;
 using Nop.Services.Common;
 using Nop.Services.Configuration;
 using Nop.Services.Localization;
@@ -196,19 +195,7 @@ namespace Nop.Plugin.Misc.SendinBlue.Controllers
             //create attributes in account
             var attributesErrors = await _sendinBlueEmailManager.PrepareAttributesAsync();
             if (!string.IsNullOrEmpty(attributesErrors))
-                _notificationService.ErrorNotification($"{SendinBlueDefaults.NotificationMessage} {attributesErrors}");
-
-            //try to set account partner
-            if (!sendinBlueSettings.PartnerValueSet)
-            {
-                var partnerSet = await _sendinBlueEmailManager.SetPartnerAsync();
-                if (partnerSet)
-                {
-                    sendinBlueSettings.PartnerValueSet = true;
-                    await _settingService.SaveSettingAsync(sendinBlueSettings, settings => settings.PartnerValueSet, clearCache: false);
-                    await _settingService.ClearCacheAsync();
-                }
-            }
+                _notificationService.ErrorNotification($"{SendinBlueDefaults.NotificationMessage} {attributesErrors}");            
         }
 
         #endregion

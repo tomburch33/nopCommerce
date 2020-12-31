@@ -64,9 +64,14 @@ namespace Nop.Plugin.Misc.SendinBlue
         public static int DefaultSynchronizationListsLimit => 50;
 
         /// <summary>
-        /// Gets a header of the API authentication key
+        /// Gets a header of the API key authorization: api-key
         /// </summary>
         public static string ApiKeyHeader => "api-key";
+
+        /// <summary>
+        /// Gets a header of the API key authorization: partner-key
+        /// </summary>
+        public static string PartnerKeyHeader => "partner-key";
 
         /// <summary>
         /// Gets a name of attribute to store an email
