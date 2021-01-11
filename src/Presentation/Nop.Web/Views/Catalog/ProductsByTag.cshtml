@@ -23,12 +23,23 @@
     </div>
     <div class="page-body">
         @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductsByTagTop, additionalData = Model })
-        @if (Model.CatalogProductsModel.Products.Count > 0)
-        {
-            @await Html.PartialAsync("_CatalogSelectors", Model.CatalogProductsModel.DisplayingModel)
-        }
+        @await Html.PartialAsync("_CatalogSelectors", Model.CatalogProductsModel)
         @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductsByTagBeforeProductList, additionalData = Model })
-        @await Html.PartialAsync("_CatalogProducts", Model.CatalogProductsModel)
+
+        @await Html.PartialAsync("_ProductsInGridOrLines", Model.CatalogProductsModel)
+        @if (Model.CatalogProductsModel.UseAjaxLoading)
+        {
+            Html.AddScriptParts(ResourceLocation.Footer, "~/js/public.ajaxcatalogproducts.js");
+            <script asp-location="Footer">
+                $(document).ready(function () {
+                    AjaxCatalogProducts.init({
+                        browserPath: '@Context.Request.Path',
+                        fetchUrl: '@Html.Raw(Url.Action("GetTagProducts", "Catalog", new { tagId = Model.Id }))'
+                    });
+                });
+            </script>
+        }
+
         @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductsByTagBottom, additionalData = Model })
     </div>
 </div>

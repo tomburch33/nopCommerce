@@ -3,31 +3,31 @@
 namespace Nop.Web.Models.Catalog
 {
     /// <summary>
-    /// Represents a specification filter item
+    /// Represents a specification attribute value filter model
     /// </summary>
-    public partial class SpecificationFilterItem : BaseNopModel
+    public class SpecificationAttributeValueFilterModel : BaseNopEntityModel
     {
         #region Properties
 
         /// <summary>
-        /// Gets or sets the specification attribute name
-        /// </summary>
-        public string SpecificationAttributeName { get; set; }
-
-        /// <summary>
         /// Gets or sets the specification attribute option name
         /// </summary>
-        public string SpecificationAttributeOptionName { get; set; }
+        public string Value { get; set; }
 
         /// <summary>
         /// Gets or sets the specification attribute option color (RGB)
         /// </summary>
-        public string SpecificationAttributeOptionColorRgb { get; set; }
+        public string ColorSquaresRgb { get; set; }
 
         /// <summary>
         /// Gets or sets the filter URL
         /// </summary>
         public string FilterUrl { get; set; }
+
+        /// <summary>
+        /// Gets or sets the value indicating whether the value is selected
+        /// </summary>
+        public bool Selected { get; set; }
 
         #endregion
     }

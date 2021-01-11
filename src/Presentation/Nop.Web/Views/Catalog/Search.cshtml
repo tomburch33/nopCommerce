@@ -90,26 +90,57 @@
                 </div>
             </form>
         </div>
-        @if (Model.CatalogProductsModel.Products.Count > 0)
-        {
-            @await Html.PartialAsync("_CatalogSelectors", Model.CatalogProductsModel.DisplayingModel)
-        }
+        @await Html.PartialAsync("_CatalogSelectors", Model.CatalogProductsModel)
         @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductSearchPageBeforeResults })
         <div class="search-results">
-            @if (!string.IsNullOrEmpty(Model.Warning))
+
+            @await Html.PartialAsync("_ProductsInGridOrLines", Model.CatalogProductsModel)
+            @if (Model.CatalogProductsModel.UseAjaxLoading)
             {
-                <div class="warning">
-                    @Model.Warning
-                </div>
-            }
-            @if (Model.NoResults)
-            {
-                <div class="no-result">
-                    @T("Search.NoResultsText")
-                </div>
+                Html.AddScriptParts(ResourceLocation.Footer, "~/js/public.ajaxcatalogproducts.js");
+                <script asp-location="Footer">
+                    $(document).ready(function () {
+                        // todo: add handler on search button
+
+                        AjaxCatalogProducts.init({
+                            browserPath: '@Context.Request.Path',
+                            fetchUrl: '@Html.Raw(Url.Action("SearchProducts", "Catalog"))'
+                        });
+                        $(AjaxCatalogProducts).on('before', function (e) {
+                            var urlBuilder = e.payload.urlBuilder;
+                            if (urlBuilder) {
+                                var $q = $('#@Html.IdFor(model => model.q)');
+                                if ($q) urlBuilder.addCustomParameter('q', $q.val());
+
+                                var $adv = $('#@Html.IdFor(model => model.adv)');
+                                if ($adv) urlBuilder.addCustomParameter('adv', $adv.is(':checked'));
+
+                                var $cid = $('#@Html.IdFor(model => model.cid)');
+                                if ($cid) urlBuilder.addCustomParameter('cid', $cid.val());
+
+                                var $isc = $('#@Html.IdFor(model => model.isc)');
+                                if ($isc) urlBuilder.addCustomParameter('isc', $isc.is(':checked'));
+
+                                var $mid = $('#@Html.IdFor(model => model.mid)');
+                                if ($mid) urlBuilder.addCustomParameter('mid', $mid.val());
+
+                                var $vid = $('#@Html.IdFor(model => model.vid)');
+                                if ($vid) urlBuilder.addCustomParameter('vid', $vid.val());
+
+                                var $pf = $('#@Html.IdFor(model => model.pf)');
+                                if ($pf) urlBuilder.addCustomParameter('pf', $pf.val());
+
+                                var $pt = $('#@Html.IdFor(model => model.pt)');
+                                if ($pt) urlBuilder.addCustomParameter('pt', $pt.val());
+
+                                var $sid = $('#@Html.IdFor(model => model.sid)');
+                                if ($sid) urlBuilder.addCustomParameter('sid', $sid.is(':checked'));
+                            }
+                        });
+                    });
+                </script>
             }
 
-            @await Html.PartialAsync("_CatalogProducts", Model.CatalogProductsModel)
         </div>
         @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.ProductSearchPageAfterResults })
     </div>

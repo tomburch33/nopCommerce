@@ -1,22 +1,50 @@
 ﻿@model CatalogProductsModel
 
-<div class="@(Model.DisplayingModel.ViewMode == "list" ? "product-list" : "product-grid")">
-    <div class="item-grid">
-        @foreach (var product in Model.Products)
-        {
-            <div class="item-box">
-                @await Html.PartialAsync("_ProductBox", product)
-            </div>
-        }
-    </div>
-</div>
-
-@{
-    var pager = Html.Pager(Model).QueryParam("pagenumber");
-}
-@if (!await pager.IsEmpty())
+@if (!string.IsNullOrEmpty(Model.WarningMessage))
 {
-    <div class="pager">
-        @pager
+    <div class="warning">
+        @Model.WarningMessage
+    </div>
+}
+
+@if (Model.Products.Count > 0)
+{
+    <div class="products-container">
+        <div class="ajax-products-busy"></div>
+        <div class="products-wrapper">
+            <div class="@(Model.ViewMode == "list" ? "product-list" : "product-grid")">
+                <div class="item-grid">
+                    @foreach (var product in Model.Products)
+                    {
+                        <div class="item-box">
+                            @await Html.PartialAsync("_ProductBox", product)
+                        </div>
+                    }
+                </div>
+            </div>
+
+            @{
+                var pager = Html.Pager(Model)
+                    .QueryParam("pagenumber")
+                    // for search page
+                    .BooleanParameterName("adv")
+                    .BooleanParameterName("isc")
+                    .BooleanParameterName("sid")
+                    .RenderEmptyParameters(true);
+
+            }
+            @if (!await pager.IsEmpty())
+            {
+                <div class="pager">
+                    @pager
+                </div>
+            }
+        </div>
+    </div>
+}
+else if (!string.IsNullOrEmpty(Model.NoResultMessage))
+{
+    <div class="no-result">
+        @Model.NoResultMessage
     </div>
 }

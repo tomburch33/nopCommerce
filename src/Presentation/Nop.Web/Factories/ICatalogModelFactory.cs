@@ -9,47 +9,15 @@ namespace Nop.Web.Factories
 {
     public partial interface ICatalogModelFactory
     {
-        #region Common
-
-        //TODO: may be deleted from interface
-        /// <summary>
-        /// Prepare sorting options
-        /// </summary>
-        /// <param name="displayingModel">Products displaying model</param>
-        /// <param name="command">Products displaying model</param>
-        Task PrepareSortingOptionsAsync(CatalogProductsDisplayingModel displayingModel, CatalogProductsDisplayingModel command);
-
-        //TODO: may be deleted from interface
-        /// <summary>
-        /// Prepare view modes
-        /// </summary>
-        /// <param name="displayingModel">Products displaying model</param>
-        /// <param name="command">Products displaying model</param>
-        Task PrepareViewModesAsync(CatalogProductsDisplayingModel displayingModel, CatalogProductsDisplayingModel command);
-
-        //TODO: may be deleted from interface
-        /// <summary>
-        /// Prepare page size options
-        /// </summary>
-        /// <param name="productsModel">Catalog products model</param>
-        /// <param name="command">Catalog products model</param>
-        /// <param name="allowCustomersToSelectPageSize">Are customers allowed to select page size?</param>
-        /// <param name="pageSizeOptions">Page size options</param>
-        /// <param name="fixedPageSize">Fixed page size</param>
-        Task PreparePageSizeOptionsAsync(CatalogProductsModel productsModel, CatalogProductsModel command,
-            bool allowCustomersToSelectPageSize, string pageSizeOptions, int fixedPageSize);
-
-        #endregion
-
         #region Categories
 
         /// <summary>
         /// Prepare category model
         /// </summary>
         /// <param name="category">Category</param>
-        /// <param name="command">Catalog products model</param>
+        /// <param name="command">Model to get the catalog products</param>
         /// <returns>Category model</returns>
-        Task<CategoryModel> PrepareCategoryModelAsync(Category category, CatalogProductsModel command);
+        Task<CategoryModel> PrepareCategoryModelAsync(Category category, GetCatalogProductsCommand command);
 
         /// <summary>
         /// Prepare category template view path
@@ -116,11 +84,12 @@ namespace Nop.Web.Factories
         Task<List<CategorySimpleModel>> PrepareSubCategoriesAsync(int id);
 
         /// <summary>
-        /// Prepares the category products filtering model
+        /// Prepares the category products model
         /// </summary>
-        /// <param name="categoryId">The category id</param>
-        /// <returns>The category products filtering model</returns>
-        Task<CatalogProductsFilteringModel> PrepareCategoryFilteringModelAsync(int categoryId);
+        /// <param name="category">Category</param>
+        /// <param name="command">Model to get the catalog products</param>
+        /// <returns>The category products model</returns>
+        Task<CatalogProductsModel> PrepareCategoryProductsModel(Category category, GetCatalogProductsCommand command);
 
         #endregion
 
@@ -130,9 +99,17 @@ namespace Nop.Web.Factories
         /// Prepare manufacturer model
         /// </summary>
         /// <param name="manufacturer">Manufacturer identifier</param>
-        /// <param name="command">Catalog products model</param>
+        /// <param name="command">Model to get the catalog products</param>
         /// <returns>Manufacturer model</returns>
-        Task<ManufacturerModel> PrepareManufacturerModelAsync(Manufacturer manufacturer, CatalogProductsModel command);
+        Task<ManufacturerModel> PrepareManufacturerModelAsync(Manufacturer manufacturer, GetCatalogProductsCommand command);
+
+        /// <summary>
+        /// Prepares the manufacturer products model
+        /// </summary>
+        /// <param name="manufacturer">Manufacturer</param>
+        /// <param name="command">Model to get the catalog products</param>
+        /// <returns>The manufacturer products model</returns>
+        Task<CatalogProductsModel> PrepareManufacturerProductsModel(Manufacturer manufacturer, GetCatalogProductsCommand command);
 
         /// <summary>
         /// Prepare manufacturer template view path
@@ -154,13 +131,6 @@ namespace Nop.Web.Factories
         /// <returns>Manufacturer navigation model</returns>
         Task<ManufacturerNavigationModel> PrepareManufacturerNavigationModelAsync(int currentManufacturerId);
 
-        /// <summary>
-        /// Prepares the manufacturer products filtering model
-        /// </summary>
-        /// <param name="manufacturerId">The manufacturer id</param>
-        /// <returns>The manufacturer products filtering model</returns>
-        Task<CatalogProductsFilteringModel> PrepareManufacturerFilteringModelAsync(int manufacturerId);
-
         #endregion
 
         #region Vendors
@@ -169,9 +139,17 @@ namespace Nop.Web.Factories
         /// Prepare vendor model
         /// </summary>
         /// <param name="vendor">Vendor</param>
-        /// <param name="command">Catalog products model</param>
+        /// <param name="command">Model to get the catalog products</param>
         /// <returns>Vendor model</returns>
-        Task<VendorModel> PrepareVendorModelAsync(Vendor vendor, CatalogProductsModel command);
+        Task<VendorModel> PrepareVendorModelAsync(Vendor vendor, GetCatalogProductsCommand command);
+
+        /// <summary>
+        /// Prepares the vendor products model
+        /// </summary>
+        /// <param name="vendor">Vendor</param>
+        /// <param name="command">Model to get the catalog products</param>
+        /// <returns>The vendor products model</returns>
+        Task<CatalogProductsModel> PrepareVendorProductsModel(Vendor vendor, GetCatalogProductsCommand command);
 
         /// <summary>
         /// Prepare vendor all models
@@ -199,9 +177,17 @@ namespace Nop.Web.Factories
         /// Prepare products by tag model
         /// </summary>
         /// <param name="productTag">Product tag</param>
-        /// <param name="command">Catalog products model</param>
+        /// <param name="command">Model to get the catalog products</param>
         /// <returns>Products by tag model</returns>
-        Task<ProductsByTagModel> PrepareProductsByTagModelAsync(ProductTag productTag, CatalogProductsModel command);
+        Task<ProductsByTagModel> PrepareProductsByTagModelAsync(ProductTag productTag, GetCatalogProductsCommand command);
+
+        /// <summary>
+        /// Prepares the tag products model
+        /// </summary>
+        /// <param name="productTag">Product tag</param>
+        /// <param name="command">Model to get the catalog products</param>
+        /// <returns>The tag products model</returns>
+        Task<CatalogProductsModel> PrepareTagProductsModel(ProductTag productTag, GetCatalogProductsCommand command);        
 
         /// <summary>
         /// Prepare product tags all model
@@ -217,9 +203,17 @@ namespace Nop.Web.Factories
         /// Prepare search model
         /// </summary>
         /// <param name="model">Search model</param>
-        /// <param name="command">Catalog products model</param>
+        /// <param name="command">Model to get the catalog products</param>
         /// <returns>Search model</returns>
-        Task<SearchModel> PrepareSearchModelAsync(SearchModel model, CatalogProductsModel command);
+        Task<SearchModel> PrepareSearchModelAsync(SearchModel model, GetCatalogProductsCommand command);
+
+        /// <summary>
+        /// Prepares the search products model
+        /// </summary>
+        /// <param name="model">Search model</param>
+        /// <param name="command">Model to get the catalog products</param>
+        /// <returns>The search products model</returns>
+        Task<CatalogProductsModel> PrepareSearchProductsModel(SearchModel searchModel, GetCatalogProductsCommand command);
 
         /// <summary>
         /// Prepare search box model

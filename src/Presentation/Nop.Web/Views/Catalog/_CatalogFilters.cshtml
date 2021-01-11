@@ -1,0 +1,31 @@
+﻿@model CatalogProductsModel
+
+<div class="product-filters">
+
+    <div id="slider-range"></div>
+    <input type="text" id="amount" readonly style="border:0; color:#f6931f; font-weight:bold;">
+    <script asp-location="Footer">
+        $(function () {
+            $("#slider-range").slider({
+                range: true,
+                min: 0,
+                max: 500,
+                values: [75, 300],
+                slide: function (event, ui) {
+                    $("#amount").val("$" + ui.values[0] + " - $" + ui.values[1]);
+                }
+            });
+            $("#amount").val("$" + $("#slider-range").slider("values", 0) +
+                " - $" + $("#slider-range").slider("values", 1));
+        });
+    </script>
+
+    @if (Model.PriceRangeFilter.Enabled)
+    {
+        @await Html.PartialAsync("_FilterPriceBox", Model.PriceRangeFilter)
+    }
+    @if (Model.SpecificationFilter.Enabled)
+    {
+        @await Html.PartialAsync("_FilterSpecsBox", Model.SpecificationFilter)
+    }
+</div>

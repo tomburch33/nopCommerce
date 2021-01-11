@@ -25,7 +25,7 @@
 }
 @*category breadcrumb*@
 @section Breadcrumb
-    {
+{
     @if (Model.DisplayCategoryBreadcrumb)
     {
         <div class="breadcrumb">
@@ -62,6 +62,12 @@
         @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.CategoryDetailsAfterBreadcrumb, additionalData = Model })
     }
 }
+
+@section CatalogFilters {
+    @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.CategoryDetailsBeforeFilters, additionalData = Model })
+    @await Html.PartialAsync("_CatalogFilters", Model.CatalogProductsModel)
+}
+
 <div class="page category-page">
     <div class="page-title">
         <h1>@Model.Name</h1>
@@ -120,12 +126,21 @@
             </div>
         }
         @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.CategoryDetailsAfterFeaturedProducts, additionalData = Model })
-        @if (Model.CatalogProductsModel.Products.Count > 0)
-        {
-            @await Html.PartialAsync("_CatalogSelectors", Model.CatalogProductsModel.DisplayingModel)
-        }
+        @await Html.PartialAsync("_CatalogSelectors", Model.CatalogProductsModel)
         @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.CategoryDetailsBeforeProductList, additionalData = Model })
-        @await Html.PartialAsync("_CatalogProducts", Model.CatalogProductsModel)
+        @await Html.PartialAsync("_ProductsInGridOrLines", Model.CatalogProductsModel)
+        @if (Model.CatalogProductsModel.UseAjaxLoading)
+        {
+            Html.AddScriptParts(ResourceLocation.Footer, "~/js/public.ajaxcatalogproducts.js");
+            <script asp-location="Footer">
+                $(document).ready(function () {
+                    AjaxCatalogProducts.init({
+                        browserPath: '@Context.Request.Path',
+                        fetchUrl: '@Html.Raw(Url.Action("GetCategoryProducts", "Catalog", new { categoryId = Model.Id }))'
+                    });
+                });
+            </script>
+        }
         @await Component.InvokeAsync("Widget", new { widgetZone = PublicWidgetZones.CategoryDetailsBottom, additionalData = Model })
     </div>
 </div>

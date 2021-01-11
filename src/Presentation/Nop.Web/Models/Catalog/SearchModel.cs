@@ -12,13 +12,8 @@ namespace Nop.Web.Models.Catalog
             AvailableCategories = new List<SelectListItem>();
             AvailableManufacturers = new List<SelectListItem>();
             AvailableVendors = new List<SelectListItem>();
-
             CatalogProductsModel = new CatalogProductsModel();
         }
-
-        public string Warning { get; set; }
-
-        public bool NoResults { get; set; }
 
         /// <summary>
         /// Query string
