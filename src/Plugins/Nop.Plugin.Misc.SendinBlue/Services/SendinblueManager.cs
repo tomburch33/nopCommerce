@@ -12,7 +12,7 @@ using Nop.Core;
 using Nop.Core.Domain.Customers;
 using Nop.Core.Domain.Messages;
 using Nop.Core.Domain.Orders;
-using Nop.Plugin.Misc.SendinBlue.Domain;
+using Nop.Plugin.Misc.Sendinblue.Domain;
 using Nop.Services.Common;
 using Nop.Services.Configuration;
 using Nop.Services.Customers;
@@ -25,12 +25,12 @@ using sib_api_v3_sdk.Client;
 using sib_api_v3_sdk.Model;
 using static sib_api_v3_sdk.Model.GetAttributesAttributes;
 
-namespace Nop.Plugin.Misc.SendinBlue.Services
+namespace Nop.Plugin.Misc.Sendinblue.Services
 {
     /// <summary>
-    /// Represents SendinBlue manager
+    /// Represents Sendinblue manager
     /// </summary>
-    public class SendinBlueManager
+    public class SendinblueManager
     {
         #region Fields
 
@@ -52,7 +52,7 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
 
         #region Ctor
 
-        public SendinBlueManager(IActionContextAccessor actionContextAccessor,
+        public SendinblueManager(IActionContextAccessor actionContextAccessor,
             ICountryService countryService,
             ICustomerService customerService,
             IEmailAccountService emailAccountService,
@@ -92,18 +92,18 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
         private async Task<TClient> CreateApiClientAsync<TClient>(Func<Configuration, TClient> clientCtor) where TClient : IApiAccessor
         {
             //check whether plugin is configured to request services (validate API key)
-            var sendinBlueSettings = await _settingService.LoadSettingAsync<SendinBlueSettings>();
+            var sendinBlueSettings = await _settingService.LoadSettingAsync<SendinblueSettings>();
             if (string.IsNullOrEmpty(sendinBlueSettings.ApiKey))
                 throw new NopException($"Plugin not configured");
 
             var apiConfiguration = new Configuration()
             {
                 ApiKey = new Dictionary<string, string> { 
-                    [SendinBlueDefaults.ApiKeyHeader] = sendinBlueSettings.ApiKey, 
-                    [SendinBlueDefaults.PartnerKeyHeader] = sendinBlueSettings.ApiKey 
+                    [SendinblueDefaults.ApiKeyHeader] = sendinBlueSettings.ApiKey, 
+                    [SendinblueDefaults.PartnerKeyHeader] = sendinBlueSettings.ApiKey 
                 },
-                ApiKeyPrefix = new Dictionary<string, string> { [SendinBlueDefaults.PartnerKeyHeader] = SendinBlueDefaults.PartnerName },
-                UserAgent = SendinBlueDefaults.UserAgent
+                ApiKeyPrefix = new Dictionary<string, string> { [SendinblueDefaults.PartnerKeyHeader] = SendinblueDefaults.PartnerName },
+                UserAgent = SendinblueDefaults.UserAgent
             };
 
             return clientCtor(apiConfiguration);
@@ -127,11 +127,11 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
                 foreach (var storeId in storeIds)
                 {
                     //get list identifier from the settings
-                    var key = $"{nameof(SendinBlueSettings)}.{nameof(SendinBlueSettings.ListId)}";
+                    var key = $"{nameof(SendinblueSettings)}.{nameof(SendinblueSettings.ListId)}";
                     var listId = await _settingService.GetSettingByKeyAsync<int>(key, storeId: storeId);
                     if (listId == 0)
                     {
-                        await _logger.WarningAsync($"SendinBlue synchronization warning: List ID is empty for store #{storeId}");
+                        await _logger.WarningAsync($"Sendinblue synchronization warning: List ID is empty for store #{storeId}");
                         messages.Add((NotifyType.Warning, $"List ID is empty for store #{storeId}"));
                         continue;
                     }
@@ -140,71 +140,71 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
                     var subscriptions = await _newsLetterSubscriptionService.GetAllNewsLetterSubscriptionsAsync(storeId: storeId, isActive: true);
                     if (!subscriptions.Any())
                     {
-                        await _logger.WarningAsync($"SendinBlue synchronization warning: There are no subscriptions for store #{storeId}");
+                        await _logger.WarningAsync($"Sendinblue synchronization warning: There are no subscriptions for store #{storeId}");
                         messages.Add((NotifyType.Warning, $"There are no subscriptions for store #{storeId}"));
                         continue;
                     }
 
                     //get notification URL
                     var urlHelper = _urlHelperFactory.GetUrlHelper(_actionContextAccessor.ActionContext);
-                    var notificationUrl = urlHelper.RouteUrl(SendinBlueDefaults.ImportContactsRoute, null, _webHelper.GetCurrentRequestProtocol());
+                    var notificationUrl = urlHelper.RouteUrl(SendinblueDefaults.ImportContactsRoute, null, _webHelper.GetCurrentRequestProtocol());
 
                     var name = string.Empty;
 
                     switch (await GetAccountLanguageAsync())
                     {
-                        case SendinBlueAccountLanguage.French:
+                        case SendinblueAccountLanguage.French:
                             name =
-                                $"{SendinBlueDefaults.FirstNameFrenchServiceAttribute};" +
-                                $"{SendinBlueDefaults.LastNameFrenchServiceAttribute};";
+                                $"{SendinblueDefaults.FirstNameFrenchServiceAttribute};" +
+                                $"{SendinblueDefaults.LastNameFrenchServiceAttribute};";
                             break;
-                        case SendinBlueAccountLanguage.German:
+                        case SendinblueAccountLanguage.German:
                             name =
-                                $"{SendinBlueDefaults.FirstNameGermanServiceAttribute};" +
-                                $"{SendinBlueDefaults.LastNameGermanServiceAttribute};";
+                                $"{SendinblueDefaults.FirstNameGermanServiceAttribute};" +
+                                $"{SendinblueDefaults.LastNameGermanServiceAttribute};";
                             break;
-                        case SendinBlueAccountLanguage.Italian:
+                        case SendinblueAccountLanguage.Italian:
                             name =
-                                $"{SendinBlueDefaults.FirstNameItalianServiceAttribute};" +
-                                $"{SendinBlueDefaults.LastNameItalianServiceAttribute};";
+                                $"{SendinblueDefaults.FirstNameItalianServiceAttribute};" +
+                                $"{SendinblueDefaults.LastNameItalianServiceAttribute};";
                             break;
-                        case SendinBlueAccountLanguage.Portuguese:
+                        case SendinblueAccountLanguage.Portuguese:
                             name =
-                                $"{SendinBlueDefaults.FirstNamePortugueseServiceAttribute};" +
-                                $"{SendinBlueDefaults.LastNamePortugueseServiceAttribute};";
+                                $"{SendinblueDefaults.FirstNamePortugueseServiceAttribute};" +
+                                $"{SendinblueDefaults.LastNamePortugueseServiceAttribute};";
                             break;
-                        case SendinBlueAccountLanguage.Spanish:
+                        case SendinblueAccountLanguage.Spanish:
                             name =
-                                $"{SendinBlueDefaults.FirstNameSpanishServiceAttribute};" +
-                                $"{SendinBlueDefaults.LastNameSpanishServiceAttribute};";
+                                $"{SendinblueDefaults.FirstNameSpanishServiceAttribute};" +
+                                $"{SendinblueDefaults.LastNameSpanishServiceAttribute};";
                             break;
 
-                        case SendinBlueAccountLanguage.English:
+                        case SendinblueAccountLanguage.English:
                             name =
-                                $"{SendinBlueDefaults.FirstNameServiceAttribute};" +
-                                $"{SendinBlueDefaults.LastNameServiceAttribute};";
+                                $"{SendinblueDefaults.FirstNameServiceAttribute};" +
+                                $"{SendinblueDefaults.LastNameServiceAttribute};";
                             break;
                     }
 
                     //prepare CSV 
                     var title =
-                        $"{SendinBlueDefaults.EmailServiceAttribute};" +
+                        $"{SendinblueDefaults.EmailServiceAttribute};" +
                         name +
-                        $"{SendinBlueDefaults.UsernameServiceAttribute};" +
-                        $"{SendinBlueDefaults.SMSServiceAttribute};" +
-                        $"{SendinBlueDefaults.PhoneServiceAttribute};" +
-                        $"{SendinBlueDefaults.CountryServiceAttribute};" +
-                        $"{SendinBlueDefaults.StoreIdServiceAttribute};" +
-                        $"{SendinBlueDefaults.GenderServiceAttribute};" +
-                        $"{SendinBlueDefaults.DateOfBirthServiceAttribute};" +
-                        $"{SendinBlueDefaults.CompanyServiceAttribute};" +
-                        $"{SendinBlueDefaults.Address1ServiceAttribute};" +
-                        $"{SendinBlueDefaults.Address2ServiceAttribute};" +
-                        $"{SendinBlueDefaults.ZipCodeServiceAttribute};" +
-                        $"{SendinBlueDefaults.CityServiceAttribute};" +
-                        $"{SendinBlueDefaults.CountyServiceAttribute};" +
-                        $"{SendinBlueDefaults.StateServiceAttribute};" +
-                        $"{SendinBlueDefaults.FaxServiceAttribute}";
+                        $"{SendinblueDefaults.UsernameServiceAttribute};" +
+                        $"{SendinblueDefaults.SMSServiceAttribute};" +
+                        $"{SendinblueDefaults.PhoneServiceAttribute};" +
+                        $"{SendinblueDefaults.CountryServiceAttribute};" +
+                        $"{SendinblueDefaults.StoreIdServiceAttribute};" +
+                        $"{SendinblueDefaults.GenderServiceAttribute};" +
+                        $"{SendinblueDefaults.DateOfBirthServiceAttribute};" +
+                        $"{SendinblueDefaults.CompanyServiceAttribute};" +
+                        $"{SendinblueDefaults.Address1ServiceAttribute};" +
+                        $"{SendinblueDefaults.Address2ServiceAttribute};" +
+                        $"{SendinblueDefaults.ZipCodeServiceAttribute};" +
+                        $"{SendinblueDefaults.CityServiceAttribute};" +
+                        $"{SendinblueDefaults.CountyServiceAttribute};" +
+                        $"{SendinblueDefaults.StateServiceAttribute};" +
+                        $"{SendinblueDefaults.FaxServiceAttribute}";
                     var csv = await subscriptions.AggregateAwaitAsync(title, async (all, subscription) =>
                     {
                         var firstName = string.Empty;
@@ -287,8 +287,8 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
             catch (Exception exception)
             {
                 //log full error
-                await _logger.ErrorAsync($"SendinBlue synchronization error: {exception.Message}", exception, await _workContext.GetCurrentCustomerAsync());
-                messages.Add((NotifyType.Error, $"SendinBlue synchronization error: {exception.Message}"));
+                await _logger.ErrorAsync($"Sendinblue synchronization error: {exception.Message}", exception, await _workContext.GetCurrentCustomerAsync());
+                messages.Add((NotifyType.Error, $"Sendinblue synchronization error: {exception.Message}"));
             }
 
             return messages;
@@ -311,11 +311,11 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
                 foreach (var storeId in storeIds)
                 {
                     //get list identifier from the settings
-                    var key = $"{nameof(SendinBlueSettings)}.{nameof(SendinBlueSettings.ListId)}";
+                    var key = $"{nameof(SendinblueSettings)}.{nameof(SendinblueSettings.ListId)}";
                     var listId = await _settingService.GetSettingByKeyAsync<int>(key, storeId: storeId, loadSharedValueIfNotFound: true);
                     if (listId == 0)
                     {
-                        await _logger.WarningAsync($"SendinBlue synchronization warning: List ID is empty for store #{storeId}");
+                        await _logger.WarningAsync($"Sendinblue synchronization warning: List ID is empty for store #{storeId}");
                         messages.Add((NotifyType.Warning, $"List ID is empty for store #{storeId}"));
                         continue;
                     }
@@ -345,8 +345,8 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
             catch (Exception exception)
             {
                 //log full error
-                await _logger.ErrorAsync($"SendinBlue synchronization error: {exception.Message}", exception, await _workContext.GetCurrentCustomerAsync());
-                messages.Add((NotifyType.Error, $"SendinBlue synchronization error: {exception.Message}"));
+                await _logger.ErrorAsync($"Sendinblue synchronization error: {exception.Message}", exception, await _workContext.GetCurrentCustomerAsync());
+                messages.Add((NotifyType.Error, $"Sendinblue synchronization error: {exception.Message}"));
             }
 
             return messages;
@@ -380,7 +380,7 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
             catch (Exception exception)
             {
                 //log full error
-                await _logger.ErrorAsync($"SendinBlue error: {exception.Message}.", exception, await _workContext.GetCurrentCustomerAsync());
+                await _logger.ErrorAsync($"Sendinblue error: {exception.Message}.", exception, await _workContext.GetCurrentCustomerAsync());
                 return exception.Message;
             }
 
@@ -405,7 +405,7 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
             try
             {
                 //whether plugin is configured
-                var sendinBlueSettings = await _settingService.LoadSettingAsync<SendinBlueSettings>();
+                var sendinBlueSettings = await _settingService.LoadSettingAsync<SendinblueSettings>();
                 if (string.IsNullOrEmpty(sendinBlueSettings.ApiKey))
                     throw new NopException($"Plugin not configured");
 
@@ -425,8 +425,8 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
             catch (Exception exception)
             {
                 //log full error
-                await _logger.ErrorAsync($"SendinBlue synchronization error: {exception.Message}.", exception, await _workContext.GetCurrentCustomerAsync());
-                messages.Add((NotifyType.Error, $"SendinBlue synchronization error: {exception.Message}"));
+                await _logger.ErrorAsync($"Sendinblue synchronization error: {exception.Message}.", exception, await _workContext.GetCurrentCustomerAsync());
+                messages.Add((NotifyType.Error, $"Sendinblue synchronization error: {exception.Message}"));
             }
 
             return messages;
@@ -444,13 +444,13 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
                 var client = await CreateApiClientAsync(config => new ContactsApi(config));
 
                 //try to get list identifier
-                var key = $"{nameof(SendinBlueSettings)}.{nameof(SendinBlueSettings.ListId)}";
+                var key = $"{nameof(SendinblueSettings)}.{nameof(SendinblueSettings.ListId)}";
                 var listId = await _settingService.GetSettingByKeyAsync<int>(key, storeId: subscription.StoreId);
                 if (listId == 0)
                     listId = await _settingService.GetSettingByKeyAsync<int>(key);
                 if (listId == 0)
                 {
-                    await _logger.WarningAsync($"SendinBlue synchronization warning: List ID is empty for store #{subscription.StoreId}");
+                    await _logger.WarningAsync($"Sendinblue synchronization warning: List ID is empty for store #{subscription.StoreId}");
                     return;
                 }
 
@@ -512,48 +512,48 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
 
                     var attributes = new Dictionary<string, string>
                     {
-                        [SendinBlueDefaults.UsernameServiceAttribute] = customer?.Username,
-                        [SendinBlueDefaults.SMSServiceAttribute] = sms,
-                        [SendinBlueDefaults.PhoneServiceAttribute] = phone,
-                        [SendinBlueDefaults.CountryServiceAttribute] = countryName,
-                        [SendinBlueDefaults.StoreIdServiceAttribute] = subscription.StoreId.ToString(),
-                        [SendinBlueDefaults.GenderServiceAttribute] = gender,
-                        [SendinBlueDefaults.DateOfBirthServiceAttribute] = dateOfBirth,
-                        [SendinBlueDefaults.CompanyServiceAttribute] = company,
-                        [SendinBlueDefaults.Address1ServiceAttribute] = address1,
-                        [SendinBlueDefaults.Address2ServiceAttribute] = address2,
-                        [SendinBlueDefaults.ZipCodeServiceAttribute] = zipCode,
-                        [SendinBlueDefaults.CityServiceAttribute] = city,
-                        [SendinBlueDefaults.CountyServiceAttribute] = county,
-                        [SendinBlueDefaults.StateServiceAttribute] = state,
-                        [SendinBlueDefaults.FaxServiceAttribute] = fax
+                        [SendinblueDefaults.UsernameServiceAttribute] = customer?.Username,
+                        [SendinblueDefaults.SMSServiceAttribute] = sms,
+                        [SendinblueDefaults.PhoneServiceAttribute] = phone,
+                        [SendinblueDefaults.CountryServiceAttribute] = countryName,
+                        [SendinblueDefaults.StoreIdServiceAttribute] = subscription.StoreId.ToString(),
+                        [SendinblueDefaults.GenderServiceAttribute] = gender,
+                        [SendinblueDefaults.DateOfBirthServiceAttribute] = dateOfBirth,
+                        [SendinblueDefaults.CompanyServiceAttribute] = company,
+                        [SendinblueDefaults.Address1ServiceAttribute] = address1,
+                        [SendinblueDefaults.Address2ServiceAttribute] = address2,
+                        [SendinblueDefaults.ZipCodeServiceAttribute] = zipCode,
+                        [SendinblueDefaults.CityServiceAttribute] = city,
+                        [SendinblueDefaults.CountyServiceAttribute] = county,
+                        [SendinblueDefaults.StateServiceAttribute] = state,
+                        [SendinblueDefaults.FaxServiceAttribute] = fax
                     };
 
                     switch (await GetAccountLanguageAsync())
                     {
-                        case SendinBlueAccountLanguage.French:
-                            attributes.Add(SendinBlueDefaults.FirstNameFrenchServiceAttribute, firstName);
-                            attributes.Add(SendinBlueDefaults.LastNameFrenchServiceAttribute, lastName);
+                        case SendinblueAccountLanguage.French:
+                            attributes.Add(SendinblueDefaults.FirstNameFrenchServiceAttribute, firstName);
+                            attributes.Add(SendinblueDefaults.LastNameFrenchServiceAttribute, lastName);
                             break;
-                        case SendinBlueAccountLanguage.German:
-                            attributes.Add(SendinBlueDefaults.FirstNameGermanServiceAttribute, firstName);
-                            attributes.Add(SendinBlueDefaults.LastNameGermanServiceAttribute, lastName);
+                        case SendinblueAccountLanguage.German:
+                            attributes.Add(SendinblueDefaults.FirstNameGermanServiceAttribute, firstName);
+                            attributes.Add(SendinblueDefaults.LastNameGermanServiceAttribute, lastName);
                             break;
-                        case SendinBlueAccountLanguage.Italian:
-                            attributes.Add(SendinBlueDefaults.FirstNameItalianServiceAttribute, firstName);
-                            attributes.Add(SendinBlueDefaults.LastNameItalianServiceAttribute, lastName);
+                        case SendinblueAccountLanguage.Italian:
+                            attributes.Add(SendinblueDefaults.FirstNameItalianServiceAttribute, firstName);
+                            attributes.Add(SendinblueDefaults.LastNameItalianServiceAttribute, lastName);
                             break;
-                        case SendinBlueAccountLanguage.Portuguese:
-                            attributes.Add(SendinBlueDefaults.FirstNamePortugueseServiceAttribute, firstName);
-                            attributes.Add(SendinBlueDefaults.LastNamePortugueseServiceAttribute, lastName);
+                        case SendinblueAccountLanguage.Portuguese:
+                            attributes.Add(SendinblueDefaults.FirstNamePortugueseServiceAttribute, firstName);
+                            attributes.Add(SendinblueDefaults.LastNamePortugueseServiceAttribute, lastName);
                             break;
-                        case SendinBlueAccountLanguage.Spanish:
-                            attributes.Add(SendinBlueDefaults.FirstNameSpanishServiceAttribute, firstName);
-                            attributes.Add(SendinBlueDefaults.LastNameSpanishServiceAttribute, lastName);
+                        case SendinblueAccountLanguage.Spanish:
+                            attributes.Add(SendinblueDefaults.FirstNameSpanishServiceAttribute, firstName);
+                            attributes.Add(SendinblueDefaults.LastNameSpanishServiceAttribute, lastName);
                             break;
-                        case SendinBlueAccountLanguage.English:
-                            attributes.Add(SendinBlueDefaults.FirstNameServiceAttribute, firstName);
-                            attributes.Add(SendinBlueDefaults.LastNameServiceAttribute, lastName);
+                        case SendinblueAccountLanguage.English:
+                            attributes.Add(SendinblueDefaults.FirstNameServiceAttribute, firstName);
+                            attributes.Add(SendinblueDefaults.LastNameServiceAttribute, lastName);
                             break;
                     }
 
@@ -580,7 +580,7 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
             catch (Exception exception)
             {
                 //log full error
-                await _logger.ErrorAsync($"SendinBlue error: {exception.Message}.", exception, await _workContext.GetCurrentCustomerAsync());
+                await _logger.ErrorAsync($"Sendinblue error: {exception.Message}.", exception, await _workContext.GetCurrentCustomerAsync());
             }
         }
 
@@ -596,13 +596,13 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
                 var client = await CreateApiClientAsync(config => new ContactsApi(config));
 
                 //try to get list identifier
-                var key = $"{nameof(SendinBlueSettings)}.{nameof(SendinBlueSettings.ListId)}";
+                var key = $"{nameof(SendinblueSettings)}.{nameof(SendinblueSettings.ListId)}";
                 var listId = await _settingService.GetSettingByKeyAsync<int>(key, storeId: subscription.StoreId);
                 if (listId == 0)
                     listId = await _settingService.GetSettingByKeyAsync<int>(key);
                 if (listId == 0)
                 {
-                    await _logger.WarningAsync($"SendinBlue synchronization warning: List ID is empty for store #{subscription.StoreId}");
+                    await _logger.WarningAsync($"Sendinblue synchronization warning: List ID is empty for store #{subscription.StoreId}");
                     return;
                 }
 
@@ -616,7 +616,7 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
             catch (Exception exception)
             {
                 //log full error
-                await _logger.ErrorAsync($"SendinBlue error: {exception.Message}.", exception, await _workContext.GetCurrentCustomerAsync());
+                await _logger.ErrorAsync($"Sendinblue error: {exception.Message}.", exception, await _workContext.GetCurrentCustomerAsync());
             }
         }
 
@@ -629,7 +629,7 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
             try
             {
                 //whether plugin is configured
-                var sendinBlueSettings = await _settingService.LoadSettingAsync<SendinBlueSettings>();
+                var sendinBlueSettings = await _settingService.LoadSettingAsync<SendinblueSettings>();
                 if (string.IsNullOrEmpty(sendinBlueSettings.ApiKey))
                     throw new NopException("Plugin not configured");
 
@@ -651,12 +651,12 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
                 //update subscription
                 subscription.Active = false;
                 await _newsLetterSubscriptionService.UpdateNewsLetterSubscriptionAsync(subscription);
-                await _logger.InformationAsync($"SendinBlue unsubscription: email {email}, store #{storeId}, date {unsubscriber?.date_event}");
+                await _logger.InformationAsync($"Sendinblue unsubscription: email {email}, store #{storeId}, date {unsubscriber?.date_event}");
             }
             catch (Exception exception)
             {
                 //log full error
-                await _logger.ErrorAsync($"SendinBlue error: {exception.Message}.", exception, await _workContext.GetCurrentCustomerAsync());
+                await _logger.ErrorAsync($"Sendinblue error: {exception.Message}.", exception, await _workContext.GetCurrentCustomerAsync());
             }
         }
 
@@ -672,7 +672,7 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
                 var client = await CreateApiClientAsync(config => new WebhooksApi(config));
 
                 //check whether webhook already exist
-                var sendinBlueSettings = await _settingService.LoadSettingAsync<SendinBlueSettings>();
+                var sendinBlueSettings = await _settingService.LoadSettingAsync<SendinblueSettings>();
                 if (sendinBlueSettings.UnsubscribeWebhookId != 0)
                 {
                     await client.GetWebhookAsync(sendinBlueSettings.UnsubscribeWebhookId);
@@ -681,7 +681,7 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
 
                 //or create new one
                 var urlHelper = _urlHelperFactory.GetUrlHelper(_actionContextAccessor.ActionContext);
-                var notificationUrl = urlHelper.RouteUrl(SendinBlueDefaults.UnsubscribeContactRoute, null, _webHelper.GetCurrentRequestProtocol());
+                var notificationUrl = urlHelper.RouteUrl(SendinblueDefaults.UnsubscribeContactRoute, null, _webHelper.GetCurrentRequestProtocol());
                 var webhook = new CreateWebhook(notificationUrl, "Unsubscribe event webhook",
                     new List<CreateWebhook.EventsEnum> { CreateWebhook.EventsEnum.Unsubscribed }, CreateWebhook.TypeEnum.Transactional);
                 var result = await client.CreateWebhookAsync(webhook);
@@ -691,7 +691,7 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
             catch (Exception exception)
             {
                 //log full error
-                await _logger.ErrorAsync($"SendinBlue error: {exception.Message}.", exception, await _workContext.GetCurrentCustomerAsync());
+                await _logger.ErrorAsync($"Sendinblue error: {exception.Message}.", exception, await _workContext.GetCurrentCustomerAsync());
                 return 0;
             }
         }
@@ -715,10 +715,10 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
                 //update contact
                 var attributes = new Dictionary<string, string>
                 {
-                    [SendinBlueDefaults.IdServiceAttribute] = order.Id.ToString(),
-                    [SendinBlueDefaults.OrderIdServiceAttribute] = order.Id.ToString(),
-                    [SendinBlueDefaults.OrderDateServiceAttribute] = order.PaidDateUtc.ToString(),
-                    [SendinBlueDefaults.OrderTotalServiceAttribute] = order.OrderTotal.ToString()
+                    [SendinblueDefaults.IdServiceAttribute] = order.Id.ToString(),
+                    [SendinblueDefaults.OrderIdServiceAttribute] = order.Id.ToString(),
+                    [SendinblueDefaults.OrderDateServiceAttribute] = order.PaidDateUtc.ToString(),
+                    [SendinblueDefaults.OrderTotalServiceAttribute] = order.OrderTotal.ToString()
                 };
                 var updateContact = new UpdateContact { Attributes = attributes };
                 await client.UpdateContactAsync(customer.Email, updateContact);
@@ -726,7 +726,7 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
             catch (Exception exception)
             {
                 //log full error
-                await _logger.ErrorAsync($"SendinBlue error: {exception.Message}.", exception, await _workContext.GetCurrentCustomerAsync());
+                await _logger.ErrorAsync($"Sendinblue error: {exception.Message}.", exception, await _workContext.GetCurrentCustomerAsync());
             }
         }
 
@@ -765,7 +765,7 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
             catch (Exception exception)
             {
                 //log full error
-                await _logger.ErrorAsync($"SendinBlue error: {exception.Message}.", exception, await _workContext.GetCurrentCustomerAsync());
+                await _logger.ErrorAsync($"Sendinblue error: {exception.Message}.", exception, await _workContext.GetCurrentCustomerAsync());
                 return (null, false, null, exception.Message);
             }
         }        
@@ -784,7 +784,7 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
                 var client = await CreateApiClientAsync(config => new ContactsApi(config));
 
                 //get available lists
-                var lists = await client.GetListsAsync(SendinBlueDefaults.DefaultSynchronizationListsLimit);
+                var lists = await client.GetListsAsync(SendinblueDefaults.DefaultSynchronizationListsLimit);
 
                 //prepare id-name pairs
                 var template = new { lists = new[] { new { id = string.Empty, name = string.Empty } } };
@@ -801,7 +801,7 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
             catch (Exception exception)
             {
                 //log full error
-                await _logger.ErrorAsync($"SendinBlue error: {exception.Message}.", exception, await _workContext.GetCurrentCustomerAsync());
+                await _logger.ErrorAsync($"Sendinblue error: {exception.Message}.", exception, await _workContext.GetCurrentCustomerAsync());
                 return (availableLists, exception.Message);
             }
 
@@ -833,7 +833,7 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
             catch (Exception exception)
             {
                 //log full error
-                await _logger.ErrorAsync($"SendinBlue error: {exception.Message}.", exception, await _workContext.GetCurrentCustomerAsync());
+                await _logger.ErrorAsync($"Sendinblue error: {exception.Message}.", exception, await _workContext.GetCurrentCustomerAsync());
                 return (availableSenders, exception.Message);
             }
 
@@ -843,8 +843,8 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
         /// <summary>
         /// Get account language
         /// </summary>
-        /// <returns>SendinBlueAccountLanguage</returns>
-        public async Task<SendinBlueAccountLanguage> GetAccountLanguageAsync()
+        /// <returns>SendinblueAccountLanguage</returns>
+        public async Task<SendinblueAccountLanguage> GetAccountLanguageAsync()
         {
             try
             {
@@ -856,57 +856,57 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
 
                 var defaultNameAttributes = new List<string>
                 {
-                    SendinBlueDefaults.FirstNameServiceAttribute,
-                    SendinBlueDefaults.LastNameServiceAttribute
+                    SendinblueDefaults.FirstNameServiceAttribute,
+                    SendinblueDefaults.LastNameServiceAttribute
                 };
                 if (defaultNameAttributes.All(attr => allAttribytes.Contains(attr)))
-                    return SendinBlueAccountLanguage.English;
+                    return SendinblueAccountLanguage.English;
 
                 var frenchNameAttributes = new List<string>
                 {
-                    SendinBlueDefaults.FirstNameFrenchServiceAttribute,
-                    SendinBlueDefaults.LastNameFrenchServiceAttribute
+                    SendinblueDefaults.FirstNameFrenchServiceAttribute,
+                    SendinblueDefaults.LastNameFrenchServiceAttribute
                 };
                 if (frenchNameAttributes.All(attr => allAttribytes.Contains(attr)))
-                    return SendinBlueAccountLanguage.French;
+                    return SendinblueAccountLanguage.French;
 
                 var italianNameAttributes = new List<string>
                 {
-                    SendinBlueDefaults.FirstNameItalianServiceAttribute,
-                    SendinBlueDefaults.LastNameItalianServiceAttribute
+                    SendinblueDefaults.FirstNameItalianServiceAttribute,
+                    SendinblueDefaults.LastNameItalianServiceAttribute
                 };
                 if (italianNameAttributes.All(attr => allAttribytes.Contains(attr)))
-                    return SendinBlueAccountLanguage.Italian;
+                    return SendinblueAccountLanguage.Italian;
 
                 var spanishNameAttributes = new List<string>
                 {
-                    SendinBlueDefaults.FirstNameSpanishServiceAttribute,
-                    SendinBlueDefaults.LastNameSpanishServiceAttribute
+                    SendinblueDefaults.FirstNameSpanishServiceAttribute,
+                    SendinblueDefaults.LastNameSpanishServiceAttribute
                 };
                 if (spanishNameAttributes.All(attr => allAttribytes.Contains(attr)))
-                    return SendinBlueAccountLanguage.Spanish;
+                    return SendinblueAccountLanguage.Spanish;
 
                 var germanNameAttributes = new List<string>
                 {
-                    SendinBlueDefaults.FirstNameGermanServiceAttribute,
-                    SendinBlueDefaults.LastNameGermanServiceAttribute
+                    SendinblueDefaults.FirstNameGermanServiceAttribute,
+                    SendinblueDefaults.LastNameGermanServiceAttribute
                 };
                 if (germanNameAttributes.All(attr => allAttribytes.Contains(attr)))
-                    return SendinBlueAccountLanguage.German;
+                    return SendinblueAccountLanguage.German;
 
                 var portugueseNameAttributes = new List<string>
                 {
-                    SendinBlueDefaults.FirstNamePortugueseServiceAttribute,
-                    SendinBlueDefaults.LastNamePortugueseServiceAttribute
+                    SendinblueDefaults.FirstNamePortugueseServiceAttribute,
+                    SendinblueDefaults.LastNamePortugueseServiceAttribute
                 };
                 if (portugueseNameAttributes.All(attr => allAttribytes.Contains(attr)))
-                    return SendinBlueAccountLanguage.Portuguese;
+                    return SendinblueAccountLanguage.Portuguese;
 
                 //Create default customer names attribytes
                 var initialAttributes = new List<(CategoryEnum category, string Name, string Value, CreateAttribute.TypeEnum? Type)>
                 {
-                    (CategoryEnum.Normal, SendinBlueDefaults.FirstNameServiceAttribute, null, CreateAttribute.TypeEnum.Text),
-                    (CategoryEnum.Normal, SendinBlueDefaults.LastNameServiceAttribute, null, CreateAttribute.TypeEnum.Text)
+                    (CategoryEnum.Normal, SendinblueDefaults.FirstNameServiceAttribute, null, CreateAttribute.TypeEnum.Text),
+                    (CategoryEnum.Normal, SendinblueDefaults.LastNameServiceAttribute, null, CreateAttribute.TypeEnum.Text)
                 };
                 //create attributes that are not already on account
                 var newAttributes = new List<(CategoryEnum category, string Name, string Value, CreateAttribute.TypeEnum? Type)>();
@@ -918,13 +918,13 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
 
                 await CreateAttibutesAsync(newAttributes);
 
-                return SendinBlueAccountLanguage.English;
+                return SendinblueAccountLanguage.English;
             }
             catch (Exception exception)
             {
                 //log full error
-                await _logger.ErrorAsync($"SendinBlue error: {exception.Message}.", exception, await _workContext.GetCurrentCustomerAsync());
-                return SendinBlueAccountLanguage.English;
+                await _logger.ErrorAsync($"Sendinblue error: {exception.Message}.", exception, await _workContext.GetCurrentCustomerAsync());
+                return SendinblueAccountLanguage.English;
             }
         }
 
@@ -945,29 +945,29 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
                 //prepare attributes to create
                 var initialAttributes = new List<(CategoryEnum category, string Name, string Value, CreateAttribute.TypeEnum? Type)>
                 {
-                    (CategoryEnum.Normal, SendinBlueDefaults.UsernameServiceAttribute, null, CreateAttribute.TypeEnum.Text),
-                    (CategoryEnum.Normal, SendinBlueDefaults.PhoneServiceAttribute, null, CreateAttribute.TypeEnum.Text),
-                    (CategoryEnum.Normal, SendinBlueDefaults.CountryServiceAttribute, null, CreateAttribute.TypeEnum.Text),
-                    (CategoryEnum.Normal, SendinBlueDefaults.StoreIdServiceAttribute, null, CreateAttribute.TypeEnum.Text),
-                    (CategoryEnum.Normal, SendinBlueDefaults.GenderServiceAttribute, null, CreateAttribute.TypeEnum.Text),
-                    (CategoryEnum.Normal, SendinBlueDefaults.DateOfBirthServiceAttribute, null, CreateAttribute.TypeEnum.Text),
-                    (CategoryEnum.Normal, SendinBlueDefaults.CompanyServiceAttribute, null, CreateAttribute.TypeEnum.Text),
-                    (CategoryEnum.Normal, SendinBlueDefaults.Address1ServiceAttribute, null, CreateAttribute.TypeEnum.Text),
-                    (CategoryEnum.Normal, SendinBlueDefaults.Address2ServiceAttribute, null, CreateAttribute.TypeEnum.Text),
-                    (CategoryEnum.Normal, SendinBlueDefaults.ZipCodeServiceAttribute, null, CreateAttribute.TypeEnum.Text),
-                    (CategoryEnum.Normal, SendinBlueDefaults.CityServiceAttribute, null, CreateAttribute.TypeEnum.Text),
-                    (CategoryEnum.Normal, SendinBlueDefaults.CountyServiceAttribute, null, CreateAttribute.TypeEnum.Text),
-                    (CategoryEnum.Normal, SendinBlueDefaults.StateServiceAttribute, null, CreateAttribute.TypeEnum.Text),
-                    (CategoryEnum.Normal, SendinBlueDefaults.FaxServiceAttribute, null, CreateAttribute.TypeEnum.Text),
-                    (CategoryEnum.Transactional, SendinBlueDefaults.OrderIdServiceAttribute, null, CreateAttribute.TypeEnum.Id),
-                    (CategoryEnum.Transactional, SendinBlueDefaults.OrderDateServiceAttribute, null, CreateAttribute.TypeEnum.Text),
-                    (CategoryEnum.Transactional, SendinBlueDefaults.OrderTotalServiceAttribute, null, CreateAttribute.TypeEnum.Text),
-                    (CategoryEnum.Calculated, SendinBlueDefaults.OrderTotalSumServiceAttribute, $"SUM[{SendinBlueDefaults.OrderTotalServiceAttribute}]", null),
-                    (CategoryEnum.Calculated, SendinBlueDefaults.OrderTotalMonthSumServiceAttribute, $"SUM[{SendinBlueDefaults.OrderTotalServiceAttribute},{SendinBlueDefaults.OrderDateServiceAttribute},>,NOW(-30)]", null),
-                    (CategoryEnum.Calculated, SendinBlueDefaults.OrderCountServiceAttribute, $"COUNT[{SendinBlueDefaults.OrderIdServiceAttribute}]", null),
-                    (CategoryEnum.Global, SendinBlueDefaults.AllOrderTotalSumServiceAttribute, $"SUM[{SendinBlueDefaults.OrderTotalSumServiceAttribute}]", null),
-                    (CategoryEnum.Global, SendinBlueDefaults.AllOrderTotalMonthSumServiceAttribute, $"SUM[{SendinBlueDefaults.OrderTotalMonthSumServiceAttribute}]", null),
-                    (CategoryEnum.Global, SendinBlueDefaults.AllOrderCountServiceAttribute, $"SUM[{SendinBlueDefaults.OrderCountServiceAttribute}]", null)
+                    (CategoryEnum.Normal, SendinblueDefaults.UsernameServiceAttribute, null, CreateAttribute.TypeEnum.Text),
+                    (CategoryEnum.Normal, SendinblueDefaults.PhoneServiceAttribute, null, CreateAttribute.TypeEnum.Text),
+                    (CategoryEnum.Normal, SendinblueDefaults.CountryServiceAttribute, null, CreateAttribute.TypeEnum.Text),
+                    (CategoryEnum.Normal, SendinblueDefaults.StoreIdServiceAttribute, null, CreateAttribute.TypeEnum.Text),
+                    (CategoryEnum.Normal, SendinblueDefaults.GenderServiceAttribute, null, CreateAttribute.TypeEnum.Text),
+                    (CategoryEnum.Normal, SendinblueDefaults.DateOfBirthServiceAttribute, null, CreateAttribute.TypeEnum.Text),
+                    (CategoryEnum.Normal, SendinblueDefaults.CompanyServiceAttribute, null, CreateAttribute.TypeEnum.Text),
+                    (CategoryEnum.Normal, SendinblueDefaults.Address1ServiceAttribute, null, CreateAttribute.TypeEnum.Text),
+                    (CategoryEnum.Normal, SendinblueDefaults.Address2ServiceAttribute, null, CreateAttribute.TypeEnum.Text),
+                    (CategoryEnum.Normal, SendinblueDefaults.ZipCodeServiceAttribute, null, CreateAttribute.TypeEnum.Text),
+                    (CategoryEnum.Normal, SendinblueDefaults.CityServiceAttribute, null, CreateAttribute.TypeEnum.Text),
+                    (CategoryEnum.Normal, SendinblueDefaults.CountyServiceAttribute, null, CreateAttribute.TypeEnum.Text),
+                    (CategoryEnum.Normal, SendinblueDefaults.StateServiceAttribute, null, CreateAttribute.TypeEnum.Text),
+                    (CategoryEnum.Normal, SendinblueDefaults.FaxServiceAttribute, null, CreateAttribute.TypeEnum.Text),
+                    (CategoryEnum.Transactional, SendinblueDefaults.OrderIdServiceAttribute, null, CreateAttribute.TypeEnum.Id),
+                    (CategoryEnum.Transactional, SendinblueDefaults.OrderDateServiceAttribute, null, CreateAttribute.TypeEnum.Text),
+                    (CategoryEnum.Transactional, SendinblueDefaults.OrderTotalServiceAttribute, null, CreateAttribute.TypeEnum.Text),
+                    (CategoryEnum.Calculated, SendinblueDefaults.OrderTotalSumServiceAttribute, $"SUM[{SendinblueDefaults.OrderTotalServiceAttribute}]", null),
+                    (CategoryEnum.Calculated, SendinblueDefaults.OrderTotalMonthSumServiceAttribute, $"SUM[{SendinblueDefaults.OrderTotalServiceAttribute},{SendinblueDefaults.OrderDateServiceAttribute},>,NOW(-30)]", null),
+                    (CategoryEnum.Calculated, SendinblueDefaults.OrderCountServiceAttribute, $"COUNT[{SendinblueDefaults.OrderIdServiceAttribute}]", null),
+                    (CategoryEnum.Global, SendinblueDefaults.AllOrderTotalSumServiceAttribute, $"SUM[{SendinblueDefaults.OrderTotalSumServiceAttribute}]", null),
+                    (CategoryEnum.Global, SendinblueDefaults.AllOrderTotalMonthSumServiceAttribute, $"SUM[{SendinblueDefaults.OrderTotalMonthSumServiceAttribute}]", null),
+                    (CategoryEnum.Global, SendinblueDefaults.AllOrderCountServiceAttribute, $"SUM[{SendinblueDefaults.OrderCountServiceAttribute}]", null)
                 };
 
                 //create attributes that are not already on account
@@ -983,7 +983,7 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
             catch (Exception exception)
             {
                 //log full error
-                await _logger.ErrorAsync($"SendinBlue error: {exception.Message}.", exception, await _workContext.GetCurrentCustomerAsync());
+                await _logger.ErrorAsync($"Sendinblue error: {exception.Message}.", exception, await _workContext.GetCurrentCustomerAsync());
                 return exception.Message;
             }
         }
@@ -1025,7 +1025,7 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
             catch (Exception exception)
             {
                 //log full error
-                await _logger.ErrorAsync($"SendinBlue error: {exception.Message}.", exception, await _workContext.GetCurrentCustomerAsync());
+                await _logger.ErrorAsync($"Sendinblue error: {exception.Message}.", exception, await _workContext.GetCurrentCustomerAsync());
                 return exception.Message;
             }
         }
@@ -1052,7 +1052,7 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
             catch (Exception exception)
             {
                 //log full error
-                await _logger.ErrorAsync($"SendinBlue error: {exception.Message}.", exception, await _workContext.GetCurrentCustomerAsync());
+                await _logger.ErrorAsync($"Sendinblue error: {exception.Message}.", exception, await _workContext.GetCurrentCustomerAsync());
                 return (false, exception.Message);
             }
         }
@@ -1106,7 +1106,7 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
             catch (Exception exception)
             {
                 //log full error
-                await _logger.ErrorAsync($"SendinBlue error: {exception.Message}.", exception, await _workContext.GetCurrentCustomerAsync());
+                await _logger.ErrorAsync($"Sendinblue error: {exception.Message}.", exception, await _workContext.GetCurrentCustomerAsync());
                 return (0, exception.Message);
             }
         }
@@ -1152,13 +1152,13 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
             catch (Exception exception)
             {
                 //log full error
-                await _logger.ErrorAsync($"SendinBlue error: {exception.Message}.", exception, await _workContext.GetCurrentCustomerAsync());
+                await _logger.ErrorAsync($"Sendinblue error: {exception.Message}.", exception, await _workContext.GetCurrentCustomerAsync());
                 return null;
             }
         }
 
         /// <summary>
-        /// Convert SendinBlue email template to queued email
+        /// Convert Sendinblue email template to queued email
         /// </summary>
         /// <param name="templateId">Email template identifier</param>
         /// <returns>Queued email</returns>
@@ -1193,7 +1193,7 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
             catch (Exception exception)
             {
                 //log full error
-                await _logger.ErrorAsync($"SendinBlue email sending error: {exception.Message}.", exception, await _workContext.GetCurrentCustomerAsync());
+                await _logger.ErrorAsync($"Sendinblue email sending error: {exception.Message}.", exception, await _workContext.GetCurrentCustomerAsync());
                 return null;
             }
         }
@@ -1211,7 +1211,7 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
         public async Task SendSMSAsync(string to, string from, string text)
         {
             //whether SMS notifications enabled
-            var sendinBlueSettings = await _settingService.LoadSettingAsync<SendinBlueSettings>();
+            var sendinBlueSettings = await _settingService.LoadSettingAsync<SendinblueSettings>();
             if (!sendinBlueSettings.UseSmsNotifications)
                 return;
 
@@ -1229,12 +1229,12 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
 
                 //send SMS
                 var sms = await client.SendTransacSmsAsync(transactionalSms);
-                await _logger.InformationAsync($"SendinBlue SMS sent: {sms?.Reference ?? $"credits remaining {sms?.RemainingCredits?.ToString()}"}");
+                await _logger.InformationAsync($"Sendinblue SMS sent: {sms?.Reference ?? $"credits remaining {sms?.RemainingCredits?.ToString()}"}");
             }
             catch (Exception exception)
             {
                 //log full error
-                await _logger.ErrorAsync($"SendinBlue SMS sending error: {exception.Message}.", exception, await _workContext.GetCurrentCustomerAsync());
+                await _logger.ErrorAsync($"Sendinblue SMS sending error: {exception.Message}.", exception, await _workContext.GetCurrentCustomerAsync());
             }
         }
 
@@ -1265,7 +1265,7 @@ namespace Nop.Plugin.Misc.SendinBlue.Services
             catch (Exception exception)
             {
                 //log full error
-                await _logger.ErrorAsync($"SendinBlue SMS sending error: {exception.Message}.", exception, await _workContext.GetCurrentCustomerAsync());
+                await _logger.ErrorAsync($"Sendinblue SMS sending error: {exception.Message}.", exception, await _workContext.GetCurrentCustomerAsync());
                 return exception.Message;
             }
 

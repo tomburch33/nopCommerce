@@ -2,7 +2,7 @@
 using System.Linq;
 using Nop.Core;
 
-namespace Nop.Plugin.Misc.SendinBlue.Domain
+namespace Nop.Plugin.Misc.Sendinblue.Domain
 {
     /// <summary>
     /// Represents ISO3166 country info

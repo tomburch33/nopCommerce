@@ -1,11 +1,11 @@
 ﻿using Nop.Core.Configuration;
 
-namespace Nop.Plugin.Misc.SendinBlue
+namespace Nop.Plugin.Misc.Sendinblue
 {
     /// <summary>
     /// Represents a plugin settings
     /// </summary>
-    public class SendinBlueSettings : ISettings
+    public class SendinblueSettings : ISettings
     {
         /// <summary>
         /// Gets or sets the API key
