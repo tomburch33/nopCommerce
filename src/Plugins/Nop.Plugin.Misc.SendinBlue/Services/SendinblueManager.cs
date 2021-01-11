@@ -17,6 +17,7 @@ using Nop.Services.Common;
 using Nop.Services.Configuration;
 using Nop.Services.Customers;
 using Nop.Services.Directory;
+using Nop.Services.Installation;
 using Nop.Services.Logging;
 using Nop.Services.Messages;
 using Nop.Services.Stores;
@@ -236,7 +237,7 @@ namespace Nop.Plugin.Misc.Sendinblue.Services
                             if (countryIsoCode > 0 && !string.IsNullOrEmpty(phone))
                             {
                                 //use the first phone code only
-                                var phoneCode = ISO3166.GetCountryInfoFromIsoCode(countryIsoCode)
+                                var phoneCode = ISO3166.FromISOCode(countryIsoCode)
                                     ?.DialCodes?.FirstOrDefault()?.Replace(" ", string.Empty) ?? string.Empty;
                                 sms = phone.Replace($"+{phoneCode}", string.Empty);
                             }
@@ -494,7 +495,7 @@ namespace Nop.Plugin.Misc.Sendinblue.Services
                         if (countryIsoCode > 0 && !string.IsNullOrEmpty(phone))
                         {
                             //use the first phone code only
-                            var phoneCode = ISO3166.GetCountryInfoFromIsoCode(countryIsoCode)
+                            var phoneCode = ISO3166.FromISOCode(countryIsoCode)
                                 ?.DialCodes?.FirstOrDefault()?.Replace(" ", string.Empty) ?? string.Empty;
                             sms = phone.Replace($"+{phoneCode}", string.Empty);
                         }
