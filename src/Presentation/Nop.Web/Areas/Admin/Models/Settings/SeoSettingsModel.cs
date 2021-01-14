@@ -26,6 +26,10 @@ namespace Nop.Web.Areas.Admin.Models.Settings
         public string DefaultTitle { get; set; }
         public bool DefaultTitle_OverrideForStore { get; set; }
 
+        [NopResourceDisplayName("Admin.Configuration.Settings.GeneralCommon.HomePageTitle")]
+        public string HomePageTitle { get; set; }
+        public bool HomePageTitle_OverrideForStore { get; set; }
+
         [NopResourceDisplayName("Admin.Configuration.Settings.GeneralCommon.DefaultMetaKeywords")]
         public string DefaultMetaKeywords { get; set; }
         public bool DefaultMetaKeywords_OverrideForStore { get; set; }

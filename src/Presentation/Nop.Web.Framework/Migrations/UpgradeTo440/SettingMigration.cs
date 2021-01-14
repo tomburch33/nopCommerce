@@ -51,6 +51,13 @@ namespace Nop.Web.Framework.Migrations.UpgradeTo440
                 seoSettings.ReservedUrlRecordSlugs.Add(newUrlRecord);
                 settingService.SaveSettingAsync(seoSettings).Wait();
             }
+
+            //#3015
+            if (!settingService.SettingExistsAsync(seoSettings, settings => settings.HomePageTitle).Result)
+            {
+                seoSettings.HomePageTitle = "Your store";
+                settingService.SaveSettingAsync(seoSettings).Wait();
+            }
         }
 
         public override void Down()

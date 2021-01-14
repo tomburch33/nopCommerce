@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 using BundlerMinifier;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -157,8 +156,10 @@ namespace Nop.Web.Framework.UI
         /// <returns>Generated string</returns>
         public virtual string GenerateTitle(bool addDefaultTitle)
         {
-            var result = "";
             var specificTitle = string.Join(_seoSettings.PageTitleSeparator, _titleParts.AsEnumerable().Reverse().ToArray());
+            string result;
+            var title = _metaDescriptionParts.Any() ? _seoSettings.DefaultTitle : _seoSettings.HomePageTitle;
+
             if (!string.IsNullOrEmpty(specificTitle))
             {
                 if (addDefaultTitle)
@@ -168,16 +169,15 @@ namespace Nop.Web.Framework.UI
                     {
                         case PageTitleSeoAdjustment.PagenameAfterStorename:
                             {
-                                result = string.Join(_seoSettings.PageTitleSeparator, _seoSettings.DefaultTitle, specificTitle);
+                                result = string.Join(_seoSettings.PageTitleSeparator, title, specificTitle);
                             }
                             break;
                         case PageTitleSeoAdjustment.StorenameAfterPagename:
                         default:
                             {
-                                result = string.Join(_seoSettings.PageTitleSeparator, specificTitle, _seoSettings.DefaultTitle);
+                                result = string.Join(_seoSettings.PageTitleSeparator, specificTitle, title);
                             }
                             break;
-
                     }
                 }
                 else
@@ -189,7 +189,7 @@ namespace Nop.Web.Framework.UI
             else
             {
                 //store name only
-                result = _seoSettings.DefaultTitle;
+                result = title;
             }
             return result;
         }

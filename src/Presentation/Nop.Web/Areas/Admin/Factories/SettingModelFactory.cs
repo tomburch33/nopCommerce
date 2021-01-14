@@ -445,6 +445,7 @@ namespace Nop.Web.Areas.Admin.Factories
                 PageTitleSeoAdjustment = (int)seoSettings.PageTitleSeoAdjustment,
                 PageTitleSeoAdjustmentValues = await seoSettings.PageTitleSeoAdjustment.ToSelectListAsync(),
                 DefaultTitle = seoSettings.DefaultTitle,
+                HomePageTitle = seoSettings.HomePageTitle,
                 DefaultMetaKeywords = seoSettings.DefaultMetaKeywords,
                 DefaultMetaDescription = seoSettings.DefaultMetaDescription,
                 GenerateProductMetaDescription = seoSettings.GenerateProductMetaDescription,
@@ -466,6 +467,7 @@ namespace Nop.Web.Areas.Admin.Factories
             model.PageTitleSeparator_OverrideForStore = await _settingService.SettingExistsAsync(seoSettings, x => x.PageTitleSeparator, storeId);
             model.PageTitleSeoAdjustment_OverrideForStore = await _settingService.SettingExistsAsync(seoSettings, x => x.PageTitleSeoAdjustment, storeId);
             model.DefaultTitle_OverrideForStore = await _settingService.SettingExistsAsync(seoSettings, x => x.DefaultTitle, storeId);
+            model.HomePageTitle_OverrideForStore = await _settingService.SettingExistsAsync(seoSettings, x => x.HomePageTitle, storeId);
             model.DefaultMetaKeywords_OverrideForStore = await _settingService.SettingExistsAsync(seoSettings, x => x.DefaultMetaKeywords, storeId);
             model.DefaultMetaDescription_OverrideForStore = await _settingService.SettingExistsAsync(seoSettings, x => x.DefaultMetaDescription, storeId);
             model.GenerateProductMetaDescription_OverrideForStore = await _settingService.SettingExistsAsync(seoSettings, x => x.GenerateProductMetaDescription, storeId);

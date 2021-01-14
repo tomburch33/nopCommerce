@@ -24,6 +24,11 @@ namespace Nop.Core.Domain.Seo
         public string DefaultTitle { get; set; }
 
         /// <summary>
+        /// Home page title
+        /// </summary>
+        public string HomePageTitle { get; set; }
+
+        /// <summary>
         /// Default META keywords
         /// </summary>
         public string DefaultMetaKeywords { get; set; }
