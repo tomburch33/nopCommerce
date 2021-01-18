@@ -59,10 +59,34 @@
         },
         buttons: shipStationStepButtons,
       });
+
+      //'Activate provider' step
+      tour.addStep({
+        title: AdminTourDataProvider.localized_data.ShippingProvidersActivateTitle,
+        text: AdminTourDataProvider.localized_data.ShippingProvidersActivateText,
+        attachTo: {
+          element: '#' + shipStationMethodRowId + ' .column-edit .btn-default',
+          on: 'bottom'
+        },
+        buttons: shipStationStepButtons,
+      });
     }
 
-    //Redirect to Manual
     if (manualMethodExists) {
+      if (!shipStationMethodExists) {
+        //'Activate provider' step
+        tour.addStep({
+          title: AdminTourDataProvider.localized_data.ShippingProvidersActivateTitle,
+          text: AdminTourDataProvider.localized_data.ShippingProvidersActivateText,
+          attachTo: {
+            element: '#' + manualMethodRowId + ' .column-edit .btn-default',
+            on: 'bottom'
+          },
+          buttons: shipStationStepButtons,
+        });
+      }
+
+      //Redirect to Manual
       tour.addStep({
         canClickTarget: true,
         title: AdminTourDataProvider.localized_data.ShippingProvidersConfigureTitle,

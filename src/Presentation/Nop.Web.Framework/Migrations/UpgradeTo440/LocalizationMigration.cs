@@ -430,6 +430,10 @@ namespace Nop.Web.Framework.Migrations.UpgradeTo440
                 ["Admin.ConfigurationSteps.TopicList.Location.Text"] = "As you can see, this topic is included in the first column of the footer.",
                 ["Admin.ConfigurationSteps.TopicList.Edit.Title"] = "Edit the page",
                 ["Admin.ConfigurationSteps.TopicList.Edit.Text"] = "To edit this page, click the <b>Edit</b> button. You can also create a new topic by clicking the <b>Add new</b> button at the top of the page.",
+                ["Admin.ConfigurationSteps.ShippingProviders.Activate.Text"] = "To activate a shipping provider click the <b>Edit</b> button, then tick the <b>Is active</b> checkbox and save the changes.",
+                ["Admin.ConfigurationSteps.ShippingProviders.Activate.Title"] = "Activate a provider",
+                ["Admin.ConfigurationSteps.PaymentMethods.Activate.Text"] = "To activate a payment method click the <b>Edit</b> button, then tick the <b>Is active</b> checkbox and save the changes.",
+                ["Admin.ConfigurationSteps.PaymentMethods.Activate.Title"] = "Activate a payment method",
             }).Wait();
 
             // rename locales

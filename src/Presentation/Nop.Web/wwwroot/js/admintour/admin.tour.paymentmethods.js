@@ -41,6 +41,30 @@
         },
         buttons: [AdminTourBackButton, AdminTourNextButton]
       });
+
+      if (!manualMethodExists && !paypalButtonsMethodExists) {
+        //'Activate a payment method' step
+        tour.addStep({
+          title: AdminTourDataProvider.localized_data.PaymentMethodsActivateTitle,
+          text: AdminTourDataProvider.localized_data.PaymentMethodsActivateText,
+          attachTo: {
+            element: '#' + checkMoneyMethodRowId + ' .column-edit .btn-default',
+            on: 'bottom'
+          },
+          buttons: [AdminTourBackButton, AdminTourNextButton]
+        });
+
+        //'Configure a payment method' step
+        tour.addStep({
+          title: AdminTourDataProvider.localized_data.PaymentMethodsConfigureTitle,
+          text: AdminTourDataProvider.localized_data.PaymentMethodsConfigureText,
+          attachTo: {
+            element: '#' + checkMoneyMethodRowId + ' .column-configure .btn-default',
+            on: 'bottom'
+          },
+          buttons: [AdminTourBackButton, AdminTourNextPageButton]
+        });
+      }
     }
 
     //'Manual' step
@@ -54,6 +78,30 @@
         },
         buttons: [AdminTourBackButton, AdminTourNextButton]
       });
+
+      if (!paypalButtonsMethodExists) {
+        //'Activate a payment method' step
+        tour.addStep({
+          title: AdminTourDataProvider.localized_data.PaymentMethodsActivateTitle,
+          text: AdminTourDataProvider.localized_data.PaymentMethodsActivateText,
+          attachTo: {
+            element: '#' + manualMethodRowId + ' .column-edit .btn-default',
+            on: 'bottom'
+          },
+          buttons: [AdminTourBackButton, AdminTourNextButton]
+        });
+
+        //'Configure a payment method' step
+        tour.addStep({
+          title: AdminTourDataProvider.localized_data.PaymentMethodsConfigureTitle,
+          text: AdminTourDataProvider.localized_data.PaymentMethodsConfigureText,
+          attachTo: {
+            element: '#' + manualMethodRowId + ' .column-configure .btn-default',
+            on: 'bottom'
+          },
+          buttons: [AdminTourBackButton, AdminTourNextPageButton]
+        });
+      }
     }
 
     //'PayPal Smart Payment Buttons' step
@@ -67,18 +115,29 @@
         },
         buttons: [AdminTourBackButton, AdminTourNextButton]
       });
-    }
 
-    //'Configure a payment method' step
-    tour.addStep({
-      title: AdminTourDataProvider.localized_data.PaymentMethodsConfigureTitle,
-      text: AdminTourDataProvider.localized_data.PaymentMethodsConfigureText,
-      attachTo: {
-        element: '#' + paypalButtonsMethodRowId + ' .column-configure .btn-default',
-        on: 'bottom'
-      },
-      buttons: [AdminTourBackButton, AdminTourNextPageButton]
-    });
+      //'Activate a payment method' step
+      tour.addStep({
+        title: AdminTourDataProvider.localized_data.PaymentMethodsActivateTitle,
+        text: AdminTourDataProvider.localized_data.PaymentMethodsActivateText,
+        attachTo: {
+          element: '#' + paypalButtonsMethodRowId + ' .column-edit .btn-default',
+          on: 'bottom'
+        },
+        buttons: [AdminTourBackButton, AdminTourNextButton]
+      });
+
+      //'Configure a payment method' step
+      tour.addStep({
+        title: AdminTourDataProvider.localized_data.PaymentMethodsConfigureTitle,
+        text: AdminTourDataProvider.localized_data.PaymentMethodsConfigureText,
+        attachTo: {
+          element: '#' + paypalButtonsMethodRowId + ' .column-configure .btn-default',
+          on: 'bottom'
+        },
+        buttons: [AdminTourBackButton, AdminTourNextPageButton]
+      });
+    }
 
     tour.start();
   });

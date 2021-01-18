@@ -9247,7 +9247,7 @@
     <Value>Shipping methods</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.ConfigurationSteps.ConfigureManual.Switch.Text">
-    <Value>The “Fixed rate/By weight” switch allows you to choose the type of shipping rates you\’d like to use in your store.</Value>
+    <Value>The “Fixed rate/By weight” switch allows you to choose the type of shipping rates you’d like to use in your store.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.ConfigurationSteps.ConfigureManual.Switch.Title">
     <Value>“Fixed rate/By weight” switch</Value>
@@ -9328,7 +9328,7 @@
     <Value>Use SSL</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.ConfigurationSteps.EmailAccountList.DefaultEmailAccount.Text">
-    <Value>Don\’t forget to mark one of the existing email accounts as the default one.</Value>
+    <Value>Don’t forget to mark one of the existing email accounts as the default one.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.ConfigurationSteps.EmailAccountList.DefaultEmailAccount.Title">
     <Value>Default email account</Value>
@@ -9356,6 +9356,12 @@
   </LocaleResource>
   <LocaleResource Name="Admin.ConfigurationSteps.NextPage">
     <Value>Next page</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.ConfigurationSteps.PaymentMethods.Activate.Text">
+    <Value><![CDATA[To activate a payment method click the <b>Edit</b> button, then tick the <b>Is active</b> checkbox and save the changes.]]></Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.ConfigurationSteps.PaymentMethods.Activate.Title">
+    <Value>Activate a payment method</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.ConfigurationSteps.PaymentMethods.CheckMoney.Text">
     <Value>Check/money orders are often used by government agencies or large businesses. Rather than paying directly through your site, shoppers will request that you send them a Purchase order (PO), and they will send the payment back. Most of the order processing is handled outside of the software. This method is already enabled.</Value>
@@ -9430,7 +9436,7 @@
     <Value>Product details</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.ConfigurationSteps.Product.Inventory.Text">
-    <Value><![CDATA[Enter the product inventory info here. <br> <ul><li>The <b>Don\’t track inventory</b> option allows you to opt for no tracking</li><li>The <b>Track inventory</b> option is for those who don\’t have product variants and need to know just how many items are left</li><li>The <b>Track inventory by product attributes</b> option is best for you if you have different product attributes combinations and need to track their stock quantities</li></ul>]]></Value>
+    <Value><![CDATA[Enter the product inventory info here. <br> <ul><li>The <b>Don’t track inventory</b> option allows you to opt for no tracking</li><li>The <b>Track inventory</b> option is for those who don’t have product variants and need to know just how many items are left</li><li>The <b>Track inventory by product attributes</b> option is best for you if you have different product attributes combinations and need to track their stock quantities</li></ul>]]></Value>
   </LocaleResource>
   <LocaleResource Name="Admin.ConfigurationSteps.Product.Inventory.Title">
     <Value>Product inventory</Value>
@@ -9483,8 +9489,14 @@
   <LocaleResource Name="Admin.ConfigurationSteps.SetUpTaxes.Title">
     <Value>Set up taxes</Value>
   </LocaleResource>
+  <LocaleResource Name="Admin.ConfigurationSteps.ShippingProviders.Activate.Text">
+    <Value><![CDATA[To activate a shipping provider click the <b>Edit</b> button, then tick the <b>Is active</b> checkbox and save the changes.]]></Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.ConfigurationSteps.ShippingProviders.Activate.Title">
+    <Value>Activate a provider</Value>
+  </LocaleResource>
   <LocaleResource Name="Admin.ConfigurationSteps.ShippingProviders.Configure.Text">
-    <Value>Now we\’ll configure the Manual shipping provider. Click this button to proceed to the plugin configuration page.</Value>
+    <Value>Now we’ll configure the Manual shipping provider. Click this button to proceed to the plugin configuration page.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.ConfigurationSteps.ShippingProviders.Configure.Title">
     <Value>Configure Manual</Value>
@@ -9514,7 +9526,7 @@
     <Value>Your store name</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.ConfigurationSteps.Store.Ssl.Text">
-    <Value><![CDATA[If you already have an SSL certificate installed on the server, enable SSL to protect your customers\’ data. <b>Do not enable it if you don\’t have an SSL certificate installed yet!</b> SSL Certificates provide customer trust and improve site rankings. Note that some online payment methods require an SSL certificate installed for correct working. Read how to install and configure SSL certification <a href=\"https://docs.nopcommerce.com/getting-started/advanced-configuration/how-to-install-and-configure-ssl-certification.html?utm_source=admin-panel&utm_medium=tour&utm_campaign=documentation&utm_content=tooltip\" target=\"_blank\">here</a>]]>.</Value>
+    <Value><![CDATA[If you already have an SSL certificate installed on the server, enable SSL to protect your customers’ data. <b>Do not enable it if you don’t have an SSL certificate installed yet!</b> SSL Certificates provide customer trust and improve site rankings. Note that some online payment methods require an SSL certificate installed for correct working. Read how to install and configure SSL certification <a href=\"https://docs.nopcommerce.com/getting-started/advanced-configuration/how-to-install-and-configure-ssl-certification.html?utm_source=admin-panel&utm_medium=tour&utm_campaign=documentation&utm_content=tooltip\" target=\"_blank\">here</a>]]>.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.ConfigurationSteps.Store.Ssl.Title">
     <Value>Enable SSL</Value>
@@ -9550,7 +9562,7 @@
     <Value>“Fixed rate” option</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.ConfigurationSteps.TaxManual.Switch.Text">
-    <Value>The “Fixed rate/By country” switch allows you to choose the type of tax rates you\’d like to use in your store.</Value>
+    <Value>The “Fixed rate/By country” switch allows you to choose the type of tax rates you’d like to use in your store.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.ConfigurationSteps.TaxManual.Switch.Title">
     <Value>“Fixed rate/By country” switch</Value>
@@ -9562,7 +9574,7 @@
     <Value>Avalara tax provider</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.ConfigurationSteps.TaxProviders.Configure.Text">
-    <Value><![CDATA[Now we\’ll configure the Manual tax provider. Click the <b>Edit</b> button to proceed to the plugin configuration page.]]></Value>
+    <Value><![CDATA[Now we’ll configure the Manual tax provider. Click the <b>Edit</b> button to proceed to the plugin configuration page.]]></Value>
   </LocaleResource>
   <LocaleResource Name="Admin.ConfigurationSteps.TaxProviders.Configure.Title">
     <Value>Configure Manual</Value>
