@@ -1,36 +1,16 @@
 @model TopicModel
+@using Nop.Web.Framework.Models.AdminAreaTour
 
 @{
     //page title
     ViewBag.PageTitle = T("Admin.ContentManagement.Topics.EditTopicDetails").Text;
+    //tour step
+    ViewBag.TourStep = TourStep.Topic;
     //active menu item (system name)
     Html.SetActiveMenuItemSystemName("Topics");
-
-    var showTour = ViewBag.showtour ?? false;
-    if (showTour)
-    {
-        Html.AppendCssFileParts("~/lib_npm/shepherd.js/css/shepherd.css");
-        Html.AppendScriptParts("~/lib_npm/shepherd.js/js/shepherd.min.js");
-        Html.AppendScriptParts("~/js/admintour/admin.tour.dataprovider.js");
-        Html.AppendScriptParts("~/js/admintour/admin.tour.topic.js");
-
-    <script asp-location="Footer">
-            var localized_data = {
-                Back: '@T("Admin.ConfigurationSteps.Back")',
-                NextStep: '@T("Admin.ConfigurationSteps.NextStep")',
-                Done: '@T("Admin.ConfigurationSteps.Done")',
-
-                TopicTitleContentTitle: '@T("Admin.ConfigurationSteps.Topic.TitleContent.Title")',
-                TopicTitleContentText: '@T("Admin.ConfigurationSteps.Topic.TitleContent.Text")',
-
-                TopicPreviewTitle: '@T("Admin.ConfigurationSteps.Topic.Preview.Title")',
-                TopicPreviewText: '@T("Admin.ConfigurationSteps.Topic.Preview.Text")',
-            };
-
-            AdminTourDataProvider.init(localized_data);
-    </script>
-    }
 }
+
+@await Html.PartialAsync("_AdminTour")
 
 <form asp-controller="Topic" asp-action="Edit" method="post">
     <div class="content-header clearfix">

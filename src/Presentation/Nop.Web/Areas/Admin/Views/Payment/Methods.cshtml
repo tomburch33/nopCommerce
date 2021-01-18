@@ -1,45 +1,16 @@
 @model PaymentMethodsModel
+@using Nop.Web.Framework.Models.AdminAreaTour
 
 @{
     //page title
     ViewBag.PageTitle = T("Admin.Configuration.Payment.Methods").Text;
+    //tour step
+    ViewBag.TourStep = TourStep.PaymentMethods;
     //active menu item (system name)
     Html.SetActiveMenuItemSystemName("Payment methods");
-
-    var showTour = ViewBag.showtour ?? false;
-    if (showTour)
-    {
-        Html.AppendCssFileParts("~/lib_npm/shepherd.js/css/shepherd.css");
-        Html.AppendScriptParts("~/lib_npm/shepherd.js/js/shepherd.min.js");
-        Html.AppendScriptParts("~/js/admintour/admin.tour.dataprovider.js");
-        Html.AppendScriptParts("~/js/admintour/admin.tour.paymentmethods.js");
-
-    <script asp-location="Footer">
-            var localized_data = {
-                Back: '@T("Admin.ConfigurationSteps.Back")',
-                NextStep: '@T("Admin.ConfigurationSteps.NextStep")',
-                NextPage: '@T("Admin.ConfigurationSteps.NextPage")',
-
-                PaymentMethodsPaymentMethodsTitle: '@T("Admin.ConfigurationSteps.PaymentMethods.PaymentMethods.Title")',
-                PaymentMethodsPaymentMethodsText: '@T("Admin.ConfigurationSteps.PaymentMethods.PaymentMethods.Text")',
-
-                PaymentMethodsCheckMoneyTitle: '@T("Admin.ConfigurationSteps.PaymentMethods.CheckMoney.Title")',
-                PaymentMethodsCheckMoneyText: '@T("Admin.ConfigurationSteps.PaymentMethods.CheckMoney.Text")',
-
-                PaymentMethodsManualTitle: '@T("Admin.ConfigurationSteps.PaymentMethods.Manual.Title")',
-                PaymentMethodsManualText: '@T("Admin.ConfigurationSteps.PaymentMethods.Manual.Text")',
-
-                PaymentMethodsPayPalTitle: '@T("Admin.ConfigurationSteps.PaymentMethods.PayPal.Title")',
-                PaymentMethodsPayPalText: '@T("Admin.ConfigurationSteps.PaymentMethods.PayPal.Text")',
-
-                PaymentMethodsConfigureTitle: '@T("Admin.ConfigurationSteps.PaymentMethods.Configure.Title")',
-                PaymentMethodsConfigureText: '@T("Admin.ConfigurationSteps.PaymentMethods.Configure.Text")',
-            };
-
-            AdminTourDataProvider.init(localized_data);
-    </script>
-    }
 }
+
+@await Html.PartialAsync("_AdminTour")
 
 <div class="content-header clearfix">
     <h1 class="pull-left">

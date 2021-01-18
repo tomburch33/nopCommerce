@@ -1,48 +1,23 @@
 @model TaxProviderSearchModel
+@using Nop.Web.Framework.Models.AdminAreaTour
 
 @{
     //page title
     ViewBag.PageTitle = T("Admin.Configuration.Tax.Providers").Text;
+    //tour step
+    ViewBag.TourStep = TourStep.TaxProviders;
     //active menu item (system name)
     Html.SetActiveMenuItemSystemName("Tax providers");
 
     string editQueryString = string.Empty;
-    var showTour = ViewBag.showtour ?? false;
+    var showTour = ViewBag.ShowTour ?? false;
     if (showTour)
     {
-        Html.AppendCssFileParts("~/lib_npm/shepherd.js/css/shepherd.css");
-        Html.AppendScriptParts("~/lib_npm/shepherd.js/js/shepherd.min.js");
-        Html.AppendScriptParts("~/js/admintour/admin.tour.dataprovider.js");
-        Html.AppendScriptParts("~/js/admintour/admin.tour.taxproviders.js");
-
         editQueryString = "?showtour=true";
-
-        <script asp-location="Footer">
-            var localized_data = {
-                Back: '@T("Admin.ConfigurationSteps.Back")',
-                NextStep: '@T("Admin.ConfigurationSteps.NextStep")',
-                NextPage: '@T("Admin.ConfigurationSteps.NextPage")',
-
-                TaxProvidersTaxProvidersTitle: '@T("Admin.ConfigurationSteps.TaxProviders.TaxProviders.Title")',
-                TaxProvidersTaxProvidersText: '@T("Admin.ConfigurationSteps.TaxProviders.TaxProviders.Text")',
-
-                TaxProvidersAvalaraTitle: '@T("Admin.ConfigurationSteps.TaxProviders.Avalara.Title")',
-                TaxProvidersAvalaraText: '@T("Admin.ConfigurationSteps.TaxProviders.Avalara.Text")',
-
-                TaxProvidersManualTitle: '@T("Admin.ConfigurationSteps.TaxProviders.Manual.Title")',
-                TaxProvidersManualText: '@T("Admin.ConfigurationSteps.TaxProviders.Manual.Text")',
-
-                TaxProvidersPrimaryProviderTitle: '@T("Admin.ConfigurationSteps.TaxProviders.PrimaryProvider.Title")',
-                TaxProvidersPrimaryProviderText: '@T("Admin.ConfigurationSteps.TaxProviders.PrimaryProvider.Text")',
-
-                TaxProvidersConfigureTitle: '@T("Admin.ConfigurationSteps.TaxProviders.Configure.Title")',
-                TaxProvidersConfigureText: '@T("Admin.ConfigurationSteps.TaxProviders.Configure.Text")',
-            };
-
-            AdminTourDataProvider.init(localized_data);
-        </script>
     }
 }
+
+@await Html.PartialAsync("_AdminTour")
 
 <form asp-controller="Tax" asp-action="Providers" method="post">
     <div class="content-header clearfix">

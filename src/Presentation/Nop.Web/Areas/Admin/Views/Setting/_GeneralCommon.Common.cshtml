@@ -1,40 +1,13 @@
 ﻿@model GeneralCommonSettingsModel
 @inject Nop.Services.Stores.IStoreService storeService
+@using Nop.Web.Framework.Models.AdminAreaTour
 
 @{
-    var showTour = ViewBag.showtour ?? false;
-    if (showTour)
-    {
-        Html.AppendCssFileParts("~/lib_npm/shepherd.js/css/shepherd.css");
-        Html.AppendScriptParts("~/lib_npm/shepherd.js/js/shepherd.min.js");
-        Html.AppendScriptParts("~/js/admintour/admin.tour.dataprovider.js");
-        Html.AppendScriptParts("~/js/admintour/admin.tour.generalsettings.js");
-
-        var defaultStoreId = (await storeService.GetAllStoresAsync()).FirstOrDefault()?.Id ?? 0;
-
-        <script asp-location="Footer">
-            var localized_data = {
-                Back: '@T("Admin.ConfigurationSteps.Back")',
-                NextStep: '@T("Admin.ConfigurationSteps.NextStep")',
-                NextPage: '@T("Admin.ConfigurationSteps.NextPage")',
-
-                PersonalizeStoreIntroTitle: '@T("Admin.ConfigurationSteps.PersonalizeStore.Intro.Title")',
-                PersonalizeStoreIntroText: '@T("Admin.ConfigurationSteps.PersonalizeStore.Intro.Text")',
-
-                PersonalizeStoreBasicAdvancedTitle: '@T("Admin.ConfigurationSteps.PersonalizeStore.BasicAdvanced.Title")',
-                PersonalizeStoreBasicAdvancedText: '@T("Admin.ConfigurationSteps.PersonalizeStore.BasicAdvanced.Text")',
-
-                PersonalizeStoreThemeTitle: '@T("Admin.ConfigurationSteps.PersonalizeStore.Theme.Title")',
-                PersonalizeStoreThemeText: '@T("Admin.ConfigurationSteps.PersonalizeStore.Theme.Text")',
-
-                PersonalizeStoreLogoTitle: '@T("Admin.ConfigurationSteps.PersonalizeStore.Logo.Title")',
-                PersonalizeStoreLogoText: '@T("Admin.ConfigurationSteps.PersonalizeStore.Logo.Text")',
-            };
-
-            AdminTourDataProvider.init(localized_data, @defaultStoreId);
-        </script>
-    }
+    //tour step
+    ViewBag.TourStep = TourStep.GeneralSettings;
 }
+
+@await Html.PartialAsync("_AdminTour")
 
 <div class="card-body">
     <div class="form-group row" id="theme-area">

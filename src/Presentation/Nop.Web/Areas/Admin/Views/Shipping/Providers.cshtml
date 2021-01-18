@@ -1,45 +1,23 @@
 @model ShippingProviderSearchModel
+@using Nop.Web.Framework.Models.AdminAreaTour
 
 @{
     //page title
     ViewBag.PageTitle = T("Admin.Configuration.Shipping.Providers.Title").Text;
+    //tour step
+    ViewBag.TourStep = TourStep.ShippingProviders;
     //active menu item (system name)
     Html.SetActiveMenuItemSystemName("Shipping providers");
 
     string editQueryString = string.Empty;
-    var showTour = ViewBag.showtour ?? false;
+    var showTour = ViewBag.ShowTour ?? false;
     if (showTour)
     {
-        Html.AppendCssFileParts("~/lib_npm/shepherd.js/css/shepherd.css");
-        Html.AppendScriptParts("~/lib_npm/shepherd.js/js/shepherd.min.js");
-        Html.AppendScriptParts("~/js/admintour/admin.tour.dataprovider.js");
-        Html.AppendScriptParts("~/js/admintour/admin.tour.shippingproviders.js");
-
         editQueryString = "?showtour=true";
-
-        <script asp-location="Footer">
-            var localized_data = {
-                Back: '@T("Admin.ConfigurationSteps.Back")',
-                NextStep: '@T("Admin.ConfigurationSteps.NextStep")',
-                NextPage: '@T("Admin.ConfigurationSteps.NextPage")',
-
-                ShippingProvidersProvidersTitle: '@T("Admin.ConfigurationSteps.ShippingProviders.Providers.Title")',
-                ShippingProvidersProvidersText: '@T("Admin.ConfigurationSteps.ShippingProviders.Providers.Text")',
-
-                ShippingProvidersManualTitle: '@T("Admin.ConfigurationSteps.ShippingProviders.Manual.Title")',
-                ShippingProvidersManualText: '@T("Admin.ConfigurationSteps.ShippingProviders.Manual.Text")',
-
-                ShippingProvidersShipStationTitle: '@T("Admin.ConfigurationSteps.ShippingProviders.ShipStation.Title")',
-                ShippingProvidersShipStationText: '@T("Admin.ConfigurationSteps.ShippingProviders.ShipStation.Text")',
-
-                ShippingProvidersConfigureTitle: '@T("Admin.ConfigurationSteps.ShippingProviders.Configure.Title")',
-                ShippingProvidersConfigureText: '@T("Admin.ConfigurationSteps.ShippingProviders.Configure.Text")',
-            };
-
-            AdminTourDataProvider.init(localized_data);
-        </script>
     }
 }
+
+@await Html.PartialAsync("_AdminTour")
 
 <div class="content-header clearfix">
     <h1 class="pull-left">

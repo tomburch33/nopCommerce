@@ -80,7 +80,7 @@ namespace Nop.Web.Areas.Admin.Controllers
                 var closeCard = await _genericAttributeService.GetAttributeAsync<bool>(await _workContext.GetCurrentCustomerAsync(), closeCardAttributeName);
 
                 if (!hideCard && !closeCard)
-                    ViewBag.showtour = true;
+                    ViewBag.ShowTour = true;
             }
 
             return View(model);

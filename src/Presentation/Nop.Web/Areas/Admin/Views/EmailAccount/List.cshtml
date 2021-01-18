@@ -1,48 +1,24 @@
 @model EmailAccountSearchModel
 @inject Nop.Services.Messages.IEmailAccountService emailAccountService
+@using Nop.Web.Framework.Models.AdminAreaTour
 
 @{
   //page title
   ViewBag.PageTitle = T("Admin.Configuration.EmailAccounts").Text;
+  //tour step
+  ViewBag.TourStep = TourStep.EmailAccountList;
   //active menu item (system name)
   Html.SetActiveMenuItemSystemName("Email accounts");
 
   string editQueryString = string.Empty;
-  var showTour = ViewBag.showtour ?? false;
+  var showTour = ViewBag.ShowTour ?? false;
   if (showTour)
   {
-      Html.AppendCssFileParts("~/lib_npm/shepherd.js/css/shepherd.css");
-      Html.AppendScriptParts("~/lib_npm/shepherd.js/js/shepherd.min.js");
-      Html.AppendScriptParts("~/js/admintour/admin.tour.dataprovider.js");
-      Html.AppendScriptParts("~/js/admintour/admin.tour.emailaccountlist.js");
-
       editQueryString = "?showtour=true";
-
-      var defaultEmailAccountId = (await emailAccountService.GetAllEmailAccountsAsync()).FirstOrDefault()?.Id ?? 0;
-
-    <script asp-location="Footer">
-        var localized_data = {
-            Back: '@T("Admin.ConfigurationSteps.Back")',
-            NextStep: '@T("Admin.ConfigurationSteps.NextStep")',
-            NextPage: '@T("Admin.ConfigurationSteps.NextPage")',
-
-            EmailAccountListEmailAccounts1Title: '@T("Admin.ConfigurationSteps.EmailAccountList.EmailAccounts1.Title")',
-            EmailAccountListEmailAccounts1Text: '@T("Admin.ConfigurationSteps.EmailAccountList.EmailAccounts1.Text")',
-
-            EmailAccountListEmailAccounts2Title: '@T("Admin.ConfigurationSteps.EmailAccountList.EmailAccounts2.Title")',
-            EmailAccountListEmailAccounts2Text: '@T("Admin.ConfigurationSteps.EmailAccountList.EmailAccounts2.Text")',
-
-            EmailAccountListDefaultEmailAccountTitle: '@T("Admin.ConfigurationSteps.EmailAccountList.DefaultEmailAccount.Title")',
-            EmailAccountListDefaultEmailAccountText: '@T("Admin.ConfigurationSteps.EmailAccountList.DefaultEmailAccount.Text")',
-
-            EmailAccountListEditTitle: '@T("Admin.ConfigurationSteps.EmailAccountList.Edit.Title")',
-            EmailAccountListEditText: '@T("Admin.ConfigurationSteps.EmailAccountList.Edit.Text")',
-        };
-
-        AdminTourDataProvider.init(localized_data, @defaultEmailAccountId);
-    </script>
   }
 }
+
+@await Html.PartialAsync("_AdminTour")
 
 <div class="content-header clearfix">
     <h1 class="pull-left">

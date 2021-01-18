@@ -1,54 +1,8 @@
 ﻿$(document).ready(function () {
   $('#paymentmethods-grid').on('draw.dt', function () {
-    const tour = new Shepherd.Tour({
-      useModalOverlay: true,
-      defaultStepOptions: {
-        canClickTarget: false,
-        popperOptions: {
-          modifiers: [{
-            name: 'offset',
-            options: {
-              offset: [0, 15],
-            },
-          }],
-        },
-        classes: 'admin-area-tour',
-        cancelIcon: {
-          enabled: true
-        },
-        modalOverlayOpeningPadding: '3',
-        scrollTo: { behavior: 'smooth', block: 'center' },
-        when: {
-          show() {
-            const currentStepElement = tour.currentStep.el;
-            const header = currentStepElement.querySelector('.shepherd-header');
-            const progress = document.createElement('span');
-            progress.className = "shepherd-progress";
-            progress.innerText = `${tour.steps.indexOf(tour.currentStep) + 1}/${tour.steps.length}`;
-            header.insertBefore(progress, currentStepElement.querySelector('.shepherd-title'));
-          }
-        }
-      }
-    });
+    const tour = new Shepherd.Tour(AdminTourCommonTourOptions);
 
-    var backButton = {
-      classes: 'button-back',
-      text: '<i class="fa fa-chevron-left"></i>' + '<div class="button-text">' + AdminTourDataProvider.localized_data.Back + '</div>',
-      secondary: true,
-      action() { return tour.back(); }
-    };
-
-    var nextButton = {
-      classes: 'button-next',
-      text: '<div class="button-text">' + AdminTourDataProvider.localized_data.NextStep + '</div>' + '<i class="fa fa-chevron-right"></i>',
-      action() { return tour.next(); }
-    };
-
-    var nextPageButton = {
-      classes: 'button-next-page',
-      text: '<div class="button-text">' + AdminTourDataProvider.localized_data.NextPage + '</div>' + ' <i class="fa fa-angle-double-right"></i>',
-      action() { window.location = '/Admin/Tax/Providers?showtour=True' }
-    };
+    AdminTourNextPageButton.action = function () { window.location = '/Admin/Tax/Providers?showtour=True' };
 
     var checkMoneyMethodRowId = 'row_paymentscheckmoneyorder';
     var manualMethodRowId = 'row_paymentsmanual';
@@ -61,9 +15,9 @@
     //'Payment methods' step
     var paymentMethodsStepButtons = [];
     if (!checkMoneyMethodExists && !manualMethodExists && paypalButtonsMethodExists) {
-      paymentMethodsStepButtons = [nextPageButton]
+      paymentMethodsStepButtons = [AdminTourNextPageButton]
     } else {
-      paymentMethodsStepButtons = [nextButton]
+      paymentMethodsStepButtons = [AdminTourNextButton]
     }
 
     tour.addStep({
@@ -85,7 +39,7 @@
           element: '#' + checkMoneyMethodRowId,
           on: 'bottom'
         },
-        buttons: [backButton, nextButton]
+        buttons: [AdminTourBackButton, AdminTourNextButton]
       });
     }
 
@@ -98,7 +52,7 @@
           element: '#' + manualMethodRowId,
           on: 'bottom'
         },
-        buttons: [backButton, nextButton]
+        buttons: [AdminTourBackButton, AdminTourNextButton]
       });
     }
 
@@ -111,7 +65,7 @@
           element: '#' + paypalButtonsMethodRowId,
           on: 'bottom'
         },
-        buttons: [backButton, nextButton]
+        buttons: [AdminTourBackButton, AdminTourNextButton]
       });
     }
 
@@ -123,7 +77,7 @@
         element: '#' + paypalButtonsMethodRowId + ' .column-configure .btn-default',
         on: 'bottom'
       },
-      buttons: [backButton, nextPageButton]
+      buttons: [AdminTourBackButton, AdminTourNextPageButton]
     });
 
     tour.start();

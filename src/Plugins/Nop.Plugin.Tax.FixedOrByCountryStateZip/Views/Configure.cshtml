@@ -1,42 +1,14 @@
 ﻿@model Nop.Plugin.Tax.FixedOrByCountryStateZip.Models.ConfigurationModel
+@using Nop.Web.Framework.Models.AdminAreaTour
 
 @{
     Layout = "_ConfigurePlugin";
 
-    var showTour = ViewBag.showtour ?? false;
-    if (showTour)
-    {
-        Html.AppendCssFileParts("~/lib_npm/shepherd.js/css/shepherd.css");
-        Html.AppendScriptParts("~/lib_npm/shepherd.js/js/shepherd.min.js");
-        Html.AppendScriptParts("~/js/admintour/admin.tour.dataprovider.js");
-        Html.AppendScriptParts("~/js/admintour/admin.tour.taxmanual.js");
-
-        <script asp-location="Footer">
-            var localized_data = {
-                Back: '@T("Admin.ConfigurationSteps.Back")',
-                NextStep: '@T("Admin.ConfigurationSteps.NextStep")',
-                NextPage: '@T("Admin.ConfigurationSteps.NextPage")',
-
-                TaxManualSwitchTitle: '@T("Admin.ConfigurationSteps.TaxManual.Switch.Title")',
-                TaxManualSwitchText: '@T("Admin.ConfigurationSteps.TaxManual.Switch.Text")',
-
-                TaxManualFixedTitle: '@T("Admin.ConfigurationSteps.TaxManual.Fixed.Title")',
-                TaxManualFixedText: '@T("Admin.ConfigurationSteps.TaxManual.Fixed.Text")',
-
-                TaxManualByCountryTitle: '@T("Admin.ConfigurationSteps.TaxManual.ByCountry.Title")',
-                TaxManualByCountryText: '@T("Admin.ConfigurationSteps.TaxManual.ByCountry.Text")',
-
-                TaxManualCategoriesTitle: '@T("Admin.ConfigurationSteps.TaxManual.Categories.Title")',
-                TaxManualCategoriesText: '@T("Admin.ConfigurationSteps.TaxManual.Categories.Text")',
-
-                TaxManualEditTitle: '@T("Admin.ConfigurationSteps.TaxManual.Edit.Title")',
-                TaxManualEditText: '@T("Admin.ConfigurationSteps.TaxManual.Edit.Text")',
-            };
-
-            AdminTourDataProvider.init(localized_data);
-        </script>
-    }
+    //tour step
+    ViewBag.TourStep = TourStep.TaxManual;
 }
+
+@await Html.PartialAsync("_AdminTour")
 
 <div class="form-group row">
     <div class="col-md-12">
