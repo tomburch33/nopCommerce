@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
@@ -12,7 +11,11 @@ namespace Nop.Web
         public static async Task Main(string[] args)
         {
             await Host.CreateDefaultBuilder(args)
-                .UseServiceProviderFactory(new AutofacServiceProviderFactory())
+                .UseDefaultServiceProvider((context, options) =>
+                {
+                    options.ValidateScopes = false;
+                    options.ValidateOnBuild = true;
+                })
                 .ConfigureWebHostDefaults(webBuilder => webBuilder
                     .ConfigureAppConfiguration(configuration => configuration.AddJsonFile(NopConfigurationDefaults.AppSettingsFilePath, true, true))
                     .UseStartup<Startup>())
