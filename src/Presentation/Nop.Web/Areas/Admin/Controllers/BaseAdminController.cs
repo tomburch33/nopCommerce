@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Nop.Core.Domain.Common;
@@ -15,6 +16,7 @@ namespace Nop.Web.Areas.Admin.Controllers
     [AuthorizeAdmin]
     [ValidateVendor]
     [SaveSelectedTab]
+    [DetailedValidationFilter]
     public abstract partial class BaseAdminController : BaseController
     {
         /// <summary>

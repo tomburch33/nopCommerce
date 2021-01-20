@@ -26,6 +26,7 @@ using Nop.Services.Authentication;
 using Nop.Services.Authentication.External;
 using Nop.Services.Common;
 using Nop.Services.Configuration;
+using Nop.Services.Localization;
 using Nop.Services.Security;
 using Nop.Web.Framework.Mvc.ModelBinding;
 using Nop.Web.Framework.Mvc.Routing;
@@ -289,7 +290,11 @@ namespace Nop.Web.Framework.Infrastructure.Extensions
                 });
             }
 
-            services.AddRazorPages();
+            services.AddRazorPages()
+                .AddMvcOptions(options =>
+                {
+                    options.ModelBindingMessageProvider.SetValueMustNotBeNullAccessor(_ => "nop_value_must_not_be_null");
+                });
 
             //MVC now serializes JSON with camel case names by default, use this code to avoid it
             mvcBuilder.AddNewtonsoftJson(options => options.SerializerSettings.ContractResolver = new DefaultContractResolver());

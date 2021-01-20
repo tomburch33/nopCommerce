@@ -4230,6 +4230,9 @@
   <LocaleResource Name="Admin.Common.UploadFile">
     <Value>Please upload a file</Value>
   </LocaleResource>
+  <LocaleResource Name="Admin.Common.ValueMustNotBeNull">
+    <Value>Please provide a {0}</Value>
+  </LocaleResource>
   <LocaleResource Name="Admin.Common.View">
     <Value>View</Value>
   </LocaleResource>
