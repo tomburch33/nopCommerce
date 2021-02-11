@@ -4,7 +4,8 @@ using Nop.Web.Framework.Models;
 
 namespace Nop.Plugin.Widgets.NivoSlider.Models
 {
-    public record ConfigurationModel : BaseNopModel
+    public record 
+        ConfigurationModel : BaseNopModel
     {
         public int ActiveStoreScopeConfiguration { get; set; }
         

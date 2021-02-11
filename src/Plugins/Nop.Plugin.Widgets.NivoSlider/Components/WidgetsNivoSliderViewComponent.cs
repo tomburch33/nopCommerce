@@ -62,12 +62,39 @@ namespace Nop.Plugin.Widgets.NivoSlider.Components
                 Picture5Url = await GetPictureUrlAsync(nivoSliderSettings.Picture5Id),
                 Text5 = nivoSliderSettings.Text5,
                 Link5 = nivoSliderSettings.Link5,
-                AltText5 = nivoSliderSettings.AltText5
+                AltText5 = nivoSliderSettings.AltText5,
+
+                Picture6Url = await GetPictureUrlAsync(nivoSliderSettings.Picture6Id),
+                Text6 = nivoSliderSettings.Text6,
+                Link6 = nivoSliderSettings.Link6,
+                AltText6 = nivoSliderSettings.AltText6,
+
+                Picture7Url = await GetPictureUrlAsync(nivoSliderSettings.Picture7Id),
+                Text7 = nivoSliderSettings.Text7,
+                Link7 = nivoSliderSettings.Link7,
+                AltText7 = nivoSliderSettings.AltText7,
+
+                Picture8Url = await GetPictureUrlAsync(nivoSliderSettings.Picture8Id),
+                Text8 = nivoSliderSettings.Text8,
+                Link8 = nivoSliderSettings.Link8,
+                AltText8 = nivoSliderSettings.AltText8,
+
+                Picture9Url = await GetPictureUrlAsync(nivoSliderSettings.Picture9Id),
+                Text9 = nivoSliderSettings.Text9,
+                Link9 = nivoSliderSettings.Link9,
+                AltText9 = nivoSliderSettings.AltText9,
+
+                Picture10Url = await GetPictureUrlAsync(nivoSliderSettings.Picture10Id),
+                Text10 = nivoSliderSettings.Text10,
+                Link10 = nivoSliderSettings.Link10,
+                AltText10 = nivoSliderSettings.AltText10,
             };
 
             if (string.IsNullOrEmpty(model.Picture1Url) && string.IsNullOrEmpty(model.Picture2Url) &&
                 string.IsNullOrEmpty(model.Picture3Url) && string.IsNullOrEmpty(model.Picture4Url) &&
-                string.IsNullOrEmpty(model.Picture5Url))
+                string.IsNullOrEmpty(model.Picture5Url) && string.IsNullOrEmpty(model.Picture6Url) &&
+                string.IsNullOrEmpty(model.Picture7Url) && string.IsNullOrEmpty(model.Picture8Url) && 
+                string.IsNullOrEmpty(model.Picture9Url) && string.IsNullOrEmpty(model.Picture10Url))
                 //no pictures uploaded
                 return Content("");
 

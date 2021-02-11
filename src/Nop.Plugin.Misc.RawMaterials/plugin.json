@@ -1,0 +1,11 @@
+﻿{
+  "Group": "Raw materials inventory",
+  "FriendlyName": "Raw materials",
+  "SystemName": "Misc.RawMaterials",
+  "Version": "1.00",
+  "SupportedVersions": [ "4.40" ],
+  "Author": "Tom Burch",
+  "DisplayOrder": 1,
+  "FileName": "Nop.Plugin.Misc.RawMaterials.dll",
+  "Description": "Tracks raw materials used in making finished products"
+}
