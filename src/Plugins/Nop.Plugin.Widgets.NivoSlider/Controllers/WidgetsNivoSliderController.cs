@@ -228,7 +228,6 @@ namespace Nop.Plugin.Widgets.NivoSlider.Controllers
             await _settingService.SaveSettingOverridablePerStoreAsync(nivoSliderSettings, x => x.Text5, model.Text5_OverrideForStore, storeScope, false);
             await _settingService.SaveSettingOverridablePerStoreAsync(nivoSliderSettings, x => x.Link5, model.Link5_OverrideForStore, storeScope, false);
             await _settingService.SaveSettingOverridablePerStoreAsync(nivoSliderSettings, x => x.AltText5, model.AltText5_OverrideForStore, storeScope, false);
-
             await _settingService.SaveSettingOverridablePerStoreAsync(nivoSliderSettings, x => x.Picture6Id, model.Picture6Id_OverrideForStore, storeScope, false);
             await _settingService.SaveSettingOverridablePerStoreAsync(nivoSliderSettings, x => x.Text6, model.Text6_OverrideForStore, storeScope, false);
             await _settingService.SaveSettingOverridablePerStoreAsync(nivoSliderSettings, x => x.Link6, model.Link6_OverrideForStore, storeScope, false);
